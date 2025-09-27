@@ -176,27 +176,50 @@ if (hasB2) {
   setInterval(authorize, 1000 * 60 * 60 * 23); // 23h
 }
 
-const uploadToB2 = async (data, bucketId, fileName) => {
+const uploadToB2 = async (data, bucketId, fileName, maxRetries = 3) => {
   if (!hasB2) {
     return;
   }
-  try {
-    const uploadUrlResponse = await b2.getUploadUrl({
-      bucketId,
-    });
 
-    const upload = await b2.uploadFile({
-      uploadUrl: uploadUrlResponse.data.uploadUrl,
-      uploadAuthToken: uploadUrlResponse.data.authorizationToken,
-      fileName,
-      data,
-    });
+  let lastError;
+  let attempt = 0;
 
-    return upload;
-  } catch (error) {
-    console.error("Error in uploadToB2:", error);
-    throw error;
+  while (attempt <= maxRetries) {
+    try {
+      const uploadUrlResponse = await b2.getUploadUrl({
+        bucketId,
+      });
+
+      const upload = await b2.uploadFile({
+        uploadUrl: uploadUrlResponse.data.uploadUrl,
+        uploadAuthToken: uploadUrlResponse.data.authorizationToken,
+        fileName,
+        data,
+      });
+
+      if (attempt > 0) {
+        console.log(`Upload succeeded after ${attempt} retries`);
+      }
+
+      return upload;
+    } catch (error) {
+      lastError = error;
+      attempt++;
+
+      if (attempt <= maxRetries) {
+        const delay = Math.min(1000 * 2 ** (attempt - 1), 30000);
+        console.warn(`Upload attempt ${attempt} failed, retrying in ${delay}ms...`);
+        console.warn(`   Error: ${error.message}`);
+
+        await new Promise(resolve => setTimeout(resolve, delay));
+      } else {
+        console.error(`Upload failed after ${maxRetries} retries:`);
+        console.error(`   Final error: ${error.message}`);
+      }
+    }
   }
+
+  throw lastError;
 };
 
 const m = multer();
@@ -204,8 +227,12 @@ app.post("/api/db_debug/", m.any(), async (req, res) => {
   const id = randomUUID();
   res.send({ id });
 
-  const upload = await uploadToB2(req.files[0].buffer, "93c80a630c6d59a37add0615", `${id}.db`);
-  console.log(upload.data);
+  try {
+    const upload = await uploadToB2(req.files[0].buffer, "93c80a630c6d59a37add0615", `${id}.db`);
+    console.log(`Debug database uploaded: ${id}.db`);
+  } catch (error) {
+    console.error(`Failed to upload debug database ${id}:`, error.message);
+  }
 });
 
 app.get("/m/*", async (req, res) => {
@@ -274,16 +301,21 @@ const uploadStats = async () => {
   if (!hasB2) {
     return;
   }
+
+  const dataToUpload = { data, stats, daily };
+  const fileName = `${new Date().toISOString()}.json`;
+
   try {
-    const upload = await uploadToB2(
-      Buffer.from(JSON.stringify({ data, stats, daily })),
-      "93c80a630c6d59a37add0615",
-      `${new Date().toISOString()}.json`,
-    );
+    console.log(`Uploading daily stats (${data.length + stats.length + daily.length} items)...`);
+
+    const upload = await uploadToB2(Buffer.from(JSON.stringify(dataToUpload)), "93c80a630c6d59a37add0615", fileName, 5);
+
+    console.log(`Daily stats uploaded successfully: ${fileName}`);
     data = [];
     stats = [];
   } catch (e) {
-    console.error(e);
+    console.error(`Failed to upload daily stats after all retries: ${e.message}`);
+    console.error(`Data will be preserved for next attempt`);
   }
 };
 
