@@ -9,7 +9,7 @@ export const VersionMisatch = () => {
       disabled={true}
       variant={"outline-danger"}
     >
-      Noitool version mismatch, please reload
+      Noitool 版本不匹配，请重新加载
       <div
         style={{
           position: "absolute",

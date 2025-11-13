@@ -14,40 +14,40 @@ entities.ready().then(() => {
 });
 
 const subtextMap = {
-  Spell: ({ t }) => <div>Spell</div>,
+  Spell: ({ t }) => <div>法术</div>,
   "data/entities/animals/illusions/dark_alchemist.xml": ({ t }) => <div>{t("$animal_dark_alchemist")}</div>,
   "data/entities/items/pickup/potion_secret.xml": ({ t }) => (
     <div>
-      {t("$item_potion")} <br /> Secret
+      {t("$item_potion")} <br /> 秘密
     </div>
   ),
   "data/entities/items/pickup/potion_random_material.xml": ({ t }) => (
     <div>
-      {t("$item_potion")} <br /> Random Material
+      {t("$item_potion")} <br /> 随机的材料
     </div>
   ),
-  "data/entities/items/wand_level_01.xml": () => <div>Level 1 wand</div>,
+  "data/entities/items/wand_level_01.xml": () => <div>1 级魔杖</div>,
   "data/entities/items/wand_unshuffle_01.xml": () => (
     <div>
-      Level 1 wand <br /> Unshuffle
+      1 级魔杖 <br /> 非乱序
     </div>
   ),
-  "data/entities/items/wand_level_02.xml": () => <div>Level 2 wand</div>,
+  "data/entities/items/wand_level_02.xml": () => <div>2 级魔杖</div>,
   "data/entities/items/wand_unshuffle_02.xml": () => (
     <div>
-      Level 2 wand <br /> Unshuffle
+      2 级魔杖 <br /> 非乱序
     </div>
   ),
-  "data/entities/items/wand_level_03.xml": () => <div>Level 3 wand</div>,
+  "data/entities/items/wand_level_03.xml": () => <div>3 级魔杖</div>,
   "data/entities/items/wand_unshuffle_03.xml": () => (
     <div>
-      Level 3 wand <br /> Unshuffle
+      3 级魔杖 <br /> 非乱序
     </div>
   ),
-  "data/entities/items/wand_level_04.xml": () => <div>Level 4 wand</div>,
+  "data/entities/items/wand_level_04.xml": () => <div>4 级魔杖</div>,
   "data/entities/items/wand_unshuffle_04.xml": () => (
     <div>
-      Level 4 wand <br /> Unshuffle
+      4 级魔杖 <br /> 非乱序
     </div>
   ),
 };
@@ -98,7 +98,7 @@ const EntitySelect = (props: IEntitySelectProps) => {
   return (
     <Modal {...modalProps} fullscreen="sm-down" scrollable show={show} onHide={handleClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Entity Select</Modal.Title>
+        <Modal.Title>实体选取</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {showSelected && selected.length > 0 && (

@@ -47,8 +47,8 @@ const Alchemy = (props: IAlchemyProps) => {
   const [showId] = useContext(AlchemyConfigContext);
   return (
     <CardGroup className="border rounded-3">
-      <AlchemyCard Title={<>Lively Concoction</>} materials={alchemy.LC} />
-      <AlchemyCard Title={<>Alchemic Precursor</>} materials={alchemy.AP} />
+      <AlchemyCard Title={<>活力混合物</>} materials={alchemy.LC} />
+      <AlchemyCard Title={<>炼金前驱物</>} materials={alchemy.AP} />
     </CardGroup>
   );
 };

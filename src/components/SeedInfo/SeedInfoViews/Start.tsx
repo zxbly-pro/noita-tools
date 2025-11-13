@@ -30,7 +30,7 @@ const Start = (props: IStartProps) => {
         borderWidth: "0.125rem",
       }}
     >
-      <Card.Title className="mb-1 text-center m-0">Starting setup</Card.Title>
+      <Card.Title className="mb-1 text-center m-0">初始设置</Card.Title>
       <Card.Body className="d-flex justify-content-evenly p-0 mx-1 mb-1">
         <Stack className="justify-content-center" direction="horizontal" gap={3}>
           <Entity

@@ -34,7 +34,7 @@ const PerkFavorites = () => {
     <ConfigRow
       left={
         <>
-          <strong className="">Perks</strong>
+          <strong className="">特长</strong>
         </>
       }
       right={
@@ -50,12 +50,12 @@ const PerkFavorites = () => {
           <Stack direction="horizontal">
             <div className="d-flex justify-content-center">
               <Form.Group as={Col} xs={6} controlId="code">
-                <Form.Label className="m-0">Rerolls to check: {val}</Form.Label>
+                <Form.Label className="m-0">需确认的重随机次数: {val}</Form.Label>
                 <Form.Range value={val} onChange={handleRange} min="0" max="5" />
               </Form.Group>
             </div>
             <Button onClick={() => setOpen(true)} size="sm">
-              Select Perks
+              选择特长
             </Button>
           </Stack>
         </>
@@ -81,7 +81,7 @@ const SpellFavorites = () => {
     <ConfigRow
       left={
         <>
-          <strong className="">Spells</strong>
+          <strong className="">法术</strong>
         </>
       }
       right={
@@ -97,12 +97,12 @@ const SpellFavorites = () => {
           <Stack direction="horizontal">
             <div className="d-flex justify-content-center">
               <Form.Group as={Col} xs={6} controlId="code">
-                <Form.Label className="m-0">Preview count: {val}</Form.Label>
+                <Form.Label className="m-0">预览数量: {val}</Form.Label>
                 <Form.Range value={val} onChange={handleRange} min="0" max="12" />
               </Form.Group>
             </div>
             <Button onClick={() => setOpen(true)} size="sm">
-              Select Spells
+              选择法术
             </Button>
           </Stack>
         </>
@@ -122,7 +122,7 @@ const MaterialFavorites = () => {
     <ConfigRow
       left={
         <>
-          <strong className="">Materials</strong>
+          <strong className="">素材</strong>
         </>
       }
       right={
@@ -135,7 +135,7 @@ const MaterialFavorites = () => {
             show={open}
           />
           <Button onClick={() => setOpen(true)} size="sm">
-            Select Materials
+            选择素材
           </Button>
         </>
       }
@@ -146,7 +146,7 @@ const MaterialFavorites = () => {
 const FavoritesSettings = () => {
   return (
     <>
-      <ConfigTitle title="Favorites" subtitle="Things chosen here will be highlighted so they are easier to spot." />
+      <ConfigTitle title="收藏" subtitle="在此处选择的内容会被高亮显示，以便更容易识别." />
       <ListGroup variant="flush" className="mb-5 shadow">
         <ListGroup.Item>
           <PerkFavorites />

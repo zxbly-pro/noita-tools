@@ -146,7 +146,7 @@ const Weather: FC<IWeatherProps> = ({ weather }) => {
           }}
           className="text-muted fw-light p-0 text-center"
         >
-          Accurate at time of generation
+          生成时内容准确
         </Card.Footer>
       )}
     </Card>

@@ -45,7 +45,7 @@ const Paste = ({ onImageBlob }: IPasteProps) => {
 
   return (
     <div>
-      <h5>Paste</h5>
+      <h5>粘贴</h5>
       <div
         style={{
           transition: "0.2s",
@@ -53,26 +53,25 @@ const Paste = ({ onImageBlob }: IPasteProps) => {
         className={`${ripple && "border-info border-1"} border p-2`}
       >
         <p>
-          If you don't want to do screen capture, you can take a screenshot of Noita to your clipboard and paste it on
-          this page. <br />
+          若你不想进行屏幕捕获，可将 Noita 的截图复制到剪贴板，再粘贴到本页面即可. <br />
         </p>
         <table>
           <tbody>
             <tr>
-              <td>For Linux</td>
+              <td>对于 Linux</td>
               <td>
                 {" "}
                 <code>Ctrl + PrtSc</code>
               </td>
             </tr>
             <tr>
-              <td>For Mac </td>
+              <td>对于 Mac </td>
               <td>
                 <code>Ctrl + Shift + Cmd + 3</code>
               </td>
             </tr>
             <tr>
-              <td className="pe-3">For Windows</td>
+              <td className="pe-3">对于 Windows</td>
               <td>
                 <code>PrtSc</code>
               </td>
@@ -80,7 +79,7 @@ const Paste = ({ onImageBlob }: IPasteProps) => {
           </tbody>
         </table>
         <br />
-        <p>Or, choose a screenshot to upload.</p>
+        <p>或者，选择一张截图上传.</p>
         <input type="file" onChange={event => onChange(event?.target?.files?.[0] || undefined)} />
       </div>
     </div>
@@ -91,19 +90,16 @@ const Paste = ({ onImageBlob }: IPasteProps) => {
 const Description = () => {
   return (
     <div>
-      <h5>Host</h5>
+      <h5>主机</h5>
       <p>
-        This will allow you to get seed information (like from <i>Seed info</i>) in real time by reading the seed from
-        your display during gameplay. Display data does not leave your machine.
+        这将使你能够获取种子信息（例如来自 <i>种子信息</i>) 在游戏过程中，通过读取你屏幕上的种子，即可实时（获取相关信息）。屏幕数据不会离开你的设备.
         <br />
         <br />
-        To start, open this page in your browser and start the game. Click "Start screen capture". Select the Noita
-        window, or the whole screen where Noita will be running if the former is not available.
+        首先，在浏览器中打开此页面并启动游戏。点击 “开始屏幕捕获”，选择 “Noita” 窗口；若该窗口不可选，则选择 “Noita” 将要运行的整个屏幕.
       </p>
-      <p>Currently, only English localization is supported, but there are plans to make it language-agnostic</p>
+      <p>目前仅支持英文本地化，但未来计划将其打造为语言无关的（产品 / 工具）</p>
       <p>
-        Input the code below on any other windows that you want your seed information to show up. (You can even share
-        it!)
+        在你希望显示种子信息的其他所有窗口中，输入下方代码即可。（你甚至可以分享该代码）!)
       </p>
       <p></p>
     </div>
@@ -125,17 +121,17 @@ const Host = (props: IHostProps) => {
       <Description />
       {!recording ? (
         <Button disabled={!ready} onClick={() => onClickStartHosting()}>
-          Start screen capture
+          开始屏幕捕获
         </Button>
       ) : (
         <Button disabled={!ready} onClick={() => onClickStopHosting()}>
-          Stop screen capture
+          停止屏幕捕获
         </Button>
       )}
-      {recording ? <div>Recording</div> : null}
+      {recording ? <div>录制</div> : null}
       {hostRoom ? (
         <div>
-          <h3>Use the code {hostRoom}</h3>
+          <h3>使用这个代码 {hostRoom}</h3>
         </div>
       ) : null}
     </Stack>
@@ -167,7 +163,7 @@ const Watch = (props: IWatchProps) => {
   return (
     <div>
       <Row>
-        <h5>Watch</h5>
+        <h5>观察</h5>
       </Row>
       <Row>
         <Form
@@ -179,28 +175,28 @@ const Watch = (props: IWatchProps) => {
         >
           <Row className="align-items-end">
             <Form.Group as={Col} xs={12} sm={12} md={9} controlId="code">
-              <Form.Label>Enter code to track</Form.Label>
+              <Form.Label>输入代码以追踪</Form.Label>
               <Form.Control
                 onChange={handleChange}
                 value={val}
                 size="lg"
                 type="tel"
                 pattern="[0-9]*"
-                placeholder="Code"
+                placeholder="代码"
               />
             </Form.Group>
             <Col xs={12} sm={4} md={3} className="pt-2">
               <Button className="mb-1" variant="primary" type="submit">
-                Connect
+                连接
               </Button>
               <Button className="mb-1" variant="secondary" type="button" onClick={() => onReset()}>
-                Reset Stuck OCR
+                重置卡住的 OCR 功能
               </Button>
             </Col>
           </Row>
         </Form>
       </Row>
-      {room ? <p className="mt-2 text-success">Connected to {room}</p> : null}
+      {room ? <p className="mt-2 text-success">连接到 {room}</p> : null}
       {seed ? <SeedDataOutput seed={seed} /> : null}
     </div>
   );
@@ -271,9 +267,9 @@ const LiveSeedStats = () => {
   return (
     <Container className="container shadow-lg">
       {canvasDebug && <canvas style={{}} ref={canvasRef} />}
-      <h4>Live seed data</h4>
+      <h4>实时种子数据</h4>
       {!everythingReady ? (
-        <div>Loading...</div>
+        <div>加载中...</div>
       ) : (
         <Stack>
           <Col className="mb-5" xs={12}>

@@ -34,7 +34,7 @@ const PerkCol: FC<any> = ({ title, perks, handleDelete, togglePerkSelect }) => {
         {perks.map((row, i) => {
           return (
             <Row className="justify-content-center align-items-center" key={i}>
-              <Col xs={3}>Level {i + 1}</Col>
+              <Col xs={3}>层级 {i + 1}</Col>
               <Col>
                 <Stack gap={3} direction="horizontal">
                   {row.map(perkId => {
@@ -50,7 +50,7 @@ const PerkCol: FC<any> = ({ title, perks, handleDelete, togglePerkSelect }) => {
               </Col>
               <Col className="me-auto">
                 <Button size="sm" onClick={() => togglePerkSelect(i)}>
-                  <Square>Add Perk</Square>
+                  <Square>添加特长</Square>
                 </Button>
               </Col>
             </Row>
@@ -161,13 +161,12 @@ const Perks: FC<IPerksProps> = ({ onUpdateConfig, config }) => {
   return (
     <Container fluid>
       <p>
-        <b>Deck:</b> Choose which perks must be in the deck. <b>All of:</b> <i>All</i> perks must be in the Holy
-        Mountain. <b>Some of:</b> At least <i>one</i> of the perks must be in the Holy Mountain. <br />
-        To delete a perk, click on it. Compute-intensive. Use sparingly!
+        <b>卡组:</b> 选择卡组中必须包含的增益效果. <b>全部的:</b> <i>全部</i> 增益效果必须存在于圣山之中. <b>一部分:</b> 至少 <i>一个</i> 增益效果必须存在于圣山之中. <br />
+        删除增益效果时，点击该效果即可。（此操作）计算密集型。请谨慎使用!
       </p>
       <Row className="my-2 p-2 border-bottom border-top">
         <Col>
-          Deck:
+          卡组:
           <Row className="justify-content-start row-cols-auto">
             {perksDeck[0].map(perkId => {
               return (
@@ -178,7 +177,7 @@ const Perks: FC<IPerksProps> = ({ onUpdateConfig, config }) => {
             })}
             <Col className="me-auto flex-grow-1">
               <Button size="sm" onClick={() => togglePerkSelect("deck", 0)}>
-                <Square>Add Perk</Square>
+                <Square>添加特长</Square>
               </Button>
             </Col>
           </Row>
@@ -186,13 +185,13 @@ const Perks: FC<IPerksProps> = ({ onUpdateConfig, config }) => {
       </Row>
       <Row className="justify-content-center">
         <PerkCol
-          title="All of:"
+          title="全部的:"
           perks={perksAll}
           handleDelete={(perkId, row) => handleDelete("all", perkId, row)}
           togglePerkSelect={i => togglePerkSelect("all", i)}
         />
         <PerkCol
-          title="Some of:"
+          title="一部分:"
           perks={perksSome}
           handleDelete={(perkId, row) => handleDelete("some", perkId, row)}
           togglePerkSelect={i => togglePerkSelect("some", i)}

@@ -94,25 +94,24 @@ const UnlockedSpellsSettings = () => {
   return (
     <>
       <ConfigTitle
-        title="Unlocked Spells"
+        title="未解锁法术"
         subtitle={
           <>
-            Set which spells you have unlocked. This will make spells generated everywhere accurate.
+            设置你已解锁的法术。这将确保所有地方生成的法术都准确无误.
             <br />
-            It's possible to automatically import this if you have access to you save folder. To do this, select the
-            following folder from your computer:&nbsp;
+            如果您能访问自己的存档文件夹，可自动导入此内容。操作方法：从您的电脑中选择以下文件夹:&nbsp;
             <code>%appdata%\..\LocalLow\Nolla_Games_Noita\save00\persistent\flags</code>
             <br />
             <br />
             <DropZone onDrop={onDrop}>
-              <p>Drag 'n' drop the folder here, or click to select files</p>
+              <p>将文件夹拖放至此，或点击选择文件</p>
             </DropZone>
           </>
         }
       />
       <Accordion flush>
         <Accordion.Item eventKey="0">
-          <Accordion.Header>Manual toggles</Accordion.Header>
+          <Accordion.Header>手动切换开关</Accordion.Header>
           <Accordion.Body style={{ padding: 0 }}>
             <ListGroup variant="flush" className="mb-5 shadow">
               {flagNames.map(flag => {

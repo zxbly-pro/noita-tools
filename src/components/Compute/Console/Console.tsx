@@ -260,12 +260,12 @@ const ComputeConsole = () => {
                   label={`${Math.round((computeStatus.checked * 100) / (searchTo - searchFrom))}%`}
                 />
                 Seeds checked: {localizeNumber(computeStatus.checked)} / {localizeNumber(searchTo - searchFrom)}{" "}
-                (Estimated time left:{" "}
+                (预计剩余时间:{" "}
                 {humanize(computeStatus.estimate * 1000, {
                   round: true,
                   units: ["h", "m"],
                 })}
-                , {localizeNumber(Math.round(computeStatus.rate * 100) / 100)} avg seeds/s)
+                , {localizeNumber(Math.round(computeStatus.rate * 100) / 100)} 平均 种子/秒)
               </div>
             )}
           </Row>

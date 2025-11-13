@@ -310,7 +310,7 @@ const WandSelect = (props: IWandSelectProps) => {
   return (
     <Modal fullscreen="sm-down" scrollable show={show} onHide={handleClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Wand Search</Modal.Title>
+        <Modal.Title>法杖搜索</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Row className="mb-4">
@@ -374,9 +374,9 @@ const WandSelect = (props: IWandSelectProps) => {
             {params.permanentCard !== null && (
               <div className="p-3 border border-secondary rounded mb-3">
                 <div className="d-flex justify-content-between mb-3">
-                  <h6 className="mb-0">Always Cast</h6>
+                  <h6 className="mb-0">始终释放</h6>
                   <Button variant="primary" size="sm" onClick={() => setAlwaysCastOpen(true)}>
-                    Add Spells
+                    添加法术
                   </Button>
                 </div>
                 <div className="d-flex align-items-center flex-wrap gap-2">
@@ -391,13 +391,13 @@ const WandSelect = (props: IWandSelectProps) => {
                     ))}
                   {(!Array.isArray(params.permanentCard) || params.permanentCard.length === 0) && (
                     <div className="text-muted">
-                      {params.permanentCard === true ? "Any always cast" : "No always cast spells selected"}
+                      {params.permanentCard === true ? "任意始终释放" : "没有选择始终释放法术"}
                     </div>
                   )}
                 </div>
                 {Array.isArray(params.permanentCard) && params.permanentCard.length > 0 && (
                   <Button variant="outline-danger" size="sm" className="mt-2" onClick={() => handleAlwaysCastRemove()}>
-                    Clear All
+                    清除全部
                   </Button>
                 )}
               </div>
@@ -405,18 +405,18 @@ const WandSelect = (props: IWandSelectProps) => {
 
             <div className="p-3 border border-secondary rounded">
               <div className="d-flex justify-content-between mb-3">
-                <h6 className="mb-0">Spell Slots ({params.gun.deck_capacity[1]})</h6>
+                <h6 className="mb-0">法术位 ({params.gun.deck_capacity[1]})</h6>
                 <div className="d-flex align-items-center">
                   <Form.Check
                     type="switch"
                     id="spell-strict-mode"
-                    label={params.cardsStrict ? "All" : "Some"}
+                    label={params.cardsStrict ? "全部" : "一些"}
                     checked={params.cardsStrict}
                     onChange={e => setParams(prev => ({ ...prev, cardsStrict: e.target.checked }))}
                     className="me-3"
                   />
                   <Button variant="primary" size="sm" onClick={() => setSpellSelectOpen(true)}>
-                    Add Spells
+                    添加法术
                   </Button>
                 </div>
               </div>
@@ -443,7 +443,7 @@ const WandSelect = (props: IWandSelectProps) => {
                     size="sm"
                     onClick={() => setParams(prev => ({ ...prev, cards: [] }))}
                   >
-                    Clear All Spells
+                    清除所有法术
                   </Button>
                 </div>
               ) : null}

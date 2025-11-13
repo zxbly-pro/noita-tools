@@ -89,9 +89,9 @@ const Weather: FC<IWeatherProps> = ({ onUpdateConfig, config }) => {
   return (
     <Container fluid>
       <Row className="justify-content-evenly align-items-center">
-        <Col>Rain type:</Col>
+        <Col>降雨类型:</Col>
         {rainOptions.map((type, i) => {
-          const materialName = type ? material.translate(type) : "none";
+          const materialName = type ? material.translate(type) : "无";
           return (
             <Col key={i}>
               <Button
@@ -108,10 +108,10 @@ const Weather: FC<IWeatherProps> = ({ onUpdateConfig, config }) => {
       </Row>
       <Row xs={1} md={2}>
         <Col>
-          Weather conditions:
+          天气状况:
           <Form.Group className="my-2">
             <Form.Label>
-              Fog: ({minFog},{maxFog})
+              雾: ({minFog},{maxFog})
             </Form.Label>
             <div className="d-flex justify-content-start w-100">
               <div style={{ width: "80%" }}>
@@ -129,7 +129,7 @@ const Weather: FC<IWeatherProps> = ({ onUpdateConfig, config }) => {
           </Form.Group>
           <Form.Group className="my-2">
             <Form.Label>
-              Clouds: ({minClouds},{maxClouds})
+              云: ({minClouds},{maxClouds})
             </Form.Label>
             <DoubleSlider
               disabled={rainMaterial === ""}

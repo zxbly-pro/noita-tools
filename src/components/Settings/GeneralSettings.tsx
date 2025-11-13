@@ -36,9 +36,9 @@ const Locale = () => {
     <ConfigRow
       left={
         <>
-          <strong className="">Locale</strong>
+          <strong className="">语言</strong>
           <p className="text-muted fw-light mb-0">
-            Change the localization on Noitool. Currently, only materials are translated.
+            修改 Noitool 的本地化设置。目前，仅对素材内容进行了翻译.
           </p>
         </>
       }
@@ -71,8 +71,8 @@ const AlchemyConfig = () => {
     <ConfigRow
       left={
         <>
-          <strong className="">Material ID</strong>
-          <p className="text-muted fw-light mb-0">Show material ID next to name</p>
+          <strong className="">素材 ID</strong>
+          <p className="text-muted fw-light mb-0">在名称旁显示素材 ID</p>
         </>
       }
       right={
@@ -96,9 +96,9 @@ const LotteryPreview = () => {
     <ConfigRow
       left={
         <>
-          <strong className="">Lottery Preview</strong>
+          <strong className="">抽奖预览</strong>
           <p className="text-muted fw-light mb-0">
-            If no lottery perks are selected, still show perk lottery chances for 1 lottery perk.
+            若未选择任何抽奖福利，仍会显示 1 项抽奖福利对应的抽奖机会.
           </p>
         </>
       }
@@ -123,10 +123,9 @@ export const ShowAlwaysCastRow = () => {
     <ConfigRow
       left={
         <>
-          <strong className="">Show Always Cast for whole row</strong>
+          <strong className="">显示整行的始终施法</strong>
           <p className="text-muted fw-light mb-0">
-            If there is an always cast perk in the row, show the potential always-cast for all perks in the row (as a
-            solution to the reroll problem described in quirks).
+            如果该行中存在 “始终施法” 特长，则显示该行所有特长的潜在 “始终施法” 效果（以此解决 “特性与局限” 部分所述的重随问题）。.
           </p>
         </>
       }
@@ -151,8 +150,8 @@ export const PlayFungalShiftAudio = () => {
     <ConfigRow
       left={
         <>
-          <strong className="">Play 'Fungal Shift Ready' Sound</strong>
-          <p className="text-muted fw-light mb-0">Play sound when the 5 minute cooldown for fungal shift is over.</p>
+          <strong className="">播放 “真菌转变就绪” 音效</strong>
+          <p className="text-muted fw-light mb-0">真菌转变的 5 分钟冷却时间结束时播放音效.</p>
         </>
       }
       right={
@@ -176,7 +175,7 @@ const DarkMode = () => {
       className="py-4"
       left={
         <>
-          <strong className="">Dark Mode</strong>
+          <strong className="">深色模式</strong>
         </>
       }
       right={
@@ -196,7 +195,7 @@ const DarkMode = () => {
 const GeneralSettings = () => {
   return (
     <>
-      <ConfigTitle title="General" subtitle="These settings modify how Noitool behaves or displays things." />
+      <ConfigTitle title="常规" subtitle="这些设置可修改 Noitool 的运行方式或显示方式." />
       <ListGroup variant="flush" className="mb-5 shadow">
         <ListGroup.Item>
           <DarkMode />
