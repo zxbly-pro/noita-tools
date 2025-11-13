@@ -1,7 +1,7 @@
-# 构建阶段：修复系统依赖，优化依赖安装步骤
-FROM node:20-slim AS build-stage
+# 构建阶段：解决平台依赖冲突，优化依赖安装
+FROM node:20 AS build-stage
 
-# 安装完整编译工具链（补充 python3-dev 等关键依赖）
+# 安装完整系统依赖（包含更多编译工具）
 RUN apt-get update && \
   apt-get install -y --no-install-recommends \
   g++ \
@@ -23,12 +23,13 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-# 先复制依赖配置文件（利用 Docker 缓存）
+# 复制依赖配置文件
 COPY package.json package-lock.json ./
 
-# 清除 npm 缓存，强制重新解析依赖（解决 lockfile 兼容性问题）
+# 关键调整：处理平台依赖冲突
 RUN npm cache clean --force && \
-    npm install --frozen-lockfile --verbose
+    npm install --verbose && \
+    npm shrinkwrap
 
 # 复制源代码
 COPY . .
@@ -38,10 +39,10 @@ RUN npm run build && \
     npm run console-build
 
 
-# 生产阶段：精简依赖，修正大小写
+# 生产阶段
 FROM node:20-slim AS production-stage
 
-# 安装运行时依赖（保留必要库）
+# 安装运行时依赖
 RUN apt-get update && \
   apt-get install -y --no-install-recommends \
   python3 \
@@ -50,8 +51,8 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-# 复制生产环境所需文件
-COPY package.json package-lock.json ./
+# 复制生产环境文件（使用构建阶段重新生成的依赖）
+COPY package.json package-lock.json npm-shrinkwrap.json ./
 COPY --from=build-stage /app/node_modules ./node_modules
 COPY --from=build-stage /app/build ./build
 COPY --from=build-stage /app/server ./server
@@ -60,4 +61,4 @@ COPY --from=build-stage /app/src/services/SeedInfo/noita_random ./src/services/S
 
 EXPOSE 3001
 
-CMD ["npm", "run", "start"]
+CMD ["npm", "start"]
