@@ -54,7 +54,6 @@ COPY --from=build-image /app/package.json ./package.json
 COPY --from=build-image /app/node_modules ./node_modules
 COPY --from=build-image /app/build ./build
 COPY --from=build-image /app/console-build ./console-build
-COPY --from=build-image /app/server ./server
 COPY --from=build-image /app/src ./src
 
 # 启动命令
