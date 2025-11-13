@@ -16,7 +16,7 @@ RUN apt-get update && \
   python3 \
   libcurl4-openssl-dev \
   libfontconfig1 \
-  libvips-dev && \  # 补充 sharp 依赖
+  libvips-dev && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
