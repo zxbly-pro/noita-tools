@@ -1,7 +1,7 @@
-# 构建阶段：安装依赖并执行构建
+# 构建阶段：完整拷贝项目并执行构建
 FROM node:20-slim AS build-image
 
-# 安装系统依赖（包含编译工具，支持 C++ 模块构建）
+# 安装系统依赖（包含编译工具）
 RUN apt-get update && \
   apt-get install -y --no-install-recommends \
   g++ \
@@ -21,16 +21,15 @@ RUN apt-get update && \
   rm -rf /var/lib/apt/lists/*
 
 # 创建工作目录
-RUN mkdir -p /app
 WORKDIR /app
 
-# 拷贝所有项目文件到容器（依赖 .dockerignore 过滤不必要文件）
+# 拷贝整个项目的所有文件（不做任何过滤）
 COPY . .
 
 # 安装所有依赖（包括开发依赖）
 RUN npm install --verbose
 
-# 执行项目构建和 console 构建
+# 执行构建命令（按项目实际脚本调整）
 RUN npm run build && \
     npm run console-build
 
@@ -49,12 +48,8 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-# 从构建阶段拷贝必要文件
-COPY --from=build-image /app/package.json ./package.json
-COPY --from=build-image /app/node_modules ./node_modules
-COPY --from=build-image /app/build ./build
-COPY --from=build-image /app/console-build ./console-build
-COPY --from=build-image /app/src ./src
+# 从构建阶段完整拷贝所有文件到生产环境
+COPY --from=build-image /app /app
 
-# 启动命令
+# 启动应用
 ENTRYPOINT ["npm", "run", "start"]
