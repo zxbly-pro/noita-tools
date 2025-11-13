@@ -1,9 +1,9 @@
-# Security Policy
+# 安全政策
 
-## Supported Versions
+## 支持的版本
 
-Only the most recent version (that is on `master` branch) is supported and all fixes will be made to that branch as well as `develop`.
+仅支持最新版本（即 `master` 分支上的版本），所有漏洞修复将同步应用于该分支及 `develop` 分支。
 
-## Reporting a Vulnerability
+## 漏洞报告方式
 
-If you found a vulnerability, send me an email <me@noitool.com> with the title `Noitool - x` so that I know it's for this app. Thank you for the proactivity!
+若发现漏洞，请发送邮件至 [me@noitool.com](mailto:me@noitool.com)，邮件标题格式为 `Noitool - x`（`x` 可填写漏洞相关描述），以便我快速识别该邮件与本应用相关。感谢你的积极反馈！
