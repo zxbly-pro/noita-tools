@@ -3,7 +3,7 @@
   "type": "module",
   "module": "consoleSearch.js",
   "private": true,
-  "homepage": "https://www.noitool.com/",
+  "homepage": "http://localhost:3001/",
   "scripts": {
     "start": "node --no-warnings=ExperimentalWarning consoleSearch.js"
   },

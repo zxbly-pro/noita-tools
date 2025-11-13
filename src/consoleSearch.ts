@@ -10,7 +10,7 @@ import SeedSolver from "./services/seedSolverHandler.node";
 const argv = require("yargs/yargs")(process.argv.slice(2))
   .env("NOITOOL")
   .option("url", {
-    default: "https://www.noitool.com",
+    default: "http://localhost:3001",
   })
   .option("cores", {
     default: 0,
@@ -40,7 +40,7 @@ const exitHandler = () => {
 };
 
 const newComputeSocket = new ComputeSocket({
-  url: argv.url || "https://www.noitool.com/",
+  url: argv.url || "http://localhost:3001/",
   version: process.env.npm_package_version || "0.0.0",
   sessionToken: argv.sessionToken,
   seedSolver: seedSolver as any,

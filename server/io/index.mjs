@@ -5,9 +5,7 @@ import { handleCompute, counts } from "./compute.mjs";
 import { rooms } from "./rooms.mjs";
 
 const corsDomains = [
-  "dev.noitool.com",
-  "www.noitool.com",
-  "noitool.com",
+  "www.zxbly.com",
   "localhost:3000",
   "localhost:3001",
   "127.0.0.1:3000",

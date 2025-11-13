@@ -3,7 +3,7 @@
   "version": "34.2.0",
   "private": true,
   "type": "module",
-  "homepage": "https://www.noitool.com/",
+  "homepage": "http://localhost:3001/",
   "dependencies": {
     "@gideo-llc/backblaze-b2-upload-any": "^0.1.4",
     "@napi-rs/canvas": "^0.1.70",
