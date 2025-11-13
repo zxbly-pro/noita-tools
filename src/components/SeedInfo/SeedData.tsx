@@ -25,14 +25,14 @@ const SeedHistoryModal = props => {
   return (
     <Modal size="lg" show={show} onHide={handleClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Seed History</Modal.Title>
+        <Modal.Title>种子历史</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Table responsive striped borderless hover>
           <thead>
             <tr>
-              <th>Seed</th>
-              <th>Last updated</th>
+              <th>种子</th>
+              <th>最后更新</th>
               <th></th>
             </tr>
           </thead>
@@ -58,7 +58,7 @@ const SeedHistoryModal = props => {
                         }}
                         size="sm"
                       >
-                        delete
+                        删除
                       </Button>
                     ) : (
                       <Button
@@ -77,7 +77,7 @@ const SeedHistoryModal = props => {
                         }}
                         size="sm"
                       >
-                        delete
+                        删除
                       </Button>
                     )}
                   </td>
@@ -89,7 +89,7 @@ const SeedHistoryModal = props => {
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={handleClose}>
-          Close
+          关闭
         </Button>
       </Modal.Footer>
     </Modal>
@@ -108,19 +108,18 @@ const QuirkModal = props => {
   return (
     <Modal fullscreen="sm-down" size="lg" scrollable show={show} onHide={handleClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Quirks and Limitations</Modal.Title>
+        <Modal.Title>特性与局限</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Part>
-          <h4>Perk Rerolls</h4>
+          <h4>特长重随</h4>
           <p>
-            Due to how perks are re-rolled in-game, the only guarantee is the <b>perks</b> that you will get,{" "}
-            <b>not their position</b>. <br />
+            由于游戏内特长的<b>重随机</b>机制，唯一能保证的是<b>特长</b> 你会获得,{" "}
+            <b>而非它们的位置</b>. <br />
             <br />
-            When looking at <i>always cast</i> and <i>perk lottery</i> info, note that they are <b>position</b>
-            -dependent, not <b>perk</b>-dependent. That means that if the position of <i>always cast</i> in-tool is
-            different from that in-game, then the value will be different. As a non-perfect solution, please enable
-            "show always-cast for whole row" in the settings (shortcut below).
+            查看 <i>始终施法</i> 和 <i>特长抽奖</i> 相关信息时请注意，这些信息取决于<b>位置</b>，而非<b>特长</b> 本身。这意味着，如果工具中
+            <i>始终施法</i>的位置与游戏内的位置不同，其数值也会不同。作为一种非完美解决方案，请在设置中开启
+            “显示整行的始终施法”（下方有快捷键）。
           </p>
           <ListGroup variant="flush" className="mt-0 mb-3 shadow">
             <ListGroup.Item>
@@ -129,36 +128,31 @@ const QuirkModal = props => {
           </ListGroup>
         </Part>
         <Part>
-          <h4>Pacifist Chest</h4>
-          <h5>Greed</h5>
-          <p>Greed is currently not supported, coming later.</p>
-          <h5>Random Material Potion</h5>
+          <h4>和平主义者宝箱</h4>
+          <h5>贪婪模式</h5>
+          <p>贪婪模式目前暂不支持，后续将推出。.</p>
+          <h5>随机材料药水</h5>
           <p>
-            The contents of the Random Material Potion is very mod dependent. <br />
-            If the amount of materials in-game changes, then the material in this potion will differ. Even changing the
-            material positions in <code className="mx-1">data/materials.xml</code> will change the generated materials.
+            随机材料药水的内容高度依赖模组。 <br />
+            如果游戏内的材料数量发生变化，那么该药水的材料也会不同。即使改变材料的位置<code className="mx-1">data/materials.xml</code> 也会改变生成的材料。
           </p>
         </Part>
         <Part>
-          <h4>Weather</h4>
+          <h4>天气</h4>
           <p>
-            In Noita, the occurrence of rain depends on the game's seed, while snowfall relies on real-time dates. Snow
-            only appears during the months of December, January, and February.{" "}
+            在《Noita》中，降雨的出现取决于游戏种子，而降雪则依赖实时日期。降雪仅在 12 月、1 月和 2 月期间出现。{" "}
             <b>
-              <em>Please note that the displayed value represents the current time and date.</em>
+              <em>请注意，显示的数值代表当前时间和日期。</em>
             </b>
             <br />
-            This also applies when searching for seeds. When looking for a seed with snow, the results will only be
-            relevant for the months of December, January, and February, as well as being accurate for the specific day
-            and hour of generation.
+            这一点在搜索种子时同样适用。若寻找带有雪景的种子，搜索结果仅适用于 12 月、1 月和 2 月，且对生成时的具体日期和时间精准匹配。
           </p>
         </Part>
         <Part>
-          <h4>Fungal Shifts</h4>
-          <p>Fungal Shifts will shift one material to another.</p>
+          <h4>真菌转变</h4>
+          <p>真菌转变会将一种材料转换为另一种材料。</p>
           <p>
-            When shifting to a held material, and if you're holding Gold, then you only have a <b>1/1000</b> chance of
-            shifting the material to Gold.
+            切换到手持材料时，若你手持金子，则将该材料切换为金子的概率仅为 <b>1/1000</b>。
           </p>
           <FungalShifts
             fungalData={[
@@ -245,20 +239,19 @@ const SeedData = () => {
           <Row>
             <Col xs={6}>
               <p className="mb-0">
-                Noitool provides information about perks, fungal shifts, shop items, chests, biome info, LC and AP
-                recipes, weather for the given seed. <br />
+                Noitool 提供指定种子的相关信息,包括增益效果.真菌转变.商店物品.宝箱.生物群系信息.LC 和 AP 配方以及天气情况. <br />
               </p>
             </Col>
             <Col>
               <p>
-                Note that Noitool has minor limitations in details of generation: <span className="mx-2" />
+                请注意，Noitool 在生成细节方面存在轻微限制： <span className="mx-2" />
                 <Button
                   className="align-self-baseline mt-1"
                   variant="outline-primary"
                   size="sm"
                   onClick={() => setQuirksOpen(true)}
                 >
-                  Show quirks
+                  显示特殊特性
                 </Button>
                 <QuirkModal show={openQuirks} handleClose={() => setQuirksOpen(false)} />
               </p>
@@ -275,12 +268,12 @@ const SeedData = () => {
                 id="custom-switch"
               />
               <Form.Label className="ms-2" htmlFor="custom-switch">
-                Automatically show current daily seed {dailySeed && <Link to={`?seed=${dailySeed}`}>{dailySeed}</Link>}
+                自动显示当前每日种子 {dailySeed && <Link to={`?seed=${dailySeed}`}>{dailySeed}</Link>}
               </Form.Label>
             </Col>
             <Col className="d-flex">
               <Button className="ms-auto" variant="outline-secondary" size="sm" onClick={() => setShowHistory(true)}>
-                Seed History
+                种子历史记录
               </Button>
             </Col>
           </Row>

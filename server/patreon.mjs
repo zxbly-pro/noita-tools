@@ -58,7 +58,8 @@ class TokenManager {
 
     let token = this.creatorAccessToken;
     let attempts = 0;
-    const maxAttempts = 3;
+    // const maxAttempts = 3;
+    const maxAttempts = 0;
 
     while (attempts < maxAttempts) {
       try {
@@ -165,7 +166,7 @@ const membersQuery = async (cursor = null) => {
         "User-Agent": "Noitool - Member Sync",
       },
     });
-
+    return null;
     const data = await response.json();
     if (data.errors) {
       console.error("Patreon API error, membersQuery:", {
@@ -199,6 +200,7 @@ const getPatreonPatronsData = async () => {
   let isFirstPage = true;
 
   do {
+    break;
     const data = await membersQuery(nextCursor);
     if (!data) {
       console.error("Failed to fetch members page");

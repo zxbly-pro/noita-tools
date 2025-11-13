@@ -49,17 +49,17 @@ const FlaskMaterialSelect = (props: IFlaskMaterialSelectProps) => {
   return (
     <Modal fullscreen="sm-down" scrollable show={show} onHide={handleClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Material Selector</Modal.Title>
+        <Modal.Title>材料选择器</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Row className="mb-3 align-items-center">
           <Col className="me-3">
             <ButtonGroup size="sm">
               <Button variant="outline-primary" onClick={() => onSelectAll()}>
-                Select All
+                全选
               </Button>
               <Button variant="outline-primary" onClick={() => onDeselectAll()}>
-                Deselect All
+                取消全选
               </Button>
             </ButtonGroup>
           </Col>
@@ -76,7 +76,7 @@ const FlaskMaterialSelect = (props: IFlaskMaterialSelectProps) => {
                   }
                 }}
                 id="custom-switch"
-                label="Held Material"
+                label="所持材料"
               />
               {type && type === "to" && (
                 <div className="ms-4">
@@ -84,7 +84,7 @@ const FlaskMaterialSelect = (props: IFlaskMaterialSelectProps) => {
                     <Form.Check
                       type="switch"
                       id="gold-to-gold-switch"
-                      label="Gold to Gold"
+                      label="黄金到黄金"
                       checked={!!goldToGold}
                       disabled={!useFlask}
                       onChange={e => handleGoldToGold(e.target.checked)}
@@ -94,7 +94,7 @@ const FlaskMaterialSelect = (props: IFlaskMaterialSelectProps) => {
                     <Form.Check
                       type="switch"
                       id="holygrass-to-holygrass-switch"
-                      label="Holy Grass to Holy Grass"
+                      label="圣草到圣草"
                       checked={!!holyGrassToHolyGrass}
                       disabled={!useFlask}
                       onChange={e => handleHolyGrassToHolyGrass(e.target.checked)}
@@ -116,7 +116,7 @@ const MaterialSelect = (props: IMaterialSelectProps) => {
   return (
     <Modal fullscreen="sm-down" scrollable show={show} onHide={handleClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Material Selector</Modal.Title>
+        <Modal.Title>材料选择器</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <ListSelect selected={selected} items={list} onClick={material => handleOnClick?.(material)} />

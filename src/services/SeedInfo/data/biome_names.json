@@ -1,6 +1,6 @@
 [
   {
-    "translated_name": "mines",
+    "translated_name": "矿场",
     "id": "coalmine"
   },
   {
@@ -8,27 +8,27 @@
     "id": "mountain_hall"
   },
   {
-    "translated_name": "collapsed mines",
+    "translated_name": "坍塌矿井",
     "id": "coalmine_alt"
   },
   {
-    "translated_name": "Coal Pits",
+    "translated_name": "煤坑",
     "id": "excavationsite"
   },
   {
-    "translated_name": "Fungal Caverns",
+    "translated_name": "真菌洞穴",
     "id": "fungicave"
   },
   {
-    "translated_name": "Snowy Depths",
+    "translated_name": "雪域深处",
     "id": "snowcave"
   },
   {
-    "translated_name": "Hiisi Base",
+    "translated_name": "希斯基地",
     "id": "snowcastle"
   },
   {
-    "translated_name": "Underground Jungle",
+    "translated_name": "地下丛林",
     "id": "rainforest"
   },
   {
@@ -36,11 +36,11 @@
     "id": "rainforest_open"
   },
   {
-    "translated_name": "The Vault",
+    "translated_name": "宝库",
     "id": "vault"
   },
   {
-    "translated_name": "Temple of the Art",
+    "translated_name": "艺术神殿",
     "id": "crypt"
   }
 ]

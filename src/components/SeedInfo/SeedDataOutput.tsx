@@ -101,14 +101,14 @@ const SeedDataOutput: React.FC<ISeedDataProps> = ({ seed, isDaily = false }) => 
   const [gameInfoProvider, data] = useGameInfoProvider(seed);
 
   if (!gameInfoProvider || !data) {
-    return <p>Loading</p>;
+    return <p>加载中</p>;
   }
 
   return (
     <GameInfoContext.Provider value={{ gameInfoProvider, data }}>
       <Stack className="seed-info">
         <p className="my-2">
-          Seed: {seed} {isDaily && ` (Daily)`}
+          种子: {seed} {isDaily && ` (Daily)`}
         </p>
         <SeedInfo isDaily={isDaily} seed={seed} infoProvider={gameInfoProvider} data={data} />
       </Stack>

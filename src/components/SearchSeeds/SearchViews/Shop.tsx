@@ -23,7 +23,7 @@ const WandAdditionalSettings = (props: WandAdditionalSettingsProps) => {
 
   return (
     <Button onClick={handleClickModal} className="m-1">
-      Advanced Wand Filter
+      高级魔杖过滤器
     </Button>
   );
 };
@@ -39,11 +39,11 @@ const SpellAdditionalSettingsProps = (props: SpellAdditionalSettingsProps) => {
   return (
     <>
       <Button onClick={handleClickModal} className="m-1">
-        Advanced Spell Filter
+        高级法术过滤器
       </Button>
       <div>
         <ConfigRow
-          left={<>{strict ? "All" : "Some"}</>}
+          left={<>{strict ? "全部" : "一些"}</>}
           right={
             <Form.Switch
               checked={strict}
@@ -74,7 +74,7 @@ const ShopLevel = (props: IShopLevelProps) => {
     <Row>
       <Col>
         <div className="d-flex flex-column">
-          <div>Level {level + 1}:</div>
+          <div>层级 {level + 1}:</div>
           <Stack gap={3} direction="horizontal">
             <div>{}</div>
             <Clickable onClick={() => handleClicked(IShopType.wand)} clicked={shop.type === IShopType.wand}>
@@ -83,7 +83,7 @@ const ShopLevel = (props: IShopLevelProps) => {
               </Square>
             </Clickable>
             <Clickable onClick={() => handleClicked("")} clicked={!shop.type}>
-              <Square>Any</Square>
+              <Square>任意</Square>
             </Clickable>
             <Clickable onClick={() => handleClicked(IShopType.item)} clicked={shop.type === IShopType.item}>
               <LightBulletIcon />
@@ -253,7 +253,7 @@ const Shop = (props: IShopProps) => {
 
   return (
     <Container fluid>
-      <p>Compute-intensive if used. Use sparingly!</p>
+      <p>使用时为计算密集型。请谨慎使用!</p>
       <Row className="justify-content-md-center">
         <Col xs="auto">
           <Stack gap={3}>

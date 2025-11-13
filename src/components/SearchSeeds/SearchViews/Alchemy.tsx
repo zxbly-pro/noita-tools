@@ -81,17 +81,17 @@ const RecipeIngredientsPicker = (props: IRecipeIngredientsPickerProps) => {
         <Row className="justify-content-center pb-2">
           <Row>
             <Col>
-              <p {...(!enoughAlchemy ? { className: "text-danger" } : {})}>Select none or at least one (1) of:</p>
+              <p {...(!enoughAlchemy ? { className: "text-danger" } : {})}>选择无，或至少选择一个:</p>
             </Col>
           </Row>
           <Row>
             <Col>
               <ButtonGroup size="sm">
                 <Button variant="outline-primary" onClick={() => onSelectAll("ALCHEMY")}>
-                  Select All
+                  全选
                 </Button>
                 <Button variant="outline-primary" onClick={() => onDeselectAll("ALCHEMY")}>
-                  Deselect All
+                  取消全选
                 </Button>
               </ButtonGroup>
             </Col>
@@ -103,17 +103,17 @@ const RecipeIngredientsPicker = (props: IRecipeIngredientsPickerProps) => {
         <Row className="justify-content-center pb-2">
           <Row>
             <Col>
-              <p {...(!enoughLiquids ? { className: "text-danger" } : {})}>Select none or at least two (2) of: </p>
+              <p {...(!enoughLiquids ? { className: "text-danger" } : {})}>选择无，或至少选择两个。: </p>
             </Col>
           </Row>
           <Row>
             <Col>
               <ButtonGroup size="sm">
                 <Button variant="outline-primary" onClick={() => onSelectAll("LIQUIDS")}>
-                  Select All
+                  全选
                 </Button>
                 <Button variant="outline-primary" onClick={() => onDeselectAll("LIQUIDS")}>
-                  Deselect All
+                  取消全选
                 </Button>
               </ButtonGroup>
             </Col>
@@ -181,14 +181,14 @@ const Alchemy: FC<IAlchemyProps> = ({ onUpdateConfig, config }) => {
     <Container>
       <Row>
         <p>
-          Lists can be left blank if any combination will do. <br />
-          The resulting seed's LC and AP ingredients will be from the selected values. <br />
-          Do keep in mind that some combinations may not be possible, or unuseful.
+          若任何组合都可行，列表可留空. <br />
+          生成的种子的 LC 和 AP 成分将来自所选值. <br />
+          请务必记住，部分组合可能无法实现，或不具备实用价值.
         </p>
       </Row>
       <Row>
         <Col>
-          <Row className="ms-2 me-2 ps-2  rounded shadow-sm">Lively Concoction:</Row>
+          <Row className="ms-2 me-2 ps-2  rounded shadow-sm">活力混合物:</Row>
           <RecipeIngredientsPicker
             selected={lcIngredientsSelected}
             onUpdate={setLcIngredientsSelected}
@@ -199,7 +199,7 @@ const Alchemy: FC<IAlchemyProps> = ({ onUpdateConfig, config }) => {
           />
         </Col>
         <Col>
-          <Row className="ms-2 me-2 ps-2  rounded shadow-sm">Alchemic Precursor:</Row>
+          <Row className="ms-2 me-2 ps-2  rounded shadow-sm">炼金前驱物:</Row>
           <RecipeIngredientsPicker
             selected={apIngredientsSelected}
             onUpdate={setApIngredientsSelected}

@@ -52,25 +52,25 @@ const Body = () => {
   return (
     <Container fluid="sm" className="mb-5 p-0 rounded shadow-lg">
       <Tabs activeKey={pathname} onSelect={handleTab} id="main-tabs" mountOnEnter className="">
-        <Tab eventKey="/info" title="Seed info">
+        <Tab eventKey="/info" title="种子信息">
           <SeedInfo />
         </Tab>
-        <Tab eventKey="/search" title="Search For Seed">
+        <Tab eventKey="/search" title="搜索种子">
           <SearchSeeds />
         </Tab>
-        <Tab eventKey="/live" title="Live game helper (beta)">
+        <Tab eventKey="/live" title="实时游戏助手（测试版）">
           <LiveSeedStats />
         </Tab>
-        <Tab eventKey="/compute" title="Compute Pool">
+        <Tab eventKey="/compute" title="计算池">
           <Compute />
         </Tab>
         {showTestBench && (
-          <Tab eventKey="/test" title="TestBench">
+          <Tab eventKey="/test" title="测试平台">
             <TestBench />
           </Tab>
         )}
         {showClusterComputeConsole && (
-          <Tab eventKey="/compute-console" title="Compute Console">
+          <Tab eventKey="/compute-console" title="计算控制台">
             <ComputeConsole />
           </Tab>
         )}

@@ -51,7 +51,7 @@ export const RuleConstructors = {
         LC: [],
       },
     },
-    Title: () => "Alchemy",
+    Title: () => "炼金术",
   },
   biomeModifier: {
     Component: Biomes,
@@ -60,7 +60,7 @@ export const RuleConstructors = {
       path: "",
       val: {},
     },
-    Title: () => "Biome Modifiers",
+    Title: () => "生物群系",
   },
   fungalShift: {
     Component: FungalShifts,
@@ -69,7 +69,7 @@ export const RuleConstructors = {
       path: "",
       val: new Array(20).fill(undefined),
     },
-    Title: () => "Fungal Shifts",
+    Title: () => "真菌转变",
   },
   pacifistChest: {
     Component: PacifistChest,
@@ -78,7 +78,7 @@ export const RuleConstructors = {
       path: "",
       val: new Array(7).fill([]),
     },
-    Title: () => "Pacifist Chest",
+    Title: () => "和平主义者宝箱",
   },
   perk: {
     Component: Perks,
@@ -91,11 +91,11 @@ export const RuleConstructors = {
         some: new Array(7).fill([]),
       },
     },
-    Title: () => "Perks",
+    Title: () => "特长",
   },
   search: {
     Component: Search,
-    Title: ({ name }) => (name ? `Search "${name}"` : "Search"),
+    Title: ({ name }) => (name ? `搜索 "${name}"` : "搜索"),
   },
   shop: {
     Component: Shop,
@@ -104,7 +104,7 @@ export const RuleConstructors = {
       path: "",
       val: new Array(7).fill(undefined),
     },
-    Title: () => "Shop",
+    Title: () => "商店",
   },
   startingBombSpell: {
     Component: StartingBombSpell,
@@ -113,7 +113,7 @@ export const RuleConstructors = {
       path: "",
       val: "",
     },
-    Title: () => "Starting Bomb Spell",
+    Title: () => "初始炸弹法术",
   },
   startingFlask: {
     Component: StartingFlask,
@@ -122,7 +122,7 @@ export const RuleConstructors = {
       path: "",
       val: "",
     },
-    Title: () => "Starting Flask",
+    Title: () => "初始烧瓶",
   },
   startingSpell: {
     Component: StartingSpell,
@@ -131,7 +131,7 @@ export const RuleConstructors = {
       path: "",
       val: "",
     },
-    Title: () => "Starting Spell",
+    Title: () => "初始法术",
   },
   weather: {
     Component: Weather,
@@ -144,7 +144,7 @@ export const RuleConstructors = {
         rain_material: "",
       },
     },
-    Title: () => "Weather",
+    Title: () => "天气",
   },
 };
 type IRuleConstructor = (typeof RuleConstructors)[keyof typeof RuleConstructors];

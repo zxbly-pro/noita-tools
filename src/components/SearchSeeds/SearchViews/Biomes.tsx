@@ -50,7 +50,7 @@ const Biomes: FC<IBiomesProps> = ({ onUpdateConfig, config }) => {
 
   return (
     <Container fluid>
-      <p>To delete a modifier, click on it.</p>
+      <p>要删除修改器，请点击它.</p>
       <Stack gap={3}>
         {Object.keys(biomeModifiers).map(biome => {
           const name = capitalize(biomeInfoProvider.provide(biome).translated_name!);

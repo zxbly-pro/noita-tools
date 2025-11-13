@@ -17,11 +17,11 @@ const Multithread = () => {
     <ConfigRow
       left={
         <>
-          <strong className="">Multithread limit</strong>
+          <strong className="">多线程限制</strong>
           <p className="text-muted fw-light mb-0">
-            If Noitool is unstable with maximum concurrency, decrease this slider until it is.
+            若 Noitool 在最大并发状态下不稳定，可降低此滑块数值直至稳定.
             <br />
-            Disable and re-enable Multithreading in Search for changes to apply.
+            在搜索中禁用并重新启用多线程，使更改生效.
           </p>
         </>
       }
@@ -29,7 +29,7 @@ const Multithread = () => {
         <>
           <div className="d-flex justify-content-center">
             <Form.Group as={Col} xs={6} controlId="code">
-              <Form.Label className="m-0">Max concurrency: {concurrency}</Form.Label>
+              <Form.Label className="m-0">最大并发量: {concurrency}</Form.Label>
               <Form.Range value={concurrency} onChange={handleRange} min="1" max={maxConcurrency} />
             </Form.Group>
           </div>
@@ -42,7 +42,7 @@ const Multithread = () => {
 const SearchSettings = () => {
   return (
     <>
-      <ConfigTitle title="Search" subtitle="Settings relating to seed search." />
+      <ConfigTitle title="搜索" subtitle="与种子搜索相关的设置." />
       <ListGroup variant="flush" className="mb-5 shadow">
         <ListGroup.Item>
           <Multithread />

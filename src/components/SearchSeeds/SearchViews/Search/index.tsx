@@ -27,20 +27,17 @@ const MemoSeedDataOutput = React.memo(SeedDataOutput);
 const Description = () => {
   return (
     <>
-      <h4 className="mb-3">Find a seed with desired parameters</h4>
+      <h4 className="mb-3">找到带有所需参数的种子</h4>
       <p>
-        Logic operations are available. Logic meta-rules allow you to better filter for specific seeds or to make the
-        search more flexible. The top level list of rules is an <code>AND</code>, meaning all of the rules inside the{" "}
-        <code>AND</code>&nbsp; need to be true for a seed to be considered "found". You can drag and drop rules and
-        logic rules into other logic rules.
+        逻辑运算已可用。逻辑元规则能帮助你更好地筛选特定种子，或让搜索更灵活。规则的顶层列表是一个 <code>AND</code>, 即包含其中所有的规则{" "}
+        <code>AND</code>&nbsp; 种子要被判定为 “找到”，其中所有规则必须全部成立。你可以将规则和逻辑规则拖放到其他逻辑规则中。
       </p>
       <p>
-        <code>AND</code>: All rules must be true.&nbsp;
-        <code>OR</code>: Any of the rules must be true. <code>NOT</code>: Negates any rule/logic inside. Accepts only
-        one thing.
+        <code>AND</code>: 所有规则必须全部成立。&nbsp;
+        <code>OR</code>: 任意一条规则必须成立。 <code>NOT</code>: 否定其中的任何规则 / 逻辑。仅接受一项内容。
       </p>
       <p>
-        To get the same behavior as the old seed search, simply add rules to the root <code>AND</code>.
+        要获得与旧版种子搜索相同的效果，只需将规则添加到根节点即可。 <code>AND</code>.
       </p>
     </>
   );
@@ -103,7 +100,7 @@ const Search = () => {
             <FormGroup>
               <Col className="mb-4">
                 <Form.Group>
-                  <Form.Label htmlFor="SearchSeeds.name">Search name:</Form.Label>
+                  <Form.Label htmlFor="SearchSeeds.name">搜索名称:</Form.Label>
                   <Form.Control
                     id="SearchSeeds.name"
                     disabled={running || !solverReady}
@@ -114,7 +111,7 @@ const Search = () => {
               </Col>
               <Col>
                 <Form.Group className="my-2">
-                  <Form.Label htmlFor="SearchSeeds.seed">Start search from seed: </Form.Label>
+                  <Form.Label htmlFor="SearchSeeds.seed">从种子数据开始搜索: </Form.Label>
                   <Form.Control
                     id="SearchSeeds.seed"
                     type="number"
@@ -126,7 +123,7 @@ const Search = () => {
               </Col>
               <Col>
                 <Form.Group className="mt-2">
-                  <Form.Label htmlFor="SearchSeeds.seedEnd">End search at seed: </Form.Label>
+                  <Form.Label htmlFor="SearchSeeds.seedEnd">以种子数据结束搜索: </Form.Label>
                   <Form.Control
                     id="SearchSeeds.seedEnd"
                     type="number"
@@ -140,18 +137,18 @@ const Search = () => {
               <Col>
                 <Form.Group className="mt-3">
                   <Form.Label htmlFor="SearchSeeds.seedEnd">
-                    Or, input a list of seeds (slower, best for filtering):{" "}
+                    或者，输入种子列表（速度较慢，最适合筛选）:{" "}
                   </Form.Label>
                   <Form.Control
                     id="SearchSeeds.seedList"
                     type="text"
-                    placeholder="Optional"
+                    placeholder="可选的"
                     disabled={running || !solverReady}
                     value={customSeedList}
                     onChange={e => handleCustomSeedListChange(e)}
                   />
                   {customSeedList && (
-                    <Form.Text className="text-muted">{chunkProvider.customSeeds?.length} seeds left</Form.Text>
+                    <Form.Text className="text-muted">{chunkProvider.customSeeds?.length} 剩余种子</Form.Text>
                   )}
                 </Form.Group>
               </Col>
@@ -162,7 +159,7 @@ const Search = () => {
                     disabled={!solverReady}
                     onChange={e => updateSearchConfig({ findAll: e.target.checked })}
                     id={`find-all-switch`}
-                    label="Don't stop searching when a seed is found"
+                    label="发现种子后，不要停止搜索"
                   />
                 </Form.Group>
               </Col>
@@ -179,10 +176,10 @@ const Search = () => {
           <Row className="p-3">
             <ButtonGroup>
               <Button color="primary" disabled={running || !solverReady} onClick={() => startCalculation()}>
-                {!solverReady ? "Loading searcher" : "Find next"}
+                {!solverReady ? "正在加载搜索器" : "查找下一项"}
               </Button>
               <Button color="primary" disabled={!running || !solverReady} onClick={() => stopCalculation()}>
-                Stop
+                停止
               </Button>
             </ButtonGroup>
           </Row>
@@ -190,8 +187,8 @@ const Search = () => {
       </Row>
       <Row>
         <Col className="my-2">
-          <Button variant={clearClicked ? "danger" : "outline-warning"} onClick={() => handleClear()}>
-            Clear search{clearClicked && "?"}
+          <Button variant={clearClicked ? "危险" : "轮廓警告"} onClick={() => handleClear()}>
+            清除搜索{clearClicked && "?"}
           </Button>
         </Col>
       </Row>
@@ -199,21 +196,21 @@ const Search = () => {
         {!chunkProvider?.customSeeds && solverStatus?.running && (
           <div>
             <ProgressBar animated now={percentChecked} label={`${percentChecked}%`} />
-            Seeds checked: {localizeNumber(seedsChecked)} / {localizeNumber(totalSeeds)} (Estimated time left:{" "}
+            已检查种子: {localizeNumber(seedsChecked)} / {localizeNumber(totalSeeds)} (预计剩余时间:{" "}
             {humanize((solverStatus as Status).estimate * 1000, {
               round: true,
               units: ["h", "m"],
             })}
-            , {Math.round(seedsPerSecond * 10) / 10} avg seeds/s)
+            , {Math.round(seedsPerSecond * 10) / 10} 平均 种子/秒)
             <br />
             {}
           </div>
         )}
-        <h5 className="mt-3 mb-1">Results:</h5>
+        <h5 className="mt-3 mb-1">结果:</h5>
         {findAll && chunkProvider && (
           <div>
-            Found {results.length} seeds: <br />
-            <Button onClick={handleCopy}>Copy seed list to clipboard</Button>
+            发现 {results.length} 种子: <br />
+            <Button onClick={handleCopy}>将种子列表复制到剪贴板</Button>
             <ListGroup
               style={{
                 overflowY: "auto",
@@ -239,7 +236,7 @@ const Search = () => {
                 </Button>
               </Col>
               <Col>
-                Showing Seed {showedSeed + 1} of {results.length}
+                显示种子 {showedSeed + 1} of {results.length}
               </Col>
               <Col>
                 <Button disabled={showedSeed === results.length - 1} onClick={() => setShowedSeed(showedSeed + 1)}>

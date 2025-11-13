@@ -206,7 +206,7 @@ const Add: FC<IAddProps> = ({ onAdd }) => {
       variant="outline-primary"
       as={ButtonGroup}
       id="dropdown-item-button"
-      title="Add new rule"
+      title="添加新规则"
     >
       {rules.map(r => {
         const rule = RuleConstructors[r];
@@ -297,7 +297,7 @@ export const Import: FC<IImportProps> = ({ onClick }) => {
           rippleError && "border-danger text-danger border-1",
           ripple && "border-success text-success border-1",
         ])}
-        placeholder="Import search from string"
+        placeholder="从字符串模块导入搜索功能"
         ref={inputRef}
       />
       <Button
@@ -316,7 +316,7 @@ export const Import: FC<IImportProps> = ({ onClick }) => {
       </Button>
       <div className="mx-3"></div>
       <Button variant="outline-info" onClick={() => handleNew()}>
-        New Search
+        新搜索
       </Button>
     </InputGroup>
   );
@@ -406,7 +406,7 @@ const SearchRow: FC<ISearchRowProps> = ({ current, search }) => {
                 })
                 .catch(console.error);
             }}
-            placeholder="Unnamed Search"
+            placeholder="未命名搜索"
             value={config.name}
           />
         </InputGroup>
@@ -467,7 +467,7 @@ const SearchSelect: FC<ISearchSelectProps> = ({ open, onClose }) => {
   return (
     <Modal size="lg" fullscreen="sm-down" scrollable show={open} onHide={onClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Load search</Modal.Title>
+        <Modal.Title>加载搜索</Modal.Title>
       </Modal.Header>
       <Modal.Body
         style={{
@@ -480,8 +480,8 @@ const SearchSelect: FC<ISearchSelectProps> = ({ open, onClose }) => {
           <thead>
             <tr>
               <td>{/* <i className="bi bi-search"></i> */}</td>
-              <td className="ps-2 w-50">Name</td>
-              <td className="ps-2 fw-light">Last updated</td>
+              <td className="ps-2 w-50">名称</td>
+              <td className="ps-2 fw-light">最后更新</td>
               <td className=""></td>
             </tr>
           </thead>
@@ -506,7 +506,7 @@ const Load: FC<ILoadProps> = props => {
   return (
     <>
       <Button className="w-100" variant="outline-info" onClick={() => setLoadOpen(true)}>
-        Manage saved searches
+        管理已保存的搜索
       </Button>
       <SearchSelect open={loadOpen} onClose={() => setLoadOpen(false)} />
     </>
@@ -539,7 +539,7 @@ const Logic: FC<ILogicProps> = ({ onLogic }) => {
       variant="outline-primary"
       as={ButtonGroup}
       id="dropdown-item-button"
-      title="Add logic"
+      title="添加逻辑"
     >
       {rules.map(r => {
         const rule = LogicConstructors[r];

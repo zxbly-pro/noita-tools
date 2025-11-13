@@ -65,7 +65,7 @@ const PerkSelect = (props: IPerkSelectProps) => {
   return (
     <Modal {...modalProps} fullscreen="sm-down" scrollable show={show} onHide={handleClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Perk Select</Modal.Title>
+        <Modal.Title>特长选择器</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {showSelected && selected.length > 0 && (
@@ -83,7 +83,7 @@ const PerkSelect = (props: IPerkSelectProps) => {
         <Row className="p-1 ps-4 pe-4 align-items-center">
           <FormControl
             type="search"
-            placeholder="Filter"
+            placeholder="过滤"
             className=""
             aria-label="Filter"
             value={filter}

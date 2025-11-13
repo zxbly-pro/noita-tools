@@ -327,7 +327,7 @@ const PerkDeckModal = props => {
   return (
     <Modal size="lg" show={show} onHide={handleClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Perk Deck</Modal.Title>
+        <Modal.Title>特长牌组</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Row className="p-3 justify-content-center align-items-center row-cols-auto">
@@ -414,18 +414,18 @@ const HolyMountainHeader = (props: IHolyMountainHeaderProps) => {
             setAdvanced(e.target.checked);
           }}
           id="advanced-switch"
-          label="Advanced"
+          label="高级"
         />
         <div className="ms-auto" />
         {advanced ? (
           <Button disabled={!canUndo} onClick={handleBack}>
-            Undo
+            撤销
           </Button>
         ) : (
           <div className="ms-auto" />
         )}
         <div className="ms-auto" />
-        <Button onClick={() => handleReset()}>Reset</Button>
+        <Button onClick={() => handleReset()}>重置</Button>
         <div className="ms-auto" />
         <div
           style={{
@@ -434,9 +434,9 @@ const HolyMountainHeader = (props: IHolyMountainHeaderProps) => {
             alignSelf: "stretch",
           }}
         >
-          <span> Rerolls: {rerolls}</span>
-          {!advanced && <span> Next: {localizeNumber(price)}</span>}
-          <span> Total: {localizeNumber(total)}</span>
+          <span> 重随: {rerolls}</span>
+          {!advanced && <span> 下一次: {localizeNumber(price)}</span>}
+          <span> 总计: {localizeNumber(total)}</span>
           {/* 50% per stack (multiplicative), rounded down to nearest int */}
           {/* <span>Lottery chance: {Math.floor(Math.pow(0.5, lotteries) * 100)}%</span> */}
         </div>
@@ -451,7 +451,7 @@ const HolyMountainHeader = (props: IHolyMountainHeaderProps) => {
             wordWrap: "break-word",
           }}
         >
-          Show <br /> perk deck ({perkDeck.length})
+          显示 <br /> 特长牌组 ({perkDeck.length})
           {favoritePerks.length ? (
             <div className="position-absolute text-info top-0 end-0 pe-1">{favoritePerks.length}</div>
           ) : (
@@ -868,7 +868,7 @@ const HolyMountain = (props: IHolyMountainProps) => {
   const OffsetText = () => {
     const [clicked, setClicked] = useState(false);
     const formRef = useRef<HTMLInputElement>(null);
-    let direction = worldOffset === 0 ? "Main" : worldOffset < 0 ? "West" : "East";
+    let direction = worldOffset === 0 ? "主" : worldOffset < 0 ? "西" : "东";
 
     useEffect(() => {
       if (clicked) {
@@ -883,7 +883,7 @@ const HolyMountain = (props: IHolyMountainProps) => {
           setClicked(true);
         }}
       >
-        {!clicked && `${direction} World ${Math.abs(worldOffset) || ""}`}
+        {!clicked && `${direction} 世界 ${Math.abs(worldOffset) || ""}`}
         <Form.Control
           size="sm"
           style={{ width: "8rem" }}
@@ -933,9 +933,9 @@ const HolyMountain = (props: IHolyMountainProps) => {
       <Table borderless responsive="xs" size="sm">
         <thead className="text-center text-nowrap">
           <tr>
-            <th>Shop</th>
-            <th>Pacifist Chest</th>
-            <th>Perks</th>
+            <th>商店</th>
+            <th>和平主义者宝箱</th>
+            <th>特长</th>
             <th></th>
           </tr>
         </thead>

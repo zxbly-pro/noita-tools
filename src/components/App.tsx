@@ -105,21 +105,21 @@ const Header = () => {
         <h3 className="fs-1 fw-bolder mb-0 text-center position-relative pb-2">
           <a href="/" className="text-decoration-none text-reset">
             Noitool
-            {isDevBranch && <sub className="fs-6 fw mb-0 text-center text-danger">Beta</sub>}
+            {/*{isDevBranch && <sub className="fs-6 fw mb-0 text-center text-danger">Beta</sub>}*/}
           </a>
-          {isDevBranch && (
-            <code
-              className="fs-6 fw mb-0 position-absolute start-50 translate-middle-x"
-              style={{
-                bottom: "-0.25rem",
-              }}
-            >
-              Build August 12 2024
-            </code>
-          )}
+          {/*{isDevBranch && (*/}
+          {/*  <code*/}
+          {/*    className="fs-6 fw mb-0 position-absolute start-50 translate-middle-x"*/}
+          {/*    style={{*/}
+          {/*      bottom: "-0.25rem",*/}
+          {/*    }}*/}
+          {/*  >*/}
+          {/*    2024 年 8 月 12 日版本（构建版）*/}
+          {/*  </code>*/}
+          {/*)}*/}
           {isDevBranch && <div />}
         </h3>
-        <p className="fs-4 fw-light m-1 mt-0 my-1 text-center">Noita tools and helpers</p>
+        <p className="fs-4 fw-light m-1 mt-0 my-1 text-center">Noita 工具与辅助程序</p>
       </div>
       <div className=" d-flex pt-2 justify-content-end align-items-start">
         {/* <div className="mx-2">
@@ -169,40 +169,40 @@ const LazyBody = (props: any) => {
 const Footer = () => {
   return (
     <footer className="footer font-small p-1 pt-3">
-      <Stack>
-        {/* <div className="d-flex justify-content-center align-items-center text-center">
-          For a version of Noitool that follows&nbsp; <b>Noita beta</b>, check out&nbsp;
-          <a href="https://dev.noitool.com/">dev.noitool.com</a>
-        </div> */}
-        <div className="d-flex justify-content-center align-items-center text-center">
-          <PatreonButton />
-          <div className="mx-2">or</div>
-          <div className="pt-2">
-            <Donate />
-            <small className="text-wrap d-block fw-light lh-1" style={{ width: "12rem" }}>
-              If you want to see your name below, please reach out!
-            </small>
-          </div>
-        </div>
-        <Patrons />
-        <div className="footer text-center fw-light py-1">
-          Ideas? Issues? Bugs? Click{" "}
-          <a target="_blank" rel="noreferrer" href="https://github.com/TwoAbove/noita-tools/issues/">
-            here
-          </a>
-          {/* <br /> */} or DM me on Noita's discord:{" "}
-          <a target="_blank" rel="noreferrer" href="https://discord.gg/noita">
-            twoabove
-          </a>{" "}
-          or send me an email: <a href="mailto:me@noitool.com">me@noitool.com</a>
-        </div>
-        <div className="footer-copyright text-center fw-light py-1">
-          <span className="fw-bold">
-            Noitool <code className="ms-1">{APP_VERSION} </code>
-          </span>
-          © 2025 <a href="https://seva.dev/">Seva Maltsev</a>
-        </div>
-      </Stack>
+      {/*<Stack>*/}
+      {/*  /!* <div className="d-flex justify-content-center align-items-center text-center">*/}
+      {/*    For a version of Noitool that follows&nbsp; <b>Noita beta</b>, check out&nbsp;*/}
+      {/*    <a href="https://dev.noitool.com/">dev.noitool.com</a>*/}
+      {/*  </div> *!/*/}
+      {/*  <div className="d-flex justify-content-center align-items-center text-center">*/}
+      {/*    <PatreonButton />*/}
+      {/*    <div className="mx-2">or</div>*/}
+      {/*    <div className="pt-2">*/}
+      {/*      /!*<Donate />*!/*/}
+      {/*      /!*<small className="text-wrap d-block fw-light lh-1" style={{ width: "12rem" }}>*!/*/}
+      {/*      /!*  If you want to see your name below, please reach out!*!/*/}
+      {/*      /!*</small>*!/*/}
+      {/*    </div>*/}
+      {/*  </div>*/}
+      {/*  <Patrons />*/}
+      {/*  <div className="footer text-center fw-light py-1">*/}
+      {/*    Ideas? Issues? Bugs? Click{" "}*/}
+      {/*    <a target="_blank" rel="noreferrer" href="https://github.com/TwoAbove/noita-tools/issues/">*/}
+      {/*      here*/}
+      {/*    </a>*/}
+      {/*    /!* <br /> *!/ or DM me on Noita's discord:{" "}*/}
+      {/*    <a target="_blank" rel="noreferrer" href="https://discord.gg/noita">*/}
+      {/*      twoabove*/}
+      {/*    </a>{" "}*/}
+      {/*    or send me an email: <a href="mailto:me@noitool.com">me@noitool.com</a>*/}
+      {/*  </div>*/}
+      {/*  <div className="footer-copyright text-center fw-light py-1">*/}
+      {/*    <span className="fw-bold">*/}
+      {/*      Noitool <code className="ms-1">{APP_VERSION} </code>*/}
+      {/*    </span>*/}
+      {/*    © 2025 <a href="https://seva.dev/">Seva Maltsev</a>*/}
+      {/*  </div>*/}
+      {/*</Stack>*/}
     </footer>
   );
 };
