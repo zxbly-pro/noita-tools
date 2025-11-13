@@ -39,7 +39,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./console.Dockerfile
+          file: ./Dockerfile
           push: true
           tags: ghcr.io/zxbly-pro/noitool:${{ env.IMAGE_TAG }}
           platforms: linux/amd64,linux/arm64
