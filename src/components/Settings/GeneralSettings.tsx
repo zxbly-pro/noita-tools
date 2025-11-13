@@ -12,6 +12,7 @@ const getFlagEmoji = countryCode =>
   String.fromCodePoint(...[...countryCode.toUpperCase()].map(x => 0x1f1a5 + x.charCodeAt()));
 
 const flags = {
+  zh: "zh",
   de: "de",
   "en-US": "us",
   es: "es",
@@ -21,7 +22,6 @@ const flags = {
   pl: "pl",
   pt: "pt",
   ru: "ru",
-  "zh-CN": "cn",
 };
 
 const Locale = () => {

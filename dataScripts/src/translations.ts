@@ -16,8 +16,9 @@ const translation: { [locale: string]: { [id: string]: string } } = {};
 
 // first col is id
 // eslint-disable-next-line no-sparse-arrays
-const locales = [, "en", "ru", "pt-br", "es-es", "de", "fr-fr", "it", "pl", "zh-cn", "jp", "ko"];
+const locales = [, "zh", "en", "ru", "pt-br", "es-es", "de", "fr-fr", "it", "pl", "jp", "ko"];
 const localeMap = {
+  zh: "zh",
   en: "en",
   ru: "ru",
   "pt-br": "pt",
@@ -26,7 +27,6 @@ const localeMap = {
   "fr-fr": "fr",
   it: "it",
   pl: "pl",
-  "zh-cn": "zh",
   jp: "jp",
   ko: "ko",
 };

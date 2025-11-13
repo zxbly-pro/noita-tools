@@ -41,7 +41,7 @@ jobs:
           context: .
           file: ./console.Dockerfile
           push: true
-          tags: ghcr.io/twoabove/noitool-console-search:${{ env.IMAGE_TAG }}
+          tags: ghcr.io/zxbly-pro/noitool:${{ env.IMAGE_TAG }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
