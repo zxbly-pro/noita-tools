@@ -1,13 +1,16 @@
-.github
-cypress
-node_modules
-build
-dataScripts
+# 保留原有的不必要目录忽略
+.github/
+cypress/
+node_modules/
 *.Dockerfile
 
+# 保留 yarn 必要配置（原规则合理，无需修改）
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# 移除对启动必需目录的忽略（关键修改）
+# 注意：删除原有的 "server"、"build"、"dataScripts" 忽略规则
