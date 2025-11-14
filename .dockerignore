@@ -1,6 +1,5 @@
 # 保留原有的不必要目录忽略
 .github/
-cypress/
 node_modules/
 *.Dockerfile
 
