@@ -5,8 +5,10 @@ import { handleCompute, counts } from "./compute.mjs";
 import { rooms } from "./rooms.mjs";
 
 const corsDomains = [
+  "www.zxbly.com:4430",
+  "zxbly.com:4430",
   "www.zxbly.com:3001",
-  "www.zxbly.com:300",
+  "www.zxbly.com:3000",
   "zxbly.com:3001",
   "zxbly.com:300",
   "localhost:3000",
