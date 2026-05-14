@@ -260,6 +260,7 @@ location /noita/ {
 - 不设置 `BASE_PATH` 时默认为根路径 `/`，行为不变
 - 同一份构建产物可部署到任意路径，无需重新编译
 - URL 中 `#` 后面是前端路由（如 `/noita/#/search`）
+- Socket.IO 连接自动适配 HTTP/HTTPS 协议（ws/wss），无需额外配置
 
 ---
 

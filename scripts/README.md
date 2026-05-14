@@ -82,6 +82,12 @@ cd noitool
 PORT=8080 ./deploy-docker.sh
 ```
 
+### 子路径部署
+
+```bash
+BASE_PATH=/noita ./deploy-docker.sh
+```
+
 ### 迁移镜像到无网络服务器
 
 ```bash
@@ -122,11 +128,17 @@ cd noitool
 PORT=8080 ./deploy-node.sh
 ```
 
+### 子路径部署
+
+```bash
+BASE_PATH=/noita ./deploy-node.sh
+```
+
 ### 后台运行（pm2）
 
 ```bash
 npm install -g pm2
-PORT=3000 pm2 start ./server/standalone.mjs --name noitool \
+PORT=3000 BASE_PATH=/noita pm2 start ./server/standalone.mjs --name noitool \
   --node-args="--experimental-modules"
 pm2 save && pm2 startup
 ```
@@ -223,8 +235,75 @@ done
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
 | `PORT` | `3000` | 服务监听端口（Docker/Node 方式） |
+| `BASE_PATH` | 空（根路径） | 子路径前缀（运行时指定，如 `/noita`） |
 | `NODE_ENV` | `production` | 运行环境 |
 | `LOG_LEVEL` | `info` | 日志级别（debug/info/warn/error） |
+
+---
+
+## 子路径部署
+
+支持部署到子路径（如 `http://server/noita`），**无需重新构建**，运行时通过 `BASE_PATH` 环境变量指定。
+
+项目使用 HashRouter + 相对资源路径，URL 格式为 `http://server/noita/#/search`。
+
+### Docker 子路径
+
+```bash
+BASE_PATH=/noita ./deploy-docker.sh
+# 或
+BASE_PATH=/noita PORT=8080 ./deploy-docker.sh
+```
+
+Windows:
+```bat
+set BASE_PATH=/noita
+deploy-docker.bat
+```
+
+### Node.js 子路径
+
+```bash
+BASE_PATH=/noita ./deploy-node.sh
+# 或
+BASE_PATH=/noita PORT=8080 ./deploy-node.sh
+```
+
+Windows:
+```bat
+set BASE_PATH=/noita
+deploy-node.bat
+```
+
+### nginx 子路径（反代到 Node.js）
+
+Node.js 后端以根路径运行，nginx 转发子路径：
+
+```nginx
+location /noita/ {
+    proxy_pass http://127.0.0.1:3000/;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+}
+```
+
+### nginx 纯静态子路径（无计算池）
+
+```nginx
+location /noita/ {
+    alias /path/to/noitool/build/;
+    index index.html;
+}
+```
+
+### 注意事项
+
+- `BASE_PATH` 必须以 `/` 开头，不以 `/` 结尾（如 `/noita`）
+- 不设置 `BASE_PATH` 时默认为根路径 `/`，行为不变
+- 同一份构建产物可部署到任意路径，无需重新编译
+- Socket.IO 连接自动适配 HTTP/HTTPS 协议，无需额外配置
 
 ---
 
@@ -237,7 +316,10 @@ Node.js 版本低于 22.16.0 时会有警告，一般不影响运行。建议使
 加 `--legacy-peer-deps` 参数。打包脚本生成的精简 package.json 不会有此问题。
 
 **Q: HTTP 访问是否正常？**
-项目已兼容 HTTP 环境，无需 HTTPS 证书即可正常使用全部功能。
+项目已兼容 HTTP 和 HTTPS，Socket.IO 连接自动适配协议（ws/wss），无需 HTTPS 证书即可正常使用全部功能。
 
 **Q: Windows 下 .sh 脚本怎么运行？**
 使用 Git Bash 或 WSL 运行。或直接使用对应的 .bat 脚本。
+
+**Q: 如何部署到子路径？**
+通过 `BASE_PATH` 环境变量指定，无需重新构建。详见上方"子路径部署"章节。

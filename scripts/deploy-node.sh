@@ -7,6 +7,7 @@ set -e
 cd "$(dirname "$0")"
 
 PORT="${PORT:-3000}"
+BASE_PATH="${BASE_PATH:-}"
 
 echo "[1/3] 检查并安装 Node.js..."
 if ! command -v node &>/dev/null || [[ "$(node -v | cut -d. -f1 | tr -d v)" -lt 22 ]]; then
@@ -27,9 +28,14 @@ echo "[2/3] 安装依赖..."
 npm install --omit=dev
 
 echo "[3/3] 启动服务..."
-echo "服务运行在 http://0.0.0.0:$PORT"
+if [ -n "$BASE_PATH" ]; then
+  echo "服务运行在 http://0.0.0.0:$PORT$BASE_PATH/"
+else
+  echo "服务运行在 http://0.0.0.0:$PORT"
+fi
 
 export NODE_ENV=production
 export PORT
+export BASE_PATH
 
 exec node --experimental-modules ./server/standalone.mjs

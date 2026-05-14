@@ -9,6 +9,7 @@ cd "$(dirname "$0")"
 IMAGE="noitool:latest"
 CONTAINER="noitool"
 PORT="${PORT:-3000}"
+BASE_PATH="${BASE_PATH:-}"
 
 echo "[1/3] 停止旧容器（如果存在）..."
 docker stop "$CONTAINER" 2>/dev/null || true
@@ -21,14 +22,21 @@ echo "[3/3] 启动容器..."
 docker run -d \
   -p "$PORT:$PORT" \
   -e "PORT=$PORT" \
+  -e "BASE_PATH=$BASE_PATH" \
   --name "$CONTAINER" \
   --restart unless-stopped \
   "$IMAGE"
 
 echo ""
-echo "部署完成! 访问 http://0.0.0.0:$PORT"
+if [ -n "$BASE_PATH" ]; then
+  echo "部署完成! 访问 http://0.0.0.0:$PORT$BASE_PATH/"
+else
+  echo "部署完成! 访问 http://0.0.0.0:$PORT"
+fi
 echo ""
 echo "管理命令:"
 echo "  docker logs $CONTAINER       - 查看日志"
 echo "  docker restart $CONTAINER    - 重启"
 echo "  docker stop $CONTAINER       - 停止"
+echo ""
+echo "子路径部署: BASE_PATH=/noita ./deploy-docker.sh"

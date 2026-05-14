@@ -8,10 +8,17 @@ echo [1/2] 安装依赖...
 npm install
 
 echo [2/2] 启动服务...
-echo 服务将在 http://localhost:3000 运行
-echo 按 Ctrl+C 停止
-
 set NODE_ENV=production
-set PORT=3000
+if "%PORT%"=="" set PORT=3000
+if "%BASE_PATH%"=="" set BASE_PATH=
+
+if "%BASE_PATH%"=="" (
+  echo 服务将在 http://localhost:%PORT% 运行
+) else (
+  echo 服务将在 http://localhost:%PORT%%BASE_PATH%/ 运行
+)
+echo 按 Ctrl+C 停止
+echo 子路径部署: set BASE_PATH=/noita ^&^& deploy-node.bat
+
 node --experimental-modules ./server/standalone.mjs
 endlocal
