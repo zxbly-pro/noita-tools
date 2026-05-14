@@ -7,14 +7,14 @@ const InfoText = ({ clusterHelpAvailable }) => {
   if (clusterHelpAvailable) {
     return (
       <p>
-        Offloading part of the work to a compute cluster is <b>available</b>!
+        将部分工作分配到计算集群<b>可用</b>！
       </p>
     );
   }
 
   return (
     <p>
-      Offloading part of the work to a compute cluster is temporarily <b>not available</b>.
+      将部分工作分配到计算集群暂时<b>不可用</b>。
     </p>
   );
 };
@@ -61,7 +61,7 @@ const ClusterInfo = () => {
             variant={buttonVariant}
             onClick={toggleClusterHelp}
           >
-            {clusterHelpEnabled ? "Cluster compute enabled" : "Enable cluster compute"}
+            {clusterHelpEnabled ? "集群计算已启用" : "启用集群计算"}
             <div
               style={{
                 position: "absolute",
@@ -81,14 +81,14 @@ const ClusterInfo = () => {
       </Row>
       <Row className="mx-3 mt-0">
         <Col className="fw-light p-1 lh-sm" xs={12} sm={6}>
-          Current cluster size: <br />
+          当前集群规模： <br />
           <b>
-            {clusterState.workers} ({clusterState.appetite} cores online)
+            {clusterState.workers} （{clusterState.appetite} 核心在线）
           </b>
           <br />
         </Col>
         <Col className="fw-light p-1 lh-1" xs={12} sm={6}>
-          Searchers online: <b>{clusterState.hosts}</b>
+          搜索者在线： <b>{clusterState.hosts}</b>
         </Col>
       </Row>
     </Col>

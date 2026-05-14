@@ -15,7 +15,7 @@ const UseMultithreadingButton = () => {
 
   return (
     <Button size="sm" onClick={handleMultithreading} variant={useCores > 1 ? "outline-success" : "outline-secondary"}>
-      Multithreading {useCores > 1 ? `on (x${useCores})` : "off"}
+      多线程 {useCores > 1 ? `开启 (x${useCores})` : "关闭"}
     </Button>
   );
 };

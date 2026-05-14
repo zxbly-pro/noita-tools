@@ -32,7 +32,7 @@ const SearchSeeds = () => {
           </SearchContextProvider>
         </GameInfoContext.Provider>
       ) : (
-        <p>Loading</p>
+        <p>加载中</p>
       )}
     </Container>
   );

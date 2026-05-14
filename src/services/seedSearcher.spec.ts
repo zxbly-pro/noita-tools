@@ -455,4 +455,121 @@ describe("SeedSearcher", () => {
     solver.update(config as any);
     expect(solver.rules).toEqual(ans);
   });
+
+  it("Should find seeds matching nightmare entrance perk rules", async () => {
+    const randoms = await loadRandom();
+
+    const infoProvider = new GameInfoProvider({ seed: 1 }, getUnlockedSpells(), undefined, randoms, false);
+    await infoProvider.ready();
+
+    randoms.SetWorldSeed(1);
+    infoProvider.providers.perk.ignorePerks = ["INVISIBILITY"];
+    const entrancePerks = infoProvider.providers.perk.generateEntrancePerks(["INVISIBILITY"]);
+    const targetPerk = entrancePerks[0];
+
+    const solver = new SeedSearcher(infoProvider);
+    await solver.update({
+      currentSeed: 1,
+      seedEnd: 1,
+      isNightmare: true,
+      rules: {
+        id: "1",
+        type: RuleType.AND,
+        rules: [
+          {
+            id: "2",
+            type: "perk",
+            path: "",
+            params: [],
+            val: {
+              all: [[], [], [], [], [], [], []],
+              some: [[], [], [], [], [], [], []],
+              deck: [[]],
+              entrance: { some: [targetPerk], all: [] },
+            },
+          },
+        ],
+      },
+    } as any);
+    await solver.work();
+
+    expect(solver.getInfo().foundSeed).toEqual(1);
+  });
+
+  it("Should reject seeds not matching nightmare entrance perk rules", async () => {
+    const randoms = await loadRandom();
+
+    const infoProvider = new GameInfoProvider({ seed: 1 }, getUnlockedSpells(), undefined, randoms, false);
+    await infoProvider.ready();
+
+    const solver = new SeedSearcher(infoProvider);
+    await solver.update({
+      currentSeed: 1,
+      seedEnd: 1,
+      isNightmare: true,
+      rules: {
+        id: "1",
+        type: RuleType.AND,
+        rules: [
+          {
+            id: "2",
+            type: "perk",
+            path: "",
+            params: [],
+            val: {
+              all: [[], [], [], [], [], [], []],
+              some: [[], [], [], [], [], [], []],
+              deck: [[]],
+              entrance: { some: ["YOURPERKDOESNOTEXIST"], all: [] },
+            },
+          },
+        ],
+      },
+    } as any);
+    await solver.work();
+
+    expect(solver.getInfo().foundSeed).toBeUndefined();
+  });
+
+  it("Should find entrance perks via findSync (chunk search path)", async () => {
+    const randoms = await loadRandom();
+
+    const infoProvider = new GameInfoProvider({ seed: 1 }, getUnlockedSpells(), undefined, randoms, false);
+    await infoProvider.ready();
+
+    randoms.SetWorldSeed(5);
+    infoProvider.providers.perk.ignorePerks = ["INVISIBILITY"];
+    const entrancePerks = infoProvider.providers.perk.generateEntrancePerks(["INVISIBILITY"]);
+    const targetPerk = entrancePerks[0];
+
+    infoProvider.updateConfig({ isNightmare: true });
+
+    const solver = new SeedSearcher(infoProvider);
+    await solver.update({
+      currentSeed: 5,
+      seedEnd: 5,
+      isNightmare: true,
+      rules: {
+        id: "1",
+        type: RuleType.AND,
+        rules: [
+          {
+            id: "2",
+            type: "perk",
+            path: "",
+            params: [],
+            val: {
+              all: [[], [], [], [], [], [], []],
+              some: [[], [], [], [], [], [], []],
+              deck: [[]],
+              entrance: { some: [targetPerk], all: [] },
+            },
+          },
+        ],
+      },
+    } as any);
+    const results = solver.findSync(5, 6);
+
+    expect(results).toContain(5);
+  });
 });

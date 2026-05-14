@@ -1,0 +1,25 @@
+<!--
+文件功能描述：
+  计时器/GUI 实体配置。通过 LuaComponent 绑定脚本 `mods/kill_monsters_add_max_hp/files/timer.lua`，在组件添加后执行一次以启动协程循环，
+  每帧刷新并绘制 GUI 文本显示击杀数。
+
+主要模块说明：
+  - LuaComponent：提供 Lua 脚本执行环境；`vm_type` 设置虚拟机实例策略；`
+    enable_coroutines` 打开协程支持；`execute_on_added` 在组件添加时调用；`execute_times` 指定初次执行次数；
+    `execute_every_n_frame` 为 -1 表示不按帧周期自动触发（由协程控制）。
+
+修改历史记录：
+  - 2025-12-11：添加规范中文注释；未更改任何结构属性。
+-->
+<Entity>
+  <!-- Lua 脚本组件：绑定 GUI 刷新逻辑的协程脚本，详见 `mods/kill_monsters_add_max_hp/files/timer.lua` -->
+  <LuaComponent
+    script_source_file="mods/kill_monsters_add_max_hp/files/timer.lua"
+    vm_type="ONE_PER_COMPONENT_INSTANCE"
+    enable_coroutines="1"
+    execute_on_added="1"
+    execute_times="1"
+    execute_every_n_frame="-1"
+    >
+  </LuaComponent>
+</Entity>

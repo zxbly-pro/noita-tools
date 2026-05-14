@@ -18,42 +18,41 @@ const DBError = props => {
   return (
     <div className="position-absolute top-50 start-50 translate-middle fs-4 fw-light">
       <p>
-        There was an error loading the database: <br />
-        <code>Error: {props.error.message}</code>
+        加载数据库时出错： <br />
+        <code>错误： {props.error.message}</code>
       </p>
       <p>
-        <b>This might be due to several reasons:</b>
+        <b>这可能由以下原因导致：</b>
         <ul>
           <li>
-            A common issue might be the use of Noitool in <b>incognito mode</b>.
+            常见问题是在<b>隐私模式</b>下使用 Noitool。
           </li>
-          <li>Some browser's security configuration does not allow indexeddb access.</li>
+          <li>某些浏览器的安全配置不允许访问 indexeddb。</li>
           <li>
-            In a very rare case, your browser might not support indexeddb. Check{" "}
+            极少数情况下，您的浏览器可能不支持 indexeddb。查看{" "}
             <a href="https://caniuse.com/indexeddb" target="_blank" rel="noreferrer">
-              this page
+              此页面
             </a>{" "}
-            to see which browsers support it.
+            了解哪些浏览器支持它。
           </li>
         </ul>
       </p>
       <p>
-        If you are sure that this is a Noitool issue, you can help solve it! Please click the button below to upload
-        your Noitool database to help with debugging, and file a bug report{" "}
+        如果您确定这是 Noitool 的问题，您可以帮助解决！请点击下方按钮上传您的 Noitool 数据库以协助调试，并在{" "}
         <a target="_blank" rel="noreferrer" href="https://github.com/TwoAbove/noita-tools/issues/">
-          here
+          这里
         </a>
-        . Please include the code [<code>{uuid}</code>] as well. <br />
+        提交 bug 报告。请附上代码 [<code>{uuid}</code>]。 <br />
         <Button
           variant={uploaded ? "success" : "primary"}
           className={classNames([uploaded && "success", "mt-3"])}
           onClick={handleUpload}
         >
-          {uploaded ? "Uploaded" : "Upload"}
+          {uploaded ? "已上传" : "上传"}
         </Button>
       </p>
-      <p>If you are sure that this message is an error, click below.</p>
-      <Button onClick={props.onProceed}>Continue</Button>
+      <p>如果您确定此消息是错误的，请点击下方按钮。</p>
+      <Button onClick={props.onProceed}>继续</Button>
     </div>
     // <Container fluid="sm" className="mb-5 p-0 rounded shadow-lg">
     // </Container>

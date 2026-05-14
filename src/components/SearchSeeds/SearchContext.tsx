@@ -18,9 +18,17 @@ import { SearchesItem, db } from "../../services/db";
 import { ruleReducer, initialRuleState } from "./ruleReducer";
 
 const calculateJobHash = async (string: string) => {
-  const buf = await crypto.subtle.digest("SHA-1", new TextEncoder().encode(string));
-  const stringHash = Array.prototype.map.call(new Uint8Array(buf), x => ("00" + x.toString(16)).slice(-2)).join("");
-  return stringHash;
+  if (crypto?.subtle?.digest) {
+    const buf = await crypto.subtle.digest("SHA-1", new TextEncoder().encode(string));
+    const stringHash = Array.prototype.map.call(new Uint8Array(buf), x => ("00" + x.toString(16)).slice(-2)).join("");
+    return stringHash;
+  }
+  let hash = 0;
+  for (let i = 0; i < string.length; i++) {
+    const char = string.charCodeAt(i);
+    hash = ((hash << 5) - hash + char) | 0;
+  }
+  return Math.abs(hash).toString(16).padStart(8, "0");
 };
 
 export const SearchContext = React.createContext<any>({});
@@ -126,7 +134,7 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
   useEffect(() => {
     if (!searchInstance) return;
 
-    const { findAll, from: seed, to: seedEnd } = searchInstance.config;
+    const { findAll, from: seed, to: seedEnd, isNightmare } = searchInstance.config;
 
     seedSolver.update({
       rules: ruleTree,
@@ -134,6 +142,7 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
       seedEnd: seedEnd,
       unlockedSpells,
       findAll,
+      isNightmare,
     });
   }, [searchInstance, ruleTree, seedSolver, unlockedSpells]);
 
@@ -185,8 +194,10 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
   }, []);
 
   const initializeStatsSocket = useCallback(() => {
-    const socket = socketIOClient(window.location.host);
-    setStatsSocket(socket);
+    try {
+      const socket = socketIOClient(window.location.host, { timeout: 3000, reconnectionAttempts: 1 });
+      setStatsSocket(socket);
+    } catch (e) {}
   }, []);
 
   useEffect(() => {
@@ -250,12 +261,6 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
   }, [chunkProvider, ruleTree, clusterHelpEnabled]);
 
   const startCalculation = useCallback(async () => {
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(ruleTree),
-    };
-    fetch("/api/data", requestOptions).catch(console.error);
     socketComputeProvider?.start();
     callbackComputeHandler?.start().catch(console.error);
   }, [ruleTree, socketComputeProvider, callbackComputeHandler]);
@@ -338,6 +343,7 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
     seed: searchInstance?.config.from || 1,
     seedEnd: searchInstance?.config.to || Math.pow(2, 31),
     findAll: searchInstance?.config.findAll || false,
+    isNightmare: searchInstance?.config.isNightmare || false,
     updateSearchConfig,
     handleMultithreading,
     handleCustomSeedListChange,

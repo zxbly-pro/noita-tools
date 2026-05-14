@@ -10,6 +10,7 @@ export interface ISeedSearcherConfig {
   rules?: ILogicRules;
   unlockedSpells?: boolean[];
   findAll?: boolean;
+  isNightmare?: boolean;
 }
 
 export const searchWeights = {
@@ -111,6 +112,10 @@ export class SeedSearcher {
       return this.findSync(to, from);
     }
 
+    if (this.gameInfoProvider.config.isNightmare && this.gameInfoProvider.providers?.perk) {
+      this.gameInfoProvider.providers.perk.ignorePerks = ["INVISIBILITY"];
+    }
+
     const res: number[] = [];
 
     for (let seed = from; seed < to; seed++) {
@@ -146,6 +151,10 @@ export class SeedSearcher {
   async work() {
     this.running = true;
     this.shouldCancel = false;
+
+    if (this.gameInfoProvider.config.isNightmare && this.gameInfoProvider.providers?.perk) {
+      this.gameInfoProvider.providers.perk.ignorePerks = ["INVISIBILITY"];
+    }
 
     // we need a failsafe for too-long loops, so we'll just stop after 5 minutes
     setTimeout(
@@ -235,6 +244,10 @@ export class SeedSearcher {
     }
     if (config.findAll) {
       this.findAll = config.findAll;
+    }
+    if (typeof config.isNightmare === "boolean") {
+      await this.gameInfoProvider.ready();
+      this.gameInfoProvider.updateConfig({ isNightmare: config.isNightmare });
     }
     if (config.unlockedSpells) {
       this.gameInfoProvider.unlockedSpells = config.unlockedSpells;

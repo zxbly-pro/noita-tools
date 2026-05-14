@@ -206,7 +206,7 @@ const Add: FC<IAddProps> = ({ onAdd }) => {
       variant="outline-primary"
       as={ButtonGroup}
       id="dropdown-item-button"
-      title="Add new rule"
+      title="添加新规则"
     >
       {rules.map(r => {
         const rule = RuleConstructors[r];
@@ -297,7 +297,7 @@ export const Import: FC<IImportProps> = ({ onClick }) => {
           rippleError && "border-danger text-danger border-1",
           ripple && "border-success text-success border-1",
         ])}
-        placeholder="Import search from string"
+        placeholder="从字符串导入搜索"
         ref={inputRef}
       />
       <Button
@@ -312,11 +312,11 @@ export const Import: FC<IImportProps> = ({ onClick }) => {
         ])}
         variant="outline-info"
       >
-        Import
+        导入
       </Button>
       <div className="mx-3"></div>
       <Button variant="outline-info" onClick={() => handleNew()}>
-        New Search
+        新建搜索
       </Button>
     </InputGroup>
   );
@@ -355,9 +355,23 @@ const SearchRow: FC<ISearchRowProps> = ({ current, search }) => {
 
   const handleExport = async (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
     const exportedSearch = await getExportableSearch(search.uuid);
+    const text = btoa(JSON.stringify(exportedSearch));
 
-    navigator.clipboard
-      .writeText(btoa(JSON.stringify(exportedSearch)))
+    const copyToClipboard = async (str: string) => {
+      if (navigator.clipboard?.writeText) {
+        return navigator.clipboard.writeText(str);
+      }
+      const textarea = document.createElement("textarea");
+      textarea.value = str;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+    };
+
+    copyToClipboard(text)
       .catch(e => console.error(e))
       .finally(() => {
         setRipple(true);
@@ -406,7 +420,7 @@ const SearchRow: FC<ISearchRowProps> = ({ current, search }) => {
                 })
                 .catch(console.error);
             }}
-            placeholder="Unnamed Search"
+            placeholder="未命名搜索"
             value={config.name}
           />
         </InputGroup>
@@ -436,7 +450,7 @@ const SearchRow: FC<ISearchRowProps> = ({ current, search }) => {
                   onClick={e => handleExport(e)}
                   // className="w-100"
                 >
-                  Export to string
+                  导出为字符串
                 </Dropdown.Item>
                 <Dropdown.Divider />
                 <Dropdown.Item
@@ -444,7 +458,7 @@ const SearchRow: FC<ISearchRowProps> = ({ current, search }) => {
                   onClick={handleDelete}
                   className={classNames(clickedDelete ? "text-danger" : "text-warning")}
                 >
-                  {clickedDelete ? "Delete?" : "Delete"}
+                  {clickedDelete ? "确认删除？" : "删除"}
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
@@ -467,7 +481,7 @@ const SearchSelect: FC<ISearchSelectProps> = ({ open, onClose }) => {
   return (
     <Modal size="lg" fullscreen="sm-down" scrollable show={open} onHide={onClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Load search</Modal.Title>
+        <Modal.Title>加载搜索</Modal.Title>
       </Modal.Header>
       <Modal.Body
         style={{
@@ -480,8 +494,8 @@ const SearchSelect: FC<ISearchSelectProps> = ({ open, onClose }) => {
           <thead>
             <tr>
               <td>{/* <i className="bi bi-search"></i> */}</td>
-              <td className="ps-2 w-50">Name</td>
-              <td className="ps-2 fw-light">Last updated</td>
+              <td className="ps-2 w-50">名称</td>
+              <td className="ps-2 fw-light">最后更新</td>
               <td className=""></td>
             </tr>
           </thead>
@@ -506,7 +520,7 @@ const Load: FC<ILoadProps> = props => {
   return (
     <>
       <Button className="w-100" variant="outline-info" onClick={() => setLoadOpen(true)}>
-        Manage saved searches
+        管理已保存的搜索
       </Button>
       <SearchSelect open={loadOpen} onClose={() => setLoadOpen(false)} />
     </>
@@ -515,15 +529,15 @@ const Load: FC<ILoadProps> = props => {
 
 const LogicConstructors = {
   [RuleType.AND]: {
-    Title: () => "And",
+    Title: () => "且",
     type: RuleType.AND,
   },
   [RuleType.OR]: {
-    Title: () => "Or",
+    Title: () => "或",
     type: RuleType.OR,
   },
   [RuleType.NOT]: {
-    Title: () => "Not",
+    Title: () => "非",
     type: RuleType.NOT,
   },
 };
@@ -539,7 +553,7 @@ const Logic: FC<ILogicProps> = ({ onLogic }) => {
       variant="outline-primary"
       as={ButtonGroup}
       id="dropdown-item-button"
-      title="Add logic"
+      title="添加逻辑"
     >
       {rules.map(r => {
         const rule = LogicConstructors[r];

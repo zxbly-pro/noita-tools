@@ -59,6 +59,7 @@ export interface SearchesItemConfig {
   from: number;
   to: number;
   findAll?: boolean;
+  isNightmare?: boolean;
   rules: string;
 }
 export interface SearchesItem {

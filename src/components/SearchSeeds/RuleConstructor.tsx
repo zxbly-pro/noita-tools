@@ -25,19 +25,19 @@ export const RuleConstructors = {
     defaultConfig: {
       rules: [],
     },
-    Title: () => "And",
+    Title: () => "且",
   },
   [RuleType.OR]: {
     defaultConfig: {
       rules: [],
     },
-    Title: () => "Or",
+    Title: () => "或",
   },
   [RuleType.NOT]: {
     defaultConfig: {
       rules: [],
     },
-    Title: () => "Not",
+    Title: () => "非",
   },
 
   // Search rules
@@ -51,7 +51,7 @@ export const RuleConstructors = {
         LC: [],
       },
     },
-    Title: () => "Alchemy",
+    Title: () => "炼金术",
   },
   biomeModifier: {
     Component: Biomes,
@@ -60,7 +60,7 @@ export const RuleConstructors = {
       path: "",
       val: {},
     },
-    Title: () => "Biome Modifiers",
+    Title: () => "生态修饰",
   },
   fungalShift: {
     Component: FungalShifts,
@@ -69,7 +69,7 @@ export const RuleConstructors = {
       path: "",
       val: new Array(20).fill(undefined),
     },
-    Title: () => "Fungal Shifts",
+    Title: () => "真菌转换",
   },
   pacifistChest: {
     Component: PacifistChest,
@@ -78,7 +78,7 @@ export const RuleConstructors = {
       path: "",
       val: new Array(7).fill([]),
     },
-    Title: () => "Pacifist Chest",
+    Title: () => "和平宝箱",
   },
   perk: {
     Component: Perks,
@@ -89,13 +89,14 @@ export const RuleConstructors = {
         all: new Array(7).fill([]),
         deck: new Array(1).fill([]),
         some: new Array(7).fill([]),
+        entrance: { some: [], all: [] },
       },
     },
-    Title: () => "Perks",
+    Title: () => "天赋",
   },
   search: {
     Component: Search,
-    Title: ({ name }) => (name ? `Search "${name}"` : "Search"),
+    Title: ({ name }) => (name ? `搜索 "${name}"` : "搜索"),
   },
   shop: {
     Component: Shop,
@@ -104,7 +105,7 @@ export const RuleConstructors = {
       path: "",
       val: new Array(7).fill(undefined),
     },
-    Title: () => "Shop",
+    Title: () => "商店",
   },
   startingBombSpell: {
     Component: StartingBombSpell,
@@ -113,7 +114,7 @@ export const RuleConstructors = {
       path: "",
       val: "",
     },
-    Title: () => "Starting Bomb Spell",
+    Title: () => "初始炸弹法术",
   },
   startingFlask: {
     Component: StartingFlask,
@@ -122,7 +123,7 @@ export const RuleConstructors = {
       path: "",
       val: "",
     },
-    Title: () => "Starting Flask",
+    Title: () => "初始药瓶",
   },
   startingSpell: {
     Component: StartingSpell,
@@ -131,7 +132,7 @@ export const RuleConstructors = {
       path: "",
       val: "",
     },
-    Title: () => "Starting Spell",
+    Title: () => "初始法术",
   },
   weather: {
     Component: Weather,
@@ -144,7 +145,7 @@ export const RuleConstructors = {
         rain_material: "",
       },
     },
-    Title: () => "Weather",
+    Title: () => "天气",
   },
 };
 type IRuleConstructor = (typeof RuleConstructors)[keyof typeof RuleConstructors];

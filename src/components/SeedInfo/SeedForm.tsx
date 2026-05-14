@@ -26,7 +26,7 @@ const SeedForm = (props: ISeedFormProps) => {
       <Stack direction="horizontal" gap={5}>
         <Form.Control
           id="seedForm.seed"
-          placeholder="Seed"
+          placeholder="种子"
           type="number"
           value={seed}
           onChange={handleNameChange}
@@ -34,7 +34,7 @@ const SeedForm = (props: ISeedFormProps) => {
           autoFocus
         />
         <Button className="" type="submit" size="lg" color="primary">
-          Submit
+          提交
         </Button>
       </Stack>
     </Form>

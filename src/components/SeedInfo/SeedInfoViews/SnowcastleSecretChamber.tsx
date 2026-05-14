@@ -32,7 +32,7 @@ const SnowcastleSecretChamber = () => {
       </Button>
       <Modal show={modalOpen} onHide={() => setModalOpen(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Snowy Depths Secret Chamber</Modal.Title>
+          <Modal.Title>雪堡密室</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {spells.map((spell, i) => {

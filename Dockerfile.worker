@@ -1,0 +1,19 @@
+FROM node:22.16.0-alpine AS builder
+
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --legacy-peer-deps
+COPY . .
+RUN npm run console-build
+
+FROM node:22.16.0-alpine AS production
+
+WORKDIR /app
+COPY --from=builder /app/console-build ./
+
+RUN npm install --omit=dev
+
+ENV NOITOOL_URL=http://zxbly.com:3000
+ENV NOITOOL_CORES=0
+
+CMD ["sh", "-c", "node --no-warnings=ExperimentalWarning consoleSearch.js --url $NOITOOL_URL --cores $NOITOOL_CORES"]

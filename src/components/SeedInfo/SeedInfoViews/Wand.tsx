@@ -52,7 +52,7 @@ const Wand = (props: {
             <tbody>
               <tr>
                 <th scope="row">{t("$inventory_shuffle")}</th>
-                <td>{item.gun.shuffle_deck_when_empty ? "Yes" : "No"}</td>
+                <td>{item.gun.shuffle_deck_when_empty ? "是" : "否"}</td>
               </tr>
               <tr>
                 <th scope="row">{t("$inventory_actionspercast")}</th>

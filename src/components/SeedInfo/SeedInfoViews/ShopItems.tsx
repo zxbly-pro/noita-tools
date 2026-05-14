@@ -90,7 +90,7 @@ const Shop = (props: IShopProps) => {
   return (
     <Modal centered fullscreen="sm-down" size="lg" scrollable show={show} onHide={handleClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Shop Items</Modal.Title>
+        <Modal.Title>商店物品</Modal.Title>
       </Modal.Header>
       <Modal.Body>{shop && <ShopItems shop={shop} isFavorite={isFavorite} />}</Modal.Body>
     </Modal>

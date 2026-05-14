@@ -134,20 +134,20 @@ const FungalShifts: FC<IFungalShiftsProps> = ({ onUpdateConfig, config }) => {
   return (
     <Container fluid>
       <p>
-        Lists can be left blank if any material will do. <br />
-        At least one of the selected materials will be in the found seeds.
+        列表留空表示接受任意材料。<br />
+        搜索结果中至少包含一种所选材料。
       </p>
       <Stack gap={2}>
         {fungalShifts.map((shift, i) => {
           return (
             <Stack direction="horizontal" gap={3} key={i}>
-              <Col xs={1}>Shift {i + 1}</Col>
+              <Col xs={1}>转换 {i + 1}</Col>
               <Col xs="auto">
                 <Button
                   variant={isSelected(i, "from") ? "primary" : "outline-primary"}
                   onClick={() => handleOpen(i, "from")}
                 >
-                  <Square>Edit From</Square>
+                  <Square>编辑源</Square>
                 </Button>
               </Col>
               <Col xs="auto">
@@ -155,13 +155,13 @@ const FungalShifts: FC<IFungalShiftsProps> = ({ onUpdateConfig, config }) => {
                   variant={isSelected(i, "to") ? "primary" : "outline-primary"}
                   onClick={() => handleOpen(i, "to")}
                 >
-                  <Square>Edit To</Square>
+                  <Square>编辑目标</Square>
                 </Button>
               </Col>
               {shift && (
                 <Col>
                   <Button variant="outline-primary" onClick={() => handleClear(i)}>
-                    <Square>Clear</Square>
+                    <Square>清除</Square>
                   </Button>
                 </Col>
               )}

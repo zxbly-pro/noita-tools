@@ -1,0 +1,19 @@
+<!--
+文件功能描述：
+  天赋拾取实体定义。绑定拾取脚本以处理拾取逻辑与玩家效果应用。
+
+主要模块说明：
+  - `LuaComponent`：指向 `pickup_perk.lua`，在物品被拾取时触发。
+
+修改历史记录：
+  - 2025-12-11：添加规范中文注释；未更改任何字段值。
+
+-->
+<Entity tags="teleportable_NOT,perk,item_perk">
+
+    <!-- 物品拾取回调脚本：拾取时执行天赋应用与代价逻辑 -->
+    <LuaComponent
+            script_item_picked_up="mods/monster_slaying_rewards/files/scripts/pickup_perk.lua" >
+    </LuaComponent>
+
+</Entity>

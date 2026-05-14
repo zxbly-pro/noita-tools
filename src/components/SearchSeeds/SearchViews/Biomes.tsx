@@ -50,7 +50,7 @@ const Biomes: FC<IBiomesProps> = ({ onUpdateConfig, config }) => {
 
   return (
     <Container fluid>
-      <p>To delete a modifier, click on it.</p>
+      <p>点击修饰符可删除。</p>
       <Stack gap={3}>
         {Object.keys(biomeModifiers).map(biome => {
           const name = capitalize(biomeInfoProvider.provide(biome).translated_name!);
@@ -75,7 +75,7 @@ const Biomes: FC<IBiomesProps> = ({ onUpdateConfig, config }) => {
         <Row className="justify-content-center align-items-center">
           <Col xs="auto">
             <Button onClick={() => setSelectOpen(true)}>
-              <Square>Add</Square>
+              <Square>添加</Square>
             </Button>
           </Col>
         </Row>

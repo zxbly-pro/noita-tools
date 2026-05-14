@@ -32,14 +32,14 @@ const SnowcaveSecretChamber = () => {
       </Button>
       <Modal show={modalOpen} onHide={() => setModalOpen(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Snowy Depths Secret Chamber</Modal.Title>
+          <Modal.Title>雪窟密室</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {wands.map((wand, i) => {
             return (
               <Wand
                 key={wand.ui.name + i}
-                title={`Snowy Depths Secret Wand ${i + 1}`}
+                title={`雪窟密室法杖 ${i + 1}`}
                 item={wand}
                 isFavorite={isFavorite}
               />

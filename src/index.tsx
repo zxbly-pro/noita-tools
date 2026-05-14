@@ -3,36 +3,13 @@ import { createRoot } from "react-dom/client";
 
 import "react-virtualized/styles.css";
 
-// import 'bootstrap/dist/css/bootstrap.min.css';
-// import "bootswatch/dist/spacelab/bootstrap.min.css";
-
 import "./index.css";
 import "./i18n";
 import App from "./components/App";
 
-import * as serviceWorker from "./serviceWorker";
-
-// import reportWebVitals from './reportWebVitals';
-
 console.log(`v${APP_VERSION}`);
 
-function sendToAnalytics(metric: any) {
-  const body = JSON.stringify(metric);
-  // Use `navigator.sendBeacon()` if available, falling back to `fetch()`.
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  (navigator.sendBeacon && navigator.sendBeacon("/api/stats", body)) ||
-    fetch("/api/stats", { body, method: "POST", keepalive: true });
-}
-
-// reportWebVitals(sendToAnalytics);
 const root = createRoot(document.getElementById("root")!);
 root.render(
-  // <React.StrictMode>
   <App />,
-  // </React.StrictMode>
 );
-
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();

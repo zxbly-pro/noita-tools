@@ -57,7 +57,7 @@ const PrecipitationDuration: FC<{ weather: IWeather }> = ({ weather }) => {
 };
 
 const PrecipitationDescription: FC<{ weather: IWeather }> = ({ weather }) => {
-  let materialName = "Clear";
+  let materialName = "晴朗";
   if (weather.rain_material) {
     materialName = materials.translate(weather.rain_material);
   }
@@ -146,7 +146,7 @@ const Weather: FC<IWeatherProps> = ({ weather }) => {
           }}
           className="text-muted fw-light p-0 text-center"
         >
-          Accurate at time of generation
+          以生成时间为准
         </Card.Footer>
       )}
     </Card>

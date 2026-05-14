@@ -28,7 +28,7 @@ const Settings = props => {
   return (
     <Modal size="lg" show={props.show} onHide={props.handleClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Settings</Modal.Title>
+        <Modal.Title>设置</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {gameInfoProvider && data ? (
@@ -42,7 +42,7 @@ const Settings = props => {
             ))}
           </GameInfoContext.Provider>
         ) : (
-          <p>Loading</p>
+          <p>加载中</p>
         )}
       </Modal.Body>
     </Modal>

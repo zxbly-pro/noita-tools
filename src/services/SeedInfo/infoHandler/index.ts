@@ -121,6 +121,7 @@ export class GameInfoProvider extends EventTarget {
       {},
       {
         seed: 1,
+        isNightmare: false,
         perksAdvanced: false,
         perkRerolls: new Map(),
         pickedPerks: new Map(),
@@ -138,6 +139,9 @@ export class GameInfoProvider extends EventTarget {
   // This should be a reducer;
   updateConfig(config: Partial<IProviderConfig>) {
     Object.assign(this.config, config);
+    if (this.providers?.perk) {
+      this.providers.perk.ignorePerks = this.config.isNightmare ? ["INVISIBILITY"] : undefined;
+    }
     if (this.dispatch) {
       this.dispatchEvent(new CustomEvent("update", { detail: {} }));
     }
@@ -270,23 +274,39 @@ export class GameInfoProvider extends EventTarget {
     const worldSeed = Number(this.config.seed);
     this.randoms!.SetWorldSeed(worldSeed);
 
+    const nightmarePerks = this.config.isNightmare ? ["INVISIBILITY"] : undefined;
+    this.providers.perk.ignorePerks = nightmarePerks;
+
+    let entrancePerks: any[] | undefined;
+    const initialPerkIndex = this.config.isNightmare ? 3 : undefined;
+
+    if (this.config.isNightmare) {
+      const entranceIds = this.providers.perk.generateEntrancePerks(nightmarePerks);
+      entrancePerks = this.providers.perk.hydrate([entranceIds])[0];
+    }
+
     const statelessPerks = this.providers.perk.provideStateless(
       this.config.perkStacks[this.config.perkStacks.length - 1],
       true,
+      nightmarePerks,
+      initialPerkIndex,
     );
 
     return {
       alchemy: this.providers.alchemy.provide(),
       biomeModifiers: this.providers.biomeModifier.provide(),
       fungalShifts: this.providers.fungalShift.provide(),
-      perkDeck: this.providers.perk.getPerkDeck(true),
+      perkDeck: this.providers.perk.getPerkDeck(true, nightmarePerks),
       perks: this.providers.perk.provide(
         this.config.pickedPerks,
         undefined,
         true,
         this.config.perkWorldOffset,
         this.config.perkRerolls,
+        nightmarePerks,
+        initialPerkIndex,
       ),
+      entrancePerks,
       statelessPerks: statelessPerks,
       weather: this.providers.weather.provide(),
       shop: this.providers.shop.provide(
@@ -303,6 +323,7 @@ export class GameInfoProvider extends EventTarget {
 
 interface IProviderConfig {
   seed: number;
+  isNightmare: boolean;
   perksAdvanced: boolean;
   perkRerolls: Map<number, number[]>;
   pickedPerks: Map<number, string[][]>;

@@ -1,6 +1,6 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useState } from "react";
 import { Table, Button, Col, Modal, Row, Stack, ListGroup, Form } from "react-bootstrap";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useSearchParamsState } from "react-use-search-params-state";
 
 import SeedForm from "./SeedForm";
@@ -25,14 +25,14 @@ const SeedHistoryModal = props => {
   return (
     <Modal size="lg" show={show} onHide={handleClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Seed History</Modal.Title>
+        <Modal.Title>种子历史</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Table responsive striped borderless hover>
           <thead>
             <tr>
-              <th>Seed</th>
-              <th>Last updated</th>
+              <th>种子</th>
+              <th>最后更新</th>
               <th></th>
             </tr>
           </thead>
@@ -58,7 +58,7 @@ const SeedHistoryModal = props => {
                         }}
                         size="sm"
                       >
-                        delete
+                        删除
                       </Button>
                     ) : (
                       <Button
@@ -77,7 +77,7 @@ const SeedHistoryModal = props => {
                         }}
                         size="sm"
                       >
-                        delete
+                        确认删除
                       </Button>
                     )}
                   </td>
@@ -89,7 +89,7 @@ const SeedHistoryModal = props => {
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={handleClose}>
-          Close
+          关闭
         </Button>
       </Modal.Footer>
     </Modal>
@@ -108,19 +108,17 @@ const QuirkModal = props => {
   return (
     <Modal fullscreen="sm-down" size="lg" scrollable show={show} onHide={handleClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Quirks and Limitations</Modal.Title>
+        <Modal.Title>注意事项与限制</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Part>
-          <h4>Perk Rerolls</h4>
+          <h4>天赋重骰</h4>
           <p>
-            Due to how perks are re-rolled in-game, the only guarantee is the <b>perks</b> that you will get,{" "}
-            <b>not their position</b>. <br />
+            由于游戏中天赋重骰的机制，唯一能保证的是你会获得的<b>天赋</b>，{" "}
+            <b>而非它们的位置</b>。 <br />
             <br />
-            When looking at <i>always cast</i> and <i>perk lottery</i> info, note that they are <b>position</b>
-            -dependent, not <b>perk</b>-dependent. That means that if the position of <i>always cast</i> in-tool is
-            different from that in-game, then the value will be different. As a non-perfect solution, please enable
-            "show always-cast for whole row" in the settings (shortcut below).
+            查看<i>始终施放</i>和<i>天赋彩票</i>信息时，请注意它们是依赖<b>位置</b>
+            的，而非依赖<b>天赋</b>的。这意味着如果工具中<i>始终施放</i>的位置与游戏中不同，则数值也会不同。作为不完美的解决方案，请在设置中启用"显示整行始终施放"（快捷方式如下）。
           </p>
           <ListGroup variant="flush" className="mt-0 mb-3 shadow">
             <ListGroup.Item>
@@ -129,36 +127,32 @@ const QuirkModal = props => {
           </ListGroup>
         </Part>
         <Part>
-          <h4>Pacifist Chest</h4>
-          <h5>Greed</h5>
-          <p>Greed is currently not supported, coming later.</p>
-          <h5>Random Material Potion</h5>
+          <h4>和平宝箱</h4>
+          <h5>贪婪</h5>
+          <p>贪婪目前不支持，稍后添加。</p>
+          <h5>随机材料药水</h5>
           <p>
-            The contents of the Random Material Potion is very mod dependent. <br />
-            If the amount of materials in-game changes, then the material in this potion will differ. Even changing the
-            material positions in <code className="mx-1">data/materials.xml</code> will change the generated materials.
+            随机材料药水的内容高度依赖于 mod。<br />
+            如果游戏中材料数量发生变化，则此药水中的材料也会不同。即使更改
+            <code className="mx-1">data/materials.xml</code> 中的材料位置也会改变生成的材料。
           </p>
         </Part>
         <Part>
-          <h4>Weather</h4>
+          <h4>天气</h4>
           <p>
-            In Noita, the occurrence of rain depends on the game's seed, while snowfall relies on real-time dates. Snow
-            only appears during the months of December, January, and February.{" "}
+            在 Noita 中，降雨取决于游戏种子，而降雪依赖于现实时间日期。雪只在12月、1月和2月出现。{" "}
             <b>
-              <em>Please note that the displayed value represents the current time and date.</em>
+              <em>请注意，显示的值代表当前的时间和日期。</em>
             </b>
             <br />
-            This also applies when searching for seeds. When looking for a seed with snow, the results will only be
-            relevant for the months of December, January, and February, as well as being accurate for the specific day
-            and hour of generation.
+            搜索种子时也是如此。搜索有雪的种子时，结果仅在12月、1月和2月有效，并且精确到生成时的具体日期和小时。
           </p>
         </Part>
         <Part>
-          <h4>Fungal Shifts</h4>
-          <p>Fungal Shifts will shift one material to another.</p>
+          <h4>真菌转换</h4>
+          <p>真菌转换会将一种材料转变为另一种。</p>
           <p>
-            When shifting to a held material, and if you're holding Gold, then you only have a <b>1/1000</b> chance of
-            shifting the material to Gold.
+            当转换为手持材料时，如果你手持黄金，则只有 <b>1/1000</b> 的概率将材料转换为黄金。
           </p>
           <FungalShifts
             fungalData={[
@@ -197,7 +191,7 @@ const QuirkModal = props => {
 };
 
 const SeedData = () => {
-  const [showCurrentDailySeed, setShowCurrentDailySeed] = useLocalStorage("show-current-daily-seed", false);
+  const [isNightmare, setIsNightmare] = useLocalStorage("seed-info-nightmare", false);
 
   const [filterParams, setFilterParams] = useSearchParamsState({
     seed: {
@@ -206,22 +200,7 @@ const SeedData = () => {
     },
   });
 
-  const [dailySeed, setDailySeed] = useState<string | null>(null);
-
   const seed = filterParams.seed;
-
-  useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    (async () => {
-      const res = await fetch("/api/daily-seed").then(r => r.json());
-      setDailySeed(res.seed);
-      if (showCurrentDailySeed && !seed) {
-        setFilterParams({ seed: res.seed });
-      }
-    })();
-    // Only run on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showCurrentDailySeed]);
 
   // const [seed, setSeed] = React.useState<any>(() => seedInSeachParams || '');
 
@@ -245,20 +224,19 @@ const SeedData = () => {
           <Row>
             <Col xs={6}>
               <p className="mb-0">
-                Noitool provides information about perks, fungal shifts, shop items, chests, biome info, LC and AP
-                recipes, weather for the given seed. <br />
+                Noitool 提供给定种子的天赋、真菌转换、商店物品、宝箱、生态信息、LC 和 AP 配方、天气等信息。 <br />
               </p>
             </Col>
             <Col>
               <p>
-                Note that Noitool has minor limitations in details of generation: <span className="mx-2" />
+                注意 Noitool 在生成细节上有一些小限制： <span className="mx-2" />
                 <Button
                   className="align-self-baseline mt-1"
                   variant="outline-primary"
                   size="sm"
                   onClick={() => setQuirksOpen(true)}
                 >
-                  Show quirks
+                  查看注意事项
                 </Button>
                 <QuirkModal show={openQuirks} handleClose={() => setQuirksOpen(false)} />
               </p>
@@ -267,28 +245,30 @@ const SeedData = () => {
         </Col>
         <Col lg="4">
           <Row>
-            <Col xs={8} className="d-flex justify-content-center align-items-center">
-              <Form.Check
-                checked={showCurrentDailySeed}
-                onChange={e => setShowCurrentDailySeed(e.target.checked)}
-                type="switch"
-                id="custom-switch"
-              />
-              <Form.Label className="ms-2" htmlFor="custom-switch">
-                Automatically show current daily seed {dailySeed && <Link to={`?seed=${dailySeed}`}>{dailySeed}</Link>}
-              </Form.Label>
-            </Col>
             <Col className="d-flex">
               <Button className="ms-auto" variant="outline-secondary" size="sm" onClick={() => setShowHistory(true)}>
-                Seed History
+                种子历史
               </Button>
+            </Col>
+          </Row>
+          <Row className="mt-2">
+            <Col className="d-flex align-items-center">
+              <Form.Check
+                checked={isNightmare}
+                onChange={e => setIsNightmare(e.target.checked)}
+                type="switch"
+                id="nightmare-switch"
+              />
+              <Form.Label className="ms-2 mb-0" htmlFor="nightmare-switch">
+                噩梦模式
+              </Form.Label>
             </Col>
           </Row>
         </Col>
       </Row>
       <Stack>
         <SeedForm onSubmit={seed => handleSetSeed(seed)} />
-        {seed ? <SeedDataOutput isDaily={seed === dailySeed} seed={seed} /> : null}
+        {seed ? <SeedDataOutput isDaily={false} seed={seed} isNightmare={isNightmare} /> : null}
       </Stack>
     </div>
   );

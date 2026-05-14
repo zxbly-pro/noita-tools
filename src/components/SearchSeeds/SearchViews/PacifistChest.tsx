@@ -55,28 +55,28 @@ const availableItems = [
 ];
 
 const subtextMap = {
-  "data/entities/items/wand_level_01.xml": () => <div>Level 1 wand</div>,
+  "data/entities/items/wand_level_01.xml": () => <div>1级法杖</div>,
   "data/entities/items/wand_unshuffle_01.xml": () => (
     <div>
-      Level 1 wand <br /> Unshuffle
+      1级法杖 <br /> 不乱序
     </div>
   ),
-  "data/entities/items/wand_level_02.xml": () => <div>Level 2 wand</div>,
+  "data/entities/items/wand_level_02.xml": () => <div>2级法杖</div>,
   "data/entities/items/wand_unshuffle_02.xml": () => (
     <div>
-      Level 2 wand <br /> Unshuffle
+      2级法杖 <br /> 不乱序
     </div>
   ),
-  "data/entities/items/wand_level_03.xml": () => <div>Level 3 wand</div>,
+  "data/entities/items/wand_level_03.xml": () => <div>3级法杖</div>,
   "data/entities/items/wand_unshuffle_03.xml": () => (
     <div>
-      Level 3 wand <br /> Unshuffle
+      3级法杖 <br /> 不乱序
     </div>
   ),
-  "data/entities/items/wand_level_04.xml": () => <div>Level 4 wand</div>,
+  "data/entities/items/wand_level_04.xml": () => <div>4级法杖</div>,
   "data/entities/items/wand_unshuffle_04.xml": () => (
     <div>
-      Level 4 wand <br /> Unshuffle
+      4级法杖 <br /> 不乱序
     </div>
   ),
 };
@@ -123,9 +123,9 @@ const PacifistChest: FC<IPacifistChestProps> = ({ onUpdateConfig, config }) => {
   return (
     <Container fluid>
       <p>
-        Select what items the pacifist chest must contain. Gold will be
+        选择和平主义宝箱必须包含的物品。
         <br />
-        To delete an item, click on it. <br />
+        点击物品可删除。<br />
       </p>
       <Row className="justify-content-center">
         <Col xs={7}>
@@ -133,7 +133,7 @@ const PacifistChest: FC<IPacifistChestProps> = ({ onUpdateConfig, config }) => {
             {entities.map((row, i) => {
               return (
                 <Row className="justify-content-center align-items-center" key={i}>
-                  <Col xs={3}>Level {i + 1}</Col>
+                  <Col xs={3}>第 {i + 1} 层</Col>
                   <Col>
                     <Stack gap={3} direction="horizontal">
                       {row.map((id, j) => {
@@ -156,7 +156,7 @@ const PacifistChest: FC<IPacifistChestProps> = ({ onUpdateConfig, config }) => {
                   </Col>
                   <Col className="me-auto">
                     <Button onClick={() => toggleSelect(i)}>
-                      <Square>Add Entity</Square>
+                      <Square>添加实体</Square>
                     </Button>
                   </Col>
                 </Row>

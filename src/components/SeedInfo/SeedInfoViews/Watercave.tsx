@@ -21,14 +21,14 @@ const Watercave = (props: IWatercaveProps) => {
 
   return (
     <div className="d-flex flex-column justify-content-between align-items-center text-center p-1">
-      Water Cave Layout:
+      水洞布局：
       <Image
         style={{
           width: "10rem",
         }}
         //ImageclassName={}
         src={cave}
-        title={"Watercave"}
+        title={"水洞"}
       />
     </div>
   );

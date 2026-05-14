@@ -1,0 +1,8 @@
+mods/quant.ew/files/system/player/tmp/0000000000000000_ragdoll_torso.png
+mods/quant.ew/files/system/player/tmp/0000000000000000_ragdoll_right_thigh.png
+mods/quant.ew/files/system/player/tmp/0000000000000000_ragdoll_right_arm.png
+mods/quant.ew/files/system/player/tmp/0000000000000000_ragdoll_right_hand.png
+mods/quant.ew/files/system/player/tmp/0000000000000000_ragdoll_left_thigh.png
+mods/quant.ew/files/system/player/tmp/0000000000000000_ragdoll_left_arm.png
+mods/quant.ew/files/system/player/tmp/0000000000000000_ragdoll_left_hand.png
+mods/quant.ew/files/system/player/tmp/0000000000000000_ragdoll_head.png

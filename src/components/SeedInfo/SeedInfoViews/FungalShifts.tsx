@@ -31,7 +31,7 @@ const HeldMaterial = ({
   [key: string]: any;
 }) => {
   return (
-    <FungalMaterial id="held material" className={classNames(highlight ? "text-info" : "", className)} {...rest} />
+    <FungalMaterial id="held material" displayName="手持材料" className={classNames(highlight ? "text-info" : "", className)} {...rest} />
   );
 };
 
@@ -40,13 +40,14 @@ interface IFungalMaterialProps {
   size?: string;
   showColor?: boolean;
   className?: string;
+  displayName?: string;
 }
 
-export const FungalMaterial: React.FC<IFungalMaterialProps> = ({ id, showColor = true, className, size = 1 }) => {
+export const FungalMaterial: React.FC<IFungalMaterialProps> = ({ id, showColor = true, className, size = 1, displayName }) => {
   const ids = [id].flat();
   const [showId] = useContext(AlchemyConfigContext);
   const { isFavorite } = useMaterialFavorite();
-  const name = materialProvider.translate(ids[0]);
+  const name = displayName || materialProvider.translate(ids[0]);
   const engName = materialProvider.translate(ids[0], "en");
   const material = materialProvider.provide(ids[0]);
   const wikiUrl = getWikiUrl(ids[0], engName);
@@ -225,7 +226,7 @@ export const Shift: FC<IShiftProps> = props => {
             gap: "0.5rem",
           }}
         >
-          <OverlayTrigger placement="right" key="right" overlay={<Tooltip id={`tooltip-right`}>Shifted</Tooltip>}>
+          <OverlayTrigger placement="right" key="right" overlay={<Tooltip id={`tooltip-right`}>已转换</Tooltip>}>
             <Form.Check
               checked={shifted}
               onChange={handleSetShiftedClicked}

@@ -101,7 +101,7 @@ const Patrons = () => {
 
   return (
     <Row xs={1} md={3} className="justify-content-start m-0 my-2">
-      <div className="text-center w-100 fs-5 fw-light">A huge thank you to Noitool's supporters:</div>
+      <div className="text-center w-100 fs-5 fw-light">衷心感谢 Noitool 的支持者们：</div>
       {elements}
     </Row>
   );

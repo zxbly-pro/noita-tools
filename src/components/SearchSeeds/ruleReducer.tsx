@@ -4,6 +4,7 @@ import cloneDeep from "lodash/cloneDeep.js";
 
 import { getTreeTools } from "./node";
 import { RuleConstructors } from "./RuleConstructor";
+import { randomUUID } from "../../services/helpers";
 
 const treeTools = getTreeTools("id", "rules");
 
@@ -59,7 +60,7 @@ export const ruleReducer = (state: IState, action: IActions) => {
   switch (action.action) {
     case "add": {
       newState.rules.push({
-        id: self.crypto.randomUUID(),
+        id: randomUUID(),
         type: action.data.type,
         ...RuleConstructors[action.data.type].defaultConfig,
       });

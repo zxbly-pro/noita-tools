@@ -31,10 +31,10 @@ const ExcavationsiteCubeChamber = () => {
       </Button>
       <Modal show={modalOpen} onHide={() => setModalOpen(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Coal Pits Meditation Cube Chamber</Modal.Title>
+          <Modal.Title>矿坑冥想方块密室</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Wand title="Coal Pits Cube Wand" item={wand} isFavorite={isFavorite} />
+          <Wand title="矿坑方块法杖" item={wand} isFavorite={isFavorite} />
         </Modal.Body>
       </Modal>
     </>

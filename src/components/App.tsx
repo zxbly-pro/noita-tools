@@ -1,10 +1,6 @@
 import React, { FC, useState, Suspense, useEffect, useContext, lazy } from "react";
-import { Container, Stack, Button, Row, Modal } from "react-bootstrap";
+import { Container, Button, Row, Modal } from "react-bootstrap";
 import { useSearchParamsState } from "react-use-search-params-state";
-import Cookies from "js-cookie";
-
-import Donate from "./Donate";
-import { isDev, isLocal } from "./utils";
 
 import "./App.css";
 import { ThemeProvider } from "./ThemeContext";
@@ -14,8 +10,6 @@ import LoadingComponent from "./LoadingComponent";
 import { db } from "../services/db";
 import { BrowserRouter, useLocation, useSearchParams } from "react-router-dom";
 import DBError from "./DBError";
-import Patrons from "./Patrons";
-import PatreonButton from "./misc/PatreonButton";
 import { ProfileContext, ProfileProvider } from "./Profile/ProfileContext";
 
 const Settings = lazy(() => import("./Settings"));
@@ -97,29 +91,15 @@ const LazyProfile = () => {
 };
 
 const Header = () => {
-  const isDevBranch = isDev() || isLocal();
-
   return (
     <Container fluid="sm" className="mb-2 p-0 d-flex justify-content-between px-2">
       <div className="text-nowrap lh-1">
         <h3 className="fs-1 fw-bolder mb-0 text-center position-relative pb-2">
           <a href="/" className="text-decoration-none text-reset">
             Noitool
-            {isDevBranch && <sub className="fs-6 fw mb-0 text-center text-danger">Beta</sub>}
           </a>
-          {isDevBranch && (
-            <code
-              className="fs-6 fw mb-0 position-absolute start-50 translate-middle-x"
-              style={{
-                bottom: "-0.25rem",
-              }}
-            >
-              Build August 12 2024
-            </code>
-          )}
-          {isDevBranch && <div />}
         </h3>
-        <p className="fs-4 fw-light m-1 mt-0 my-1 text-center">Noita tools and helpers</p>
+        <p className="fs-4 fw-light m-1 mt-0 my-1 text-center">Noita 工具与助手</p>
       </div>
       <div className=" d-flex pt-2 justify-content-end align-items-start">
         {/* <div className="mx-2">
@@ -136,24 +116,21 @@ const Header = () => {
 const WasmError = (props: any) => {
   return (
     <div className="position-absolute top-50 start-50 translate-middle text-center w-75">
-      <p>Looks like this browser does not support WebAssembly, which is needed to run the generation code.</p>
+      <p>此浏览器似乎不支持 WebAssembly，而运行生成代码需要它。</p>
       <p>
-        This might be due to several things. Some browser security configurations turn WebAssembly off. Some browsers do
-        not support it. <br />
-        One common issue is with Edge with enhanced security configuration turning off WebAssembly.
+        这可能由多种原因导致。某些浏览器安全配置会关闭 WebAssembly。某些浏览器不支持它。<br />
+        一个常见问题是 Edge 浏览器的增强安全配置会关闭 WebAssembly。
       </p>
       <p>
-        Check{" "}
+        查看{" "}
         <a href="https://webassembly.org/roadmap/" target="_blank" rel="noreferrer">
-          this page
+          此页面
         </a>{" "}
-        to see which browsers support it.
+        了解哪些浏览器支持它。
       </p>
-      <p>If you are sure that this message is an error, click below.</p>
-      <Button onClick={props.onProceed}>Continue</Button>
+      <p>如果您确定此消息是错误的，请点击下方按钮。</p>
+      <Button onClick={props.onProceed}>继续</Button>
     </div>
-    // <Container fluid="sm" className="mb-5 p-0 rounded shadow-lg">
-    // </Container>
   );
 };
 
@@ -167,81 +144,14 @@ const LazyBody = (props: any) => {
 };
 
 const Footer = () => {
-  return (
-    <footer className="footer font-small p-1 pt-3">
-      <Stack>
-        {/* <div className="d-flex justify-content-center align-items-center text-center">
-          For a version of Noitool that follows&nbsp; <b>Noita beta</b>, check out&nbsp;
-          <a href="https://dev.noitool.com/">dev.noitool.com</a>
-        </div> */}
-        <div className="d-flex justify-content-center align-items-center text-center">
-          <PatreonButton />
-          <div className="mx-2">or</div>
-          <div className="pt-2">
-            <Donate />
-            <small className="text-wrap d-block fw-light lh-1" style={{ width: "12rem" }}>
-              If you want to see your name below, please reach out!
-            </small>
-          </div>
-        </div>
-        <Patrons />
-        <div className="footer text-center fw-light py-1">
-          Ideas? Issues? Bugs? Click{" "}
-          <a target="_blank" rel="noreferrer" href="https://github.com/TwoAbove/noita-tools/issues/">
-            here
-          </a>
-          {/* <br /> */} or DM me on Noita's discord:{" "}
-          <a target="_blank" rel="noreferrer" href="https://discord.gg/noita">
-            twoabove
-          </a>{" "}
-          or send me an email: <a href="mailto:me@noitool.com">me@noitool.com</a>
-        </div>
-        <div className="footer-copyright text-center fw-light py-1">
-          <span className="fw-bold">
-            Noitool <code className="ms-1">{APP_VERSION} </code>
-          </span>
-          © 2025 <a href="https://seva.dev/">Seva Maltsev</a>
-        </div>
-      </Stack>
-    </footer>
-  );
+  return null;
 };
 
 interface IOutdatedVersionHandlerProps {
   children?: React.ReactNode;
 }
 const OutdatedVersionHandler: FC<IOutdatedVersionHandlerProps> = props => {
-  const [outdated, setOutdated] = useState(false);
-
-  useEffect(() => {
-    fetch("/api/version")
-      .then(r => r.json())
-      .then(r => {
-        if (r.outdated) {
-          setOutdated(true);
-        }
-      });
-  }, []);
-
-  let toShow = <>{props.children}</>;
-
-  if (outdated) {
-    toShow = (
-      <div className="position-absolute top-50 start-50 translate-middle text-center w-75 fs-4 fw-light">
-        <p>
-          Noita has received an update, and Noitool is not yet compatible with it. <br />
-        </p>
-        <p>
-          It might take <code>a day or two</code> to update Noitool. <br />
-          Thank you for your patience!
-        </p>
-        <p>If you want to proceed, click the button below.</p>
-        <Button onClick={() => setOutdated(false)}>Continue</Button>
-      </div>
-    );
-  }
-
-  return toShow;
+  return <>{props.children}</>;
 };
 
 interface IDBErrorHandlerProps {
@@ -279,16 +189,7 @@ const App: FC = () => {
     }
   });
 
-  // This is used to force update the app when we don't have a session token
-  useEffect(() => {
-    const noitoolSessionToken = Cookies.get("noitoolSessionToken");
-    if (!noitoolSessionToken) {
-      fetch("/api/session").finally(() => {
-        // refresh the page
-        window.location.reload();
-      });
-    }
-  }, []);
+  // Session token not needed for offline mode
 
   let toShow = <LazyBody />;
 

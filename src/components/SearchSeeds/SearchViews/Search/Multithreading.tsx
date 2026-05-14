@@ -23,8 +23,7 @@ const Multithreading = () => {
       </Row>
       <Row className="m-3">
         <p>
-          Multithreading will use as many CPU threads as set in the settings, but slow down your PC. PC performance may
-          suffer, as well as battery life.
+          多线程将使用设置中指定数量的CPU线程，但会降低电脑性能。电脑运行速度和电池续航可能会受到影响。
         </p>
       </Row>
     </Col>

@@ -12,6 +12,7 @@ import { NOITA_SPELL_COUNT } from "../../static";
 interface ISeedDataProps {
   isDaily?: boolean;
   seed: string;
+  isNightmare?: boolean;
 }
 
 interface GameInfoContextType {
@@ -69,6 +70,7 @@ const createGameInfoProvider = async (
 
 export const useGameInfoProvider = (
   seed: string,
+  isNightmare?: boolean,
 ): [GameInfoProvider | undefined, Awaited<ReturnType<GameInfoProvider["provideAll"]>> | undefined] => {
   const [data, setData] = useState<Awaited<ReturnType<GameInfoProvider["provideAll"]>>>();
   const [unlockedSpells] = useLocalStorage<boolean[]>("unlocked-spells", Array(NOITA_SPELL_COUNT).fill(true));
@@ -86,9 +88,10 @@ export const useGameInfoProvider = (
     newGameInfoProvider.resetConfig({
       ...config?.config,
       seed: parseInt(seed, 10),
+      isNightmare: isNightmare || false,
     });
     setGameInfoProvider(newGameInfoProvider);
-  }, [seed, unlockedSpells, branch]);
+  }, [seed, unlockedSpells, branch, isNightmare]);
 
   useEffect(() => {
     initializeGameInfoProvider();
@@ -97,18 +100,18 @@ export const useGameInfoProvider = (
   return [gameInfoProvider, data];
 };
 
-const SeedDataOutput: React.FC<ISeedDataProps> = ({ seed, isDaily = false }) => {
-  const [gameInfoProvider, data] = useGameInfoProvider(seed);
+const SeedDataOutput: React.FC<ISeedDataProps> = ({ seed, isDaily = false, isNightmare = false }) => {
+  const [gameInfoProvider, data] = useGameInfoProvider(seed, isNightmare);
 
   if (!gameInfoProvider || !data) {
-    return <p>Loading</p>;
+    return <p>加载中</p>;
   }
 
   return (
     <GameInfoContext.Provider value={{ gameInfoProvider, data }}>
       <Stack className="seed-info">
         <p className="my-2">
-          Seed: {seed} {isDaily && ` (Daily)`}
+          种子： {seed} {isDaily && ` （每日）`}
         </p>
         <SeedInfo isDaily={isDaily} seed={seed} infoProvider={gameInfoProvider} data={data} />
       </Stack>

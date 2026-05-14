@@ -43,18 +43,26 @@ export type IPerkChangeAction = IShiftAction | ISetAction | IGenRowAction | ISel
 type IPerkType = Objectify<typeof import("../../../data/obj/perks.json")>;
 type PerkDeckCache = [string[], Record<string, number>];
 
-// The perk deck is generated in perk_get_spawn_order from the world seed, so we can cache the initial
-// generation of the perk deck and reuse it for all perk info providers
 let lastMemoizedPerkDeckSeed: number | null = null;
-let cachedPerkDeck: PerkDeckCache = [[], {}];
-// The deck is consumed by row generation, but stackable counts are read-only after generation.
+const memoizedPerkDecks = new Map<string, PerkDeckCache>();
 const clonePerkDeck = ([perkDeck, stackableCount]: PerkDeckCache): PerkDeckCache => [perkDeck.slice(), stackableCount];
-const memoizedPerkDeck = (seed: number, fn: () => PerkDeckCache): PerkDeckCache => {
+const memoizedPerkDeck = (
+  seed: number,
+  ignoreThese: any | undefined,
+  ignorePerks: string[] | undefined,
+  fn: () => PerkDeckCache,
+): PerkDeckCache => {
   if (seed !== lastMemoizedPerkDeckSeed) {
     lastMemoizedPerkDeckSeed = seed;
-    cachedPerkDeck = fn();
+    memoizedPerkDecks.clear();
   }
-  return clonePerkDeck(cachedPerkDeck);
+  const ignoreTheseKey = ignoreThese ? Object.values(ignoreThese).sort().join(",") : "";
+  const ignorePerksKey = ignorePerks ? ignorePerks.join(",") : "";
+  const key = `${ignoreTheseKey}|${ignorePerksKey}`;
+  if (!memoizedPerkDecks.has(key)) {
+    memoizedPerkDecks.set(key, fn());
+  }
+  return clonePerkDeck(memoizedPerkDecks.get(key)!);
 };
 
 const clonePerkPicks = (perkPicks?: Map<number, string[][]>) => {
@@ -88,6 +96,7 @@ export class PerkInfoProvider extends InfoProvider {
   perks!: IPerkType;
   perksArr!: any[];
   temples = templeData;
+  ignorePerks?: string[];
 
   async ready(): Promise<void> {
     await this.perksDataPromise;
@@ -121,8 +130,8 @@ export class PerkInfoProvider extends InfoProvider {
     return perk_id;
   }
 
-  _getReroll(amountOfPerks: number) {
-    const perks = this.getPerkDeck();
+  _getReroll(amountOfPerks: number, ignorePerks?: string[]) {
+    const perks = this.getPerkDeck(false, ignorePerks);
     const result: string[] = [];
     for (let i = 0; i < amountOfPerks; i++) {
       const perk_id = this._getNextReroll(perks);
@@ -162,8 +171,8 @@ export class PerkInfoProvider extends InfoProvider {
     return "PERK_PICKED_" + perk_id;
   }
 
-  perk_spawn_many(extra = 0) {
-    const perks = this.getPerkDeck();
+  perk_spawn_many(extra = 0, ignorePerks?: string[]) {
+    const perks = this.getPerkDeck(false, ignorePerks);
 
     const result: any[] = [];
     const perk_count = this._G.GetValue("TEMPLE_PERK_COUNT", 3) + extra;
@@ -172,6 +181,18 @@ export class PerkInfoProvider extends InfoProvider {
       const nextPerk = this._getNextPerk(perks);
       result.push(nextPerk);
     }
+    return result;
+  }
+
+  generateEntrancePerks(ignorePerks?: string[]): string[] {
+    this._G = new Global();
+    this._G.SetValue("TEMPLE_PERK_COUNT", 3);
+    const entranceDeck: string[] = this.perk_get_spawn_order(["EDIT_WANDS_EVERYWHERE"], ignorePerks);
+    const result: string[] = [];
+    for (let i = 0; i < 3; i++) {
+      result.push(this._getNextPerk(entranceDeck));
+    }
+    result.push("EDIT_WANDS_EVERYWHERE");
     return result;
   }
 
@@ -191,9 +212,9 @@ export class PerkInfoProvider extends InfoProvider {
     }
   };
   // this generates global perk spawn order for current world seed
-  perk_get_spawn_order = (ignore_these_?: any) => {
+  perk_get_spawn_order = (ignore_these_?: any, ignorePerks?: string[]) => {
     const worldSeed = this.randoms.GetWorldSeed();
-    const [perk_deck, stackable_count] = memoizedPerkDeck(worldSeed, () => {
+    const [perk_deck, stackable_count] = memoizedPerkDeck(worldSeed, ignore_these_, ignorePerks, () => {
       // this function should return the same list in the same order no matter when or where during a run it is called.
       // the expection is that some of the elements in the list can be set to "" to indicate that they're used
 
@@ -224,6 +245,9 @@ export class PerkInfoProvider extends InfoProvider {
           if (this.table_contains(ignore_these, perk_data.id)) {
             continue;
           }
+        }
+        if (ignorePerks && ignorePerks.includes(perk_data.id)) {
+          continue;
         }
         if (perk_data.not_in_default_perk_pool) {
           continue;
@@ -320,8 +344,8 @@ export class PerkInfoProvider extends InfoProvider {
     return perk_deck;
   };
 
-  getPerkDeck(returnPerkObjects?: boolean) {
-    const result: any[] = this.perk_get_spawn_order();
+  getPerkDeck(returnPerkObjects?: boolean, ignorePerks?: string[]) {
+    const result: any[] = this.perk_get_spawn_order(undefined, ignorePerks);
     if (returnPerkObjects) {
       for (let i = 0; i < result.length; i++) {
         result[i] = this.perks[result[i]];
@@ -360,8 +384,8 @@ export class PerkInfoProvider extends InfoProvider {
     }
   }
 
-  generateRow(count = 3) {
-    const perks = this.getPerkDeck();
+  generateRow(count = 3, ignorePerks?: string[]) {
+    const perks = this.getPerkDeck(false, ignorePerks);
     const result: string[] = [];
 
     for (let i = 0; i < count; i++) {
@@ -371,15 +395,15 @@ export class PerkInfoProvider extends InfoProvider {
     return result;
   }
 
-  rerollRow(row: string[], times = 1) {
+  rerollRow(row: string[], times = 1, ignorePerks?: string[]) {
     let currentRow = [...row];
 
     for (let i = 0; i < times - 1; i++) {
-      this._getReroll(currentRow.length);
+      this._getReroll(currentRow.length, ignorePerks);
     }
 
     if (times > 0) {
-      currentRow = this._getReroll(currentRow.length);
+      currentRow = this._getReroll(currentRow.length, ignorePerks);
     }
 
     return currentRow;
@@ -391,6 +415,8 @@ export class PerkInfoProvider extends InfoProvider {
     returnPerkObjects?: boolean,
     worldOffset?: number,
     rerolls?: Map<number, number[]>,
+    ignorePerks?: string[],
+    initialPerkIndex?: number,
   ): IPerk[][] {
     const perkPicks = clonePerkPicks(_perkPicks);
     worldOffset = worldOffset || 0;
@@ -398,6 +424,9 @@ export class PerkInfoProvider extends InfoProvider {
 
     this._G = new Global();
     this._G.SetValue("TEMPLE_PERK_COUNT", 3);
+    if (initialPerkIndex !== undefined) {
+      this._G.SetValue("TEMPLE_NEXT_PERK_INDEX", initialPerkIndex);
+    }
     const result: string[][] = [];
     let world = 0;
 
@@ -414,11 +443,11 @@ export class PerkInfoProvider extends InfoProvider {
 
         // Generate base row
         const perkCount = this._G.GetValue("TEMPLE_PERK_COUNT", 3);
-        let row = this.generateRow(perkCount);
+        let row = this.generateRow(perkCount, ignorePerks);
 
         // Handle rerolls if needed
         if (worldRerolls[i] > 0) {
-          row = this.rerollRow(row, worldRerolls[i]);
+          row = this.rerollRow(row, worldRerolls[i], ignorePerks);
         }
 
         // Handle any picked perks
@@ -432,7 +461,7 @@ export class PerkInfoProvider extends InfoProvider {
         const gambleSelected = picks.includes("GAMBLE");
         if (gambleSelected) {
           for (let j = 0; j < 2; j++) {
-            const perkDeck = this.getPerkDeck();
+            const perkDeck = this.getPerkDeck(false, ignorePerks);
             let p1 = this._getNextPerk(perkDeck);
             if (p1 === "GAMBLE") {
               p1 = this._getNextPerk(perkDeck);
@@ -468,7 +497,7 @@ export class PerkInfoProvider extends InfoProvider {
     return hydrated;
   }
 
-  provideStateless(state: IPerkChangeAction[], preview?: boolean) {
+  provideStateless(state: IPerkChangeAction[], preview?: boolean, ignorePerks?: string[], initialPerkIndex?: number) {
     let lotteries = 0;
     const perkState: Map<number, string[][]> = new Map();
     const pickedState: Map<number, string[][]> = new Map();
@@ -476,6 +505,9 @@ export class PerkInfoProvider extends InfoProvider {
 
     this._G = new Global();
     this._G.SetValue("TEMPLE_PERK_COUNT", 3);
+    if (initialPerkIndex !== undefined) {
+      this._G.SetValue("TEMPLE_NEXT_PERK_INDEX", initialPerkIndex);
+    }
 
     let worldOffset = 0;
 
@@ -494,7 +526,7 @@ export class PerkInfoProvider extends InfoProvider {
           break;
         }
         case IPerkChangeStateType.genRow: {
-          let res = this.perk_spawn_many();
+          let res = this.perk_spawn_many(0, ignorePerks);
           perks[s.data] = res;
           break;
         }
@@ -517,7 +549,7 @@ export class PerkInfoProvider extends InfoProvider {
 
           if (perk === "GAMBLE") {
             for (let i = 0; i < 2; i++) {
-              const perkDeck = this.getPerkDeck();
+              const perkDeck = this.getPerkDeck(false, ignorePerks);
               let p1 = this._getNextPerk(perkDeck);
               if (p1 === "GAMBLE") {
                 p1 = this._getNextPerk(perkDeck);
@@ -539,7 +571,7 @@ export class PerkInfoProvider extends InfoProvider {
             rerolls[row] = 0;
           }
           rerolls[row] += 1;
-          const perkDeck = this.getPerkDeck();
+          const perkDeck = this.getPerkDeck(false, ignorePerks);
           for (let i = 0; i < perks[row].length; i++) {
             if (!selected[row][i]) {
               perks[row][i] = this._getNextReroll(perkDeck);
@@ -557,7 +589,7 @@ export class PerkInfoProvider extends InfoProvider {
       // Preview the rest of the rows if simple perk table is used
       const ps = perkState.get(worldOffset) || [];
       while (ps.length !== 7 - Number(!!worldOffset)) {
-        let res = this.perk_spawn_many();
+        let res = this.perk_spawn_many(0, ignorePerks);
         ps.push(res);
       }
       perkState.set(worldOffset, ps);
@@ -575,13 +607,39 @@ export class PerkInfoProvider extends InfoProvider {
 
   test(rule: IRule<IPerkRule>): boolean {
     if (rule.val?.deck[0]?.length) {
-      const deck = this.getPerkDeck();
+      const deck = this.getPerkDeck(false, this.ignorePerks);
       if (!includesAll(deck, rule.val.deck[0])) {
         return false;
       }
     }
 
-    const info = this.provide() as any;
+    const isNightmare = this.ignorePerks?.includes("INVISIBILITY");
+    let initialPerkIndex: number | undefined;
+
+    if (isNightmare) {
+      if (rule.val?.entrance?.some?.length || rule.val?.entrance?.all?.length) {
+        const entrancePerks = this.generateEntrancePerks(this.ignorePerks);
+        initialPerkIndex = this._G.GetValue("TEMPLE_NEXT_PERK_INDEX", 0);
+
+        if (rule.val.entrance.some?.length) {
+          if (!includesSome(entrancePerks, rule.val.entrance.some)) {
+            return false;
+          }
+        }
+        if (rule.val.entrance.all?.length) {
+          if (!includesAll(entrancePerks, rule.val.entrance.all)) {
+            return false;
+          }
+        }
+      } else {
+        initialPerkIndex = 3;
+      }
+    }
+
+    const info = this.provide(
+      undefined, undefined, undefined, undefined, undefined,
+      this.ignorePerks, initialPerkIndex,
+    ) as any;
 
     for (let i = 0; i < info.length; i++) {
       if (rule.val?.some?.[i]?.length) {
@@ -605,6 +663,7 @@ export interface IPerkRule {
   some: string[][];
   all: string[][];
   deck: string[][];
+  entrance?: { some: string[]; all: string[] };
 }
 
 export default PerkInfoProvider;

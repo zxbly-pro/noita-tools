@@ -14,6 +14,7 @@
     "axios": "^1.9.0",
     "backblaze-b2": "^1.7.0",
     "body-parser": "^2.2.0",
+    "bootstrap-icons": "^1.8.1",
     "cookie-parser": "^1.4.7",
     "discord.js": "^14.19.3",
     "dotenv-flow": "^4.1.0",

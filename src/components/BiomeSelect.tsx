@@ -48,7 +48,7 @@ const BiomeSelect = (props: IBiomeSelectProps) => {
   return (
     <Modal fullscreen="sm-down" scrollable show={show} onHide={handlePreClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Biome Selector</Modal.Title>
+        <Modal.Title>区域选择</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Collapse in={!selectedBiome}>
