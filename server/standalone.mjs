@@ -3,7 +3,7 @@ import { createServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
 import { handleCompute, counts } from "./io/compute.mjs";
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 const app = express();
 
 const handleConnection = (socket, io) => {

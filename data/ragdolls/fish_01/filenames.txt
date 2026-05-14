@@ -1,3 +1,0 @@
-data/ragdolls/fish_01/head.png
-data/ragdolls/fish_01/torso.png
-data/ragdolls/fish_01/tail.png

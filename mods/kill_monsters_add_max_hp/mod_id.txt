@@ -1,1 +1,0 @@
-kill_monsters_add_max_hp

@@ -134,10 +134,8 @@
     "console-build": "npx rimraf console-build/* console-build/* && node consoleBuild.cjs",
     "console-search": "node --no-warnings=ExperimentalWarning console-build/consoleSearch.js",
     "cy": "cypress open --e2e",
-    "dev-win": "concurrently --restart-tries -1 \"nodemon --experimental-modules ./server/index.mjs\" \"vite\"",
-    "dev": "NODE_ENV=development concurrently --restart-tries -1 'nodemon --experimental-modules ./server/index.mjs' 'vite' 'bash watch_build.sh'",
-    "e2e": "npm run build && concurrently -k  -s first 'cypress run' 'PORT=3000 npm run start'",
-    "start": "node --experimental-modules ./server/index.mjs",
+    "dev": "concurrently \"node --experimental-modules ./server/standalone.mjs\" \"vite\"",
+    "start": "node --experimental-modules ./server/standalone.mjs",
     "test": "vitest"
   },
   "lint-staged": {
