@@ -1,8 +1,12 @@
 import express, { static as expressStatic } from "express";
 import { createServer } from "http";
+import { readFileSync } from "fs";
 import { Server as SocketIOServer } from "socket.io";
 import { handleCompute, counts } from "./io/compute.mjs";
 import { logger } from "./logger.mjs";
+
+const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf-8"));
+process.env.npm_package_version = pkg.version;
 
 const PORT = process.env.PORT || 3001;
 const BASE_PATH = process.env.BASE_PATH || "";

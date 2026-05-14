@@ -1,4 +1,7 @@
 import os from "os";
+import { readFileSync } from "fs";
+import { fileURLToPath } from "url";
+import { dirname, resolve } from "path";
 
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
@@ -6,6 +9,10 @@ import logUpdate from "log-update";
 
 import { ComputeSocket } from "./services/compute/ComputeSocket";
 import SeedSolver from "./services/seedSolverHandler.node";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const pkg = JSON.parse(readFileSync(resolve(__dirname, "./package.json"), "utf-8"));
+const APP_VERSION = pkg.version;
 
 const argv = yargs(hideBin(process.argv))
   .env("NOITOOL")
@@ -28,7 +35,7 @@ const argv = yargs(hideBin(process.argv))
   })
   .parseSync();
 
-console.log(`Noitool console search ${process.env.npm_package_version}`, argv, os.cpus().length);
+console.log(`Noitool console search ${APP_VERSION}`, argv, os.cpus().length);
 
 // const seedSolver = new SeedSolver(1, false);
 const seedSolver = new SeedSolver(argv.cores || os.cpus().length, false);
@@ -43,7 +50,7 @@ const exitHandler = () => {
 
 const newComputeSocket = new ComputeSocket({
   url: argv.url || "http://zxbly.com:3000/",
-  version: process.env.npm_package_version || "0.0.0",
+  version: APP_VERSION,
   sessionToken: argv.sessionToken,
   seedSolver: seedSolver as any,
   onUpdate: () => {
