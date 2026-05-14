@@ -25,7 +25,10 @@ copy "%PROJECT_DIR%\server\logger.mjs" "%DIST%\server\" >nul
 xcopy "%PROJECT_DIR%\build" "%DIST%\build\" /s /e /q
 
 echo [3/5] 生成精简 package.json...
-echo {"name":"noitool","version":"35.0.1","private":true,"type":"module","dependencies":{"express":"^4.21.2","socket.io":"4.8.1"}} > "%DIST%\package.json"
+pushd "%PROJECT_DIR%"
+for /f "delims=" %%v in ('node -p "require('./package.json').version"') do set PKG_VERSION=%%v
+popd
+echo {"name":"noitool","version":"%PKG_VERSION%","private":true,"type":"module","dependencies":{"express":"^4.21.2","socket.io":"4.8.1"}} > "%DIST%\package.json"
 
 echo [4/5] 安装运行时依赖（将打入包内）...
 pushd "%DIST%"

@@ -44,10 +44,11 @@ cp server/logger.mjs "$DIST/server/"
 cp -r build "$DIST/build"
 
 echo "[3/5] 生成精简 package.json..."
-cat > "$DIST/package.json" << 'EOF'
+PKG_VERSION=$(node -p "require('./package.json').version")
+cat > "$DIST/package.json" << EOF
 {
   "name": "noitool",
-  "version": "35.0.1",
+  "version": "${PKG_VERSION}",
   "private": true,
   "type": "module",
   "dependencies": {
