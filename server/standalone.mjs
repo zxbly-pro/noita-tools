@@ -2,11 +2,13 @@ import express, { static as expressStatic } from "express";
 import { createServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
 import { handleCompute, counts } from "./io/compute.mjs";
+import { logger } from "./logger.mjs";
 
 const PORT = process.env.PORT || 3001;
 const app = express();
 
 const handleConnection = (socket, io) => {
+  logger.info("Socket connected", { id: socket.id });
   handleCompute(socket, io);
 
   socket.on("get_cluster_stats", callback => {
@@ -17,6 +19,10 @@ const handleConnection = (socket, io) => {
         appetite: counts.appetite,
       });
     }
+  });
+
+  socket.on("disconnect", () => {
+    logger.info("Socket disconnected", { id: socket.id });
   });
 };
 
@@ -51,5 +57,6 @@ io.on("connection", socket => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Noitool running at http://localhost:${PORT}`);
+  logger.info(`Noitool running at http://0.0.0.0:${PORT}`);
+  logger.info(`Compute pool: hosts=${counts.hosts}, workers=${counts.workers}`);
 });

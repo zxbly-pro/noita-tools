@@ -27,7 +27,6 @@ const Compute = () => {
 
   const [useCores, setUseCores] = useLocalStorage("useCores", 1);
   const [startAutomatically, setStartAutomatically] = useLocalStorage("search-start-automatically", false);
-  const [shouldRefresh, setShouldRefresh] = useLocalStorage("search-should-refresh-on-version-mismatch", false);
   const [seedSolver, setSeedSolver] = useState<SeedSolver>();
 
   const [computeUrl, setComputeUrl] = useState(window.location.host);
@@ -62,9 +61,6 @@ const Compute = () => {
     });
 
     newComputeSocket.on("compute:version_mismatch", () => {
-      if (shouldRefresh) {
-        window.location.reload();
-      }
       setComputeVersionMismatch(true);
       newComputeSocket.terminate();
     });
@@ -187,15 +183,6 @@ const Compute = () => {
               label="页面加载时自动启动"
               checked={startAutomatically}
               onChange={() => setStartAutomatically(!startAutomatically)}
-            />
-          </Col>
-          <Col md={6}>
-            <Form.Check
-              type="switch"
-              id="auto-refresh"
-              label="新版本可用时自动刷新"
-              checked={shouldRefresh}
-              onChange={() => setShouldRefresh(!shouldRefresh)}
             />
           </Col>
         </Row>
