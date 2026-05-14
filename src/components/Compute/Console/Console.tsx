@@ -81,7 +81,7 @@ const ComputeConsole = () => {
   const [chunkProvider, setChunkProvider] = useState<ChunkProvider>();
   const [socketComputeProvider, setSocketComputeProvider] = useState<SocketComputeProvider>();
 
-  const [computeUrl, setComputeUrl] = useState(window.location.host);
+  const [computeUrl, setComputeUrl] = useState(window.location.origin);
   const noitoolSessionToken = Cookies.get("noitoolSessionToken");
   const [computeJobName, setComputeJobName] = useState("The Seed");
   // const [computeJobName, setComputeJobName] = useState((Math.random() + 1).toString(36).substring(7));

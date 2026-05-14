@@ -2,6 +2,7 @@ import React, { FC, useContext, useEffect, useReducer, useCallback, useState } f
 
 import socketIOClient, { Socket } from "socket.io-client";
 
+import { getBasePath } from "../utils";
 import { SeedSolver } from "../../services/seedSolverHandler";
 import useLocalStorage from "../../services/useLocalStorage";
 import copy from "copy-to-clipboard";
@@ -195,7 +196,7 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
 
   const initializeStatsSocket = useCallback(() => {
     try {
-      const socket = socketIOClient(window.location.host, { timeout: 3000, reconnectionAttempts: 1 });
+      const socket = socketIOClient(window.location.origin, { path: `${getBasePath()}/socket.io/`, timeout: 3000, reconnectionAttempts: 1 });
       setStatsSocket(socket);
     } catch (e) {}
   }, []);
@@ -231,7 +232,8 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
     if (!clusterHelpEnabled || !chunkProvider || !ruleTree) return;
 
     const newComputeSocket = new ComputeSocket({
-      url: window.location.host,
+      url: window.location.origin,
+      path: `${getBasePath()}/socket.io/`,
       sessionToken: Cookies.get("noitoolSessionToken"),
       version: APP_VERSION,
       onUpdate: () => {

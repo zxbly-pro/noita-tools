@@ -13,6 +13,11 @@ export const isLocal = () => {
   );
 };
 
+export const getBasePath = () => {
+  const path = window.location.pathname.replace(/\/$/, "");
+  return path || "";
+};
+
 // Used for matching urls like /test
 export const isFullPath = (target: string) => {
   return window.location.pathname === target;

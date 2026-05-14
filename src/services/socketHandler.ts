@@ -1,11 +1,8 @@
 import socketIOClient, { Socket } from "socket.io-client";
 
-// const ENDPOINT = `wss://localhost:3000`;
-
-// const io = socketIOClient();
-
 export interface SocketHandlerConfig {
   url?: string;
+  path?: string;
 
   onUpdate?: () => void;
 }
@@ -20,7 +17,7 @@ class SocketHandler extends EventTarget {
 
   constructor(config: SocketHandlerConfig) {
     super();
-    this.io = socketIOClient(config.url as any);
+    this.io = socketIOClient(config.url as any, config.path ? { path: config.path } : undefined);
     if (config.onUpdate) {
       this.onUpdate = config.onUpdate;
     } else {

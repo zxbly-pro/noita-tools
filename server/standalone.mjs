@@ -5,6 +5,7 @@ import { handleCompute, counts } from "./io/compute.mjs";
 import { logger } from "./logger.mjs";
 
 const PORT = process.env.PORT || 3001;
+const BASE_PATH = process.env.BASE_PATH || "";
 const app = express();
 
 const handleConnection = (socket, io) => {
@@ -26,7 +27,7 @@ const handleConnection = (socket, io) => {
   });
 };
 
-app.get("/api/cluster_stats", (req, res) => {
+app.get(`${BASE_PATH}/api/cluster_stats`, (req, res) => {
   res.json({
     hosts: counts.hosts,
     workers: counts.workers,
@@ -34,12 +35,12 @@ app.get("/api/cluster_stats", (req, res) => {
   });
 });
 
-app.get("/api/session", (req, res) => {
+app.get(`${BASE_PATH}/api/session`, (req, res) => {
   res.send("ok");
 });
 
 // Static files
-app.use(expressStatic("build/", { maxAge: "1d" }));
+app.use(BASE_PATH || "/", expressStatic("build/", { maxAge: "1d" }));
 
 // SPA fallback
 app.get("*", (req, res) => {
@@ -50,6 +51,7 @@ const server = createServer(app);
 
 const io = new SocketIOServer(server, {
   cors: { origin: "*" },
+  path: `${BASE_PATH}/socket.io/`,
 });
 
 io.on("connection", socket => {
@@ -57,6 +59,7 @@ io.on("connection", socket => {
 });
 
 server.listen(PORT, () => {
-  logger.info(`Noitool running at http://0.0.0.0:${PORT}`);
+  logger.info(`Noitool running at http://0.0.0.0:${PORT}${BASE_PATH || "/"}`);
+  if (BASE_PATH) logger.info(`Base path: ${BASE_PATH}`);
   logger.info(`Compute pool: hosts=${counts.hosts}, workers=${counts.workers}`);
 });

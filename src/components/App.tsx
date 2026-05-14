@@ -8,7 +8,7 @@ import { AlchemyConfigProvider } from "./AlchemyConfigContext";
 
 import LoadingComponent from "./LoadingComponent";
 import { db } from "../services/db";
-import { BrowserRouter, useLocation, useSearchParams } from "react-router-dom";
+import { HashRouter, useLocation, useSearchParams } from "react-router-dom";
 import DBError from "./DBError";
 import { ProfileContext, ProfileProvider } from "./Profile/ProfileContext";
 
@@ -200,7 +200,7 @@ const App: FC = () => {
   return (
     <OutdatedVersionHandler>
       <DBErrorHandler>
-        <BrowserRouter>
+        <HashRouter>
           <div className="App bg-gradient">
             <div className="content bg-body rounded" style={{ minHeight: "85vh" }}>
               <ThemeProvider>
@@ -212,7 +212,7 @@ const App: FC = () => {
             </div>
             <Footer />
           </div>
-        </BrowserRouter>
+        </HashRouter>
       </DBErrorHandler>
     </OutdatedVersionHandler>
   );

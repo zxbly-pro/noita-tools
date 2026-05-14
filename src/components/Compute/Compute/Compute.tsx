@@ -10,6 +10,7 @@ import UseMultithreadingButton from "../../SearchSeeds/UseMultithreading";
 import { ComputeSocket } from "../../../services/compute/ComputeSocket";
 import { localizeNumber } from "../../../services/helpers";
 import { VersionMisatch } from "../../misc/VersionMismatch";
+import { getBasePath } from "../../utils";
 
 const testInfo = {
   jobName: "10c893b9eb6d3fe021fe15de14ddd23d3a9c17a4",
@@ -29,7 +30,7 @@ const Compute = () => {
   const [startAutomatically, setStartAutomatically] = useLocalStorage("search-start-automatically", false);
   const [seedSolver, setSeedSolver] = useState<SeedSolver>();
 
-  const [computeUrl, setComputeUrl] = useState(window.location.host);
+  const [computeUrl, setComputeUrl] = useState(window.location.origin);
   const noitoolSessionToken = Cookies.get("noitoolSessionToken");
 
   const [connected, setConnected] = useState(false);
@@ -45,6 +46,7 @@ const Compute = () => {
 
     const newComputeSocket = new ComputeSocket({
       url: computeUrl,
+      path: `${getBasePath()}/socket.io/`,
       sessionToken: noitoolSessionToken,
       version: APP_VERSION,
       seedSolver,

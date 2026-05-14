@@ -199,6 +199,70 @@ server {
 
 ---
 
+## 子路径部署
+
+默认部署在根路径 `/`。支持部署到子路径（如 `http://server/noita`），**无需重新构建**，运行时通过环境变量指定。
+
+项目使用 HashRouter + 相对资源路径，URL 格式为 `http://server/noita/#/search`。
+
+### Docker 子路径部署
+
+```bash
+docker run -d -p 3000:3000 \
+  -e BASE_PATH=/noita \
+  --name noitool noitool:latest
+```
+
+访问 `http://服务器IP:3000/noita/`。
+
+### Node.js 子路径部署
+
+```bash
+BASE_PATH=/noita node --experimental-modules ./server/standalone.mjs
+```
+
+访问 `http://服务器IP:3001/noita/`。
+
+### nginx 子路径部署（反代到 Node.js）
+
+Node.js 后端以根路径运行：
+
+```bash
+node --experimental-modules ./server/standalone.mjs
+```
+
+nginx 将子路径转发到后端：
+
+```nginx
+location /noita/ {
+    proxy_pass http://127.0.0.1:3001/;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+}
+```
+
+### nginx 纯静态子路径（无计算池）
+
+```nginx
+location /noita/ {
+    alias /path/to/noitool/build/;
+    index index.html;
+}
+```
+
+由于使用 HashRouter，不需要 `try_files` 回退规则。
+
+### 注意事项
+
+- `BASE_PATH` 必须以 `/` 开头，不以 `/` 结尾（如 `/noita`）
+- 不设置 `BASE_PATH` 时默认为根路径 `/`，行为不变
+- 同一份构建产物可部署到任意路径，无需重新编译
+- URL 中 `#` 后面是前端路由（如 `/noita/#/search`）
+
+---
+
 ## 计算池 Worker Docker 镜像
 
 ```bash
@@ -234,6 +298,7 @@ docker run -d --name noitool-worker \
 | `PORT` | `3001`（开发）/ `3000`（Docker） | 后端服务端口 |
 | `NODE_ENV` | `production` | 运行环境 |
 | `LOG_LEVEL` | `info` | 日志级别 |
+| `BASE_PATH` | 空（根路径） | 子路径前缀（运行时指定，如 `/noita`） |
 | `NOITOOL_URL` | `http://zxbly.com:3000` | Worker 连接的服务器地址 |
 | `NOITOOL_CORES` | `0`（全部） | Worker 使用的 CPU 核心数 |
 
@@ -257,5 +322,6 @@ docker run -d --name noitool-worker \
 - 项目兼容 HTTP 和 HTTPS，内网部署无需 SSL 证书
 - `npm ci` 必须加 `--legacy-peer-deps`
 - Docker 镜像基于 `node:22.16.0-alpine`
-- 前端 WebWorker 动态导入在 vite 开发模式下可能有警告，不影响生产构建
+- 使用 HashRouter，URL 格式为 `http://server/#/path`
+- 同一份构建产物可部署到任意子路径，运行时通过 `BASE_PATH` 环境变量指定
 - `node_modules` 包含平台相关二进制，Windows 和 Linux 不通用
