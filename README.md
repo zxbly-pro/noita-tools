@@ -24,6 +24,8 @@ noitool/
 │   └── io/compute.mjs          计算池任务分发逻辑
 ├── public/                     静态资源（主题CSS、图标、本地化）
 ├── scripts/                    打包和部署脚本
+├── data.zip                    游戏元数据（从 data.wak 提取）
+├── mods/                       Noita 安装目录 mods 文件夹内容
 ├── consoleBuild.cjs            CLI Worker 构建脚本（esbuild）
 ├── search.package.json         CLI Worker 独立 package.json
 ├── Dockerfile                  主服务 Docker 构建
@@ -326,3 +328,33 @@ docker run -d --name noitool-worker \
 - 使用 HashRouter，URL 格式为 `http://server/#/path`
 - 同一份构建产物可部署到任意子路径，运行时通过 `BASE_PATH` 环境变量指定
 - `node_modules` 包含平台相关二进制，Windows 和 Linux 不通用
+
+---
+
+## 游戏数据提取
+
+项目根目录的 `data.zip` 为从游戏 `data.wak` 文件提取的元数据，`mods/` 为 Noita 安装目录下 `mods` 文件夹的内容（含官方噩梦模式 mod）。
+
+Noita 的所有基础资产（精灵图、Lua 脚本、实体定义）都打包在 `Noita/data/data.wak` 中。
+
+### Windows 提取方式
+
+1. 将 Noita 安装目录下 `/tools_modding/` 文件夹中的所有文件复制到 Noita 根目录
+2. 运行 `data_wak_unpack.bat`，终端窗口会打开
+3. 文件资源管理器会打开 Noita 资源目录：`%UserProfile%/AppData/LocalLow/Nolla_Games_Noita`
+4. 将此文件夹收藏或复制到方便访问的位置
+5. 部分资源可能被隐藏，需在文件资源管理器中勾选"查看 → 隐藏的项目"
+
+### Linux 提取方式
+
+在 Steam 中为 Noita 添加启动参数：
+
+```
+-wizard_unpak
+```
+
+设置方式：右键 Noita → 属性 → 通用 → 启动选项，填入上述参数后启动一次游戏即可完成提取。
+
+### 提取后
+
+提取完成后可直接访问 Noita 的所有 Lua 代码、实体 XML 定义和精灵图集。项目使用这些数据来解析种子信息和搜索规则。
