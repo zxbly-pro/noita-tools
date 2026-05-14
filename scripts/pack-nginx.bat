@@ -4,16 +4,19 @@ REM 使用前请先完成: npm ci --legacy-peer-deps && npm run build
 REM 此模式不支持计算池功能
 
 setlocal
-set DIST=dist-nginx
-set ARCHIVE=noitool-nginx.zip
+
+set SCRIPT_DIR=%~dp0
+set PROJECT_DIR=%SCRIPT_DIR%..
+set DIST=%SCRIPT_DIR%dist-nginx
+set ARCHIVE=%SCRIPT_DIR%noitool-nginx.zip
 
 echo [1/4] 清理旧文件...
-if exist %DIST% rmdir /s /q %DIST%
-if exist %ARCHIVE% del /q %ARCHIVE%
+if exist "%DIST%" rmdir /s /q "%DIST%"
+if exist "%ARCHIVE%" del /q "%ARCHIVE%"
 
 echo [2/4] 复制静态文件...
-mkdir %DIST%
-xcopy build %DIST%\build\ /s /e /q
+mkdir "%DIST%"
+xcopy "%PROJECT_DIR%\build" "%DIST%\build\" /s /e /q
 
 echo [3/4] 生成 nginx 配置...
 (
@@ -32,13 +35,15 @@ echo     location / {
 echo         try_files $uri $uri/ /index.html;
 echo     }
 echo }
-) > %DIST%\nginx.conf
+) > "%DIST%\nginx.conf"
 
 echo [4/4] 压缩...
 powershell -Command "Compress-Archive -Path '%DIST%\*' -DestinationPath '%ARCHIVE%' -Force"
 
+rmdir /s /q "%DIST%"
+
 echo.
-echo 完成! 部署包: %ARCHIVE%
+echo 完成! 部署包: noitool-nginx.zip
 echo 部署步骤:
 echo   1. 解压到服务器
 echo   2. 将 build/ 内容放到 nginx html 目录

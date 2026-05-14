@@ -38,10 +38,9 @@ server {
 }
 EOF
 
-echo "[3/4] 压缩..."
+echo "[4/4] 压缩..."
 tar -czf "$ARCHIVE" -C "$DIST" .
 
-echo "[4/4] 清理临时目录..."
 rm -rf "$DIST"
 
 echo ""
