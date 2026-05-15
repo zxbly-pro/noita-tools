@@ -1,5 +1,6 @@
 import React, { createContext, useEffect, useState, useCallback } from "react";
 import { Button, Stack } from "react-bootstrap";
+import copy from "copy-to-clipboard";
 
 import type { GameInfoProvider } from "../../services/SeedInfo/infoHandler";
 import SeedInfo from "./SeedInfo";
@@ -116,7 +117,7 @@ const SeedDataOutput: React.FC<ISeedDataProps> = ({ seed, isDaily = false, isNig
             variant="outline-secondary"
             size="sm"
             className="ms-2"
-            onClick={() => navigator.clipboard.writeText(seed)}
+            onClick={() => copy(seed)}
           >
             复制
           </Button>

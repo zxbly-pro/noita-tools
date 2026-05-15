@@ -135,14 +135,14 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
   useEffect(() => {
     if (!searchInstance) return;
 
-    const { findAll, from: seed, to: seedEnd, isNightmare } = searchInstance.config;
+    const { maxResults, from: seed, to: seedEnd, isNightmare } = searchInstance.config;
 
     seedSolver.update({
       rules: ruleTree,
       currentSeed: seed,
       seedEnd: seedEnd,
       unlockedSpells,
-      findAll,
+      maxResults: maxResults || 0,
       isNightmare,
     });
   }, [searchInstance, ruleTree, seedSolver, unlockedSpells]);
@@ -150,7 +150,7 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
   useEffect(() => {
     if (!chunkProvider || !ruleTree || !seedSolver) return;
 
-    const newCallbackComputeHandler = new CallbackComputeHandler(setSolverStatus, chunkProvider, ruleTree, seedSolver, searchInstance?.config.isNightmare || false);
+    const newCallbackComputeHandler = new CallbackComputeHandler(setSolverStatus, chunkProvider, ruleTree, seedSolver, searchInstance?.config.isNightmare || false, searchInstance?.config.maxResults || 0);
 
     setCallbackComputeHandler(newCallbackComputeHandler);
 
@@ -345,7 +345,7 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
     computeJobName: searchInstance?.config.name || "",
     seed: searchInstance?.config.from || 1,
     seedEnd: searchInstance?.config.to || Math.pow(2, 31),
-    findAll: searchInstance?.config.findAll || false,
+    maxResults: searchInstance?.config.maxResults || 0,
     isNightmare: searchInstance?.config.isNightmare || false,
     updateSearchConfig,
     handleMultithreading,

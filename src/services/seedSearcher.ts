@@ -9,7 +9,7 @@ export interface ISeedSearcherConfig {
   seedEnd?: number;
   rules?: ILogicRules;
   unlockedSpells?: boolean[];
-  findAll?: boolean;
+  maxResults?: number;
   isNightmare?: boolean;
 }
 
@@ -28,6 +28,7 @@ export const searchWeights = {
   material: 0.04354,
   potion: 0.04446,
   shop: 0.05129,
+  entranceWand: 0.05200,
   lottery: 0.05217,
   biome: 0.05945,
   default: 0.06155, // average
@@ -61,6 +62,7 @@ export class SeedSearcher {
   count = 0;
   currentSeed = 0;
   findAll = false;
+  maxResults = 0;
   seedEnd?: number;
   offset = 0;
   step = 1;
@@ -242,8 +244,9 @@ export class SeedSearcher {
       this.rules = JSON.parse(JSON.stringify(config.rules));
       sortRules(this.rules);
     }
-    if (config.findAll) {
-      this.findAll = config.findAll;
+    if (typeof config.maxResults === "number") {
+      this.maxResults = config.maxResults;
+      this.findAll = config.maxResults === 0;
     }
     if (typeof config.isNightmare === "boolean") {
       await this.gameInfoProvider.ready();

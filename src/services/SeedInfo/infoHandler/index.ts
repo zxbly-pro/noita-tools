@@ -20,6 +20,7 @@ import type { PotionInfoProvider } from "./InfoProviders/Potion";
 import type { PotionSecretInfoProvider } from "./InfoProviders/PotionSecret";
 import type { PotionRandomMaterialInfoProvider } from "./InfoProviders/PotionRandomMaterial";
 import type { WandInfoProvider } from "./InfoProviders/Wand";
+import type { EntranceWandInfoProvider } from "./InfoProviders/EntranceWand";
 
 // Chests
 import type { ChestRandomInfoProvider } from "./InfoProviders/ChestRandom";
@@ -52,6 +53,7 @@ interface IProviders {
   startingSpell: StartingSpellInfoProvider;
   waterCave: WaterCaveInfoProvider;
   wand: WandInfoProvider;
+  entranceWand: EntranceWandInfoProvider;
 
   potion: PotionInfoProvider;
   potionSecret: PotionSecretInfoProvider;
@@ -167,6 +169,7 @@ export class GameInfoProvider extends EventTarget {
       startingSpell: () => import("./InfoProviders/StartingSpell"),
       waterCave: () => import("./InfoProviders/WaterCave"),
       wand: () => import("./InfoProviders/Wand"),
+      entranceWand: () => import("./InfoProviders/EntranceWand"),
       potion: () => import("./InfoProviders/Potion"),
       potionSecret: () => import("./InfoProviders/PotionSecret"),
       potionRandomMaterial: () => import("./InfoProviders/PotionRandomMaterial"),
@@ -209,6 +212,11 @@ export class GameInfoProvider extends EventTarget {
           return {
             deps: ["wand", "spells"],
             getArgs: () => [...baseArgs, providers.wand, providers.spells],
+          };
+        case "entranceWand":
+          return {
+            deps: ["wand"],
+            getArgs: () => [...baseArgs, providers.wand],
           };
         case "excavationsiteCubeChamber":
         case "snowcaveSecretChamber":

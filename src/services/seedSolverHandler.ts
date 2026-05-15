@@ -19,7 +19,7 @@ export class WorkerHandler extends EventTarget {
 
   async searchChunk(from: number, to: number, rules: ILogicRules, isNightmare?: boolean) {
     await this.comlinkWorker.update({
-      findAll: true,
+      maxResults: 0,
       currentSeed: from,
       seedEnd: to,
       rules,

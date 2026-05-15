@@ -196,8 +196,10 @@ interface IAddProps {
   onAdd: (type: string) => void;
 }
 const Add: FC<IAddProps> = ({ onAdd }) => {
+  const { isNightmare } = useSearchContext();
   const rules = Object.keys(RuleConstructors).filter(
-    k => !["search", RuleType.AND, RuleType.OR, RuleType.NOT].includes(k),
+    k => !["search", RuleType.AND, RuleType.OR, RuleType.NOT].includes(k)
+      && (k !== "entranceWand" || isNightmare),
   );
 
   return (

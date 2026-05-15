@@ -58,7 +58,7 @@ export interface SearchesItemConfig {
   name?: string;
   from: number;
   to: number;
-  findAll?: boolean;
+  maxResults?: number;
   isNightmare?: boolean;
   rules: string;
 }

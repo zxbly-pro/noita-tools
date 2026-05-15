@@ -28,7 +28,7 @@ const searchRange = async (from: number, to: number, rules: ILogicRules): Promis
   const seedSearcher = new SeedSearcher(gameInfoProvider);
 
   await seedSearcher.update({
-    findAll: true,
+    maxResults: 0,
     seedEnd: to,
     currentSeed: from,
     rules,

@@ -10,6 +10,7 @@ export class CallbackComputeHandler extends BaseComputeProvider {
     public rules: ILogicRules,
     public seedSolver: SeedSolver,
     public isNightmare: boolean = false,
+    public maxResults: number = 0,
   ) {
     super(onUpdate, chunkProvider, rules, isNightmare);
   }
@@ -20,6 +21,11 @@ export class CallbackComputeHandler extends BaseComputeProvider {
     }
     this.running = true;
     while (this.running) {
+      if (this.maxResults > 0 && this.chunkProvider.results.size >= this.maxResults) {
+        this.running = false;
+        this.onUpdate(this.getStatus());
+        return;
+      }
       const chunk = this.chunkProvider.getNextChunk(this.seedSolver.workerList.length);
       if (!chunk) {
         this.running = false;
@@ -29,6 +35,11 @@ export class CallbackComputeHandler extends BaseComputeProvider {
       const results = await this.seedSolver.searchChunk(chunk.from, chunk.to, this.rules, this.isNightmare);
       this.chunkProvider.commitChunk(chunk.chunkId, results);
       this.onUpdate(this.getStatus());
+      if (this.maxResults > 0 && this.chunkProvider.results.size >= this.maxResults) {
+        this.running = false;
+        this.onUpdate(this.getStatus());
+        return;
+      }
     }
   }
 

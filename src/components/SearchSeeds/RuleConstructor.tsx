@@ -8,6 +8,7 @@ import StartingSpell from "./SearchViews/StartingSpell";
 import StartingBombSpell from "./SearchViews/StartingBomb";
 import Weather from "./SearchViews/Weather";
 import Perks from "./SearchViews/Perks";
+import EntranceWand from "./SearchViews/EntranceWand";
 import FungalShifts from "./SearchViews/FungalShifts";
 import MapSearch from "./SearchViews/Map";
 import Search from "./SearchViews/Search";
@@ -106,6 +107,18 @@ export const RuleConstructors = {
       val: new Array(7).fill(undefined),
     },
     Title: () => "商店",
+  },
+  entranceWand: {
+    Component: EntranceWand,
+    defaultConfig: {
+      params: [],
+      path: "",
+      val: {
+        wands: [],
+        anyWand: { spells: [], spellsStrict: false },
+      },
+    },
+    Title: () => "入口法杖（噩梦）",
   },
   startingBombSpell: {
     Component: StartingBombSpell,

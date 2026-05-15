@@ -4,7 +4,6 @@ import {
   Stack,
   Row,
   Col,
-  ListGroup,
   Button,
   ButtonGroup,
   Form,
@@ -58,7 +57,7 @@ const Search = () => {
     computeJobName,
     handleCustomSeedListChange,
     updateSearchConfig,
-    findAll,
+    maxResults,
     isNightmare,
     running,
     seed,
@@ -92,6 +91,8 @@ const Search = () => {
     results = [...chunkProvider?.results.values()];
   }
 
+  const clampedShowedSeed = Math.min(showedSeed, Math.max(results.length - 1, 0));
+
   return (
     <div className="p-0 pt-3">
       <Description />
@@ -100,6 +101,17 @@ const Search = () => {
         <Col xs={12} sm={6} md={5}>
           <Form onSubmit={e => e.preventDefault()}>
             <FormGroup>
+              <Col className="mb-3">
+                <Form.Group>
+                  <Form.Check
+                    checked={isNightmare}
+                    disabled={running || !solverReady}
+                    onChange={e => updateSearchConfig({ isNightmare: e.target.checked })}
+                    id={`nightmare-mode-switch`}
+                    label={<span className="fw-bold fs-5">噩梦模式</span>}
+                  />
+                </Form.Group>
+              </Col>
               <Col className="mb-4">
                 <Form.Group>
                   <Form.Label htmlFor="SearchSeeds.name">搜索名称：</Form.Label>
@@ -155,24 +167,15 @@ const Search = () => {
                 </Form.Group>
               </Col>
               <Col>
-                <Form.Group className="mt-3">
-                  <Form.Check
-                    checked={findAll}
-                    disabled={!solverReady}
-                    onChange={e => updateSearchConfig({ findAll: e.target.checked })}
-                    id={`find-all-switch`}
-                    label="找到种子后不停止搜索"
-                  />
-                </Form.Group>
-              </Col>
-              <Col>
-                <Form.Group className="mt-3">
-                  <Form.Check
-                    checked={isNightmare}
+                <Form.Group className="mt-2">
+                  <Form.Label htmlFor="SearchSeeds.maxResults">找到几个种子后停止（0 = 不停止）：</Form.Label>
+                  <Form.Control
+                    id="SearchSeeds.maxResults"
+                    type="number"
+                    min={0}
                     disabled={running || !solverReady}
-                    onChange={e => updateSearchConfig({ isNightmare: e.target.checked })}
-                    id={`nightmare-mode-switch`}
-                    label="噩梦模式"
+                    value={maxResults}
+                    onChange={e => updateSearchConfig({ maxResults: parseInt(e.target.value, 10) || 0 })}
                   />
                 </Form.Group>
               </Col>
@@ -220,45 +223,29 @@ const Search = () => {
           </div>
         )}
         <h5 className="mt-3 mb-1">结果：</h5>
-        {findAll && chunkProvider && (
+        {results.length > 0 && (
           <div>
-            Found {results.length} seeds: <br />
-            <Button onClick={handleCopy}>复制种子列表到剪贴板</Button>
-            <ListGroup
-              style={{
-                overflowY: "auto",
-                height: "100px",
-              }}
-            >
-              {results.map(s => {
-                return (
-                  <ListGroup.Item variant="flush" key={s}>
-                    {s}
-                  </ListGroup.Item>
-                );
-              })}
-            </ListGroup>
-          </div>
-        )}
-        {!findAll && results.length > 0 && (
-          <div>
+            <div className="mb-2">
+              找到 {results.length} 个种子
+              <Button size="sm" className="ms-2" onClick={handleCopy}>复制种子列表到剪贴板</Button>
+            </div>
             <Row>
               <Col>
-                <Button disabled={showedSeed === 0} onClick={() => setShowedSeed(showedSeed - 1)}>
+                <Button disabled={clampedShowedSeed === 0} onClick={() => setShowedSeed(clampedShowedSeed - 1)}>
                   {"<"}
                 </Button>
               </Col>
               <Col>
-                显示种子 {showedSeed + 1} / {results.length}
+                显示种子 {clampedShowedSeed + 1} / {results.length}
               </Col>
               <Col>
-                <Button disabled={showedSeed === results.length - 1} onClick={() => setShowedSeed(showedSeed + 1)}>
+                <Button disabled={clampedShowedSeed === results.length - 1} onClick={() => setShowedSeed(clampedShowedSeed + 1)}>
                   {">"}
                 </Button>
               </Col>
             </Row>
-            <div className="mb-4" key={results[showedSeed]}>
-              <MemoSeedDataOutput key={results[showedSeed]} seed={`${results[showedSeed]}`} isNightmare={isNightmare} />
+            <div className="mb-4" key={results[clampedShowedSeed]}>
+              <MemoSeedDataOutput key={results[clampedShowedSeed]} seed={`${results[clampedShowedSeed]}`} isNightmare={isNightmare} />
             </div>
           </div>
         )}
