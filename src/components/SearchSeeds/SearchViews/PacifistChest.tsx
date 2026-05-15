@@ -10,6 +10,8 @@ import { Square } from "../../helpers";
 import { IRule } from "../../../services/SeedInfo/infoHandler/IRule";
 import Entity from "../../Icons/Entity";
 import EntitySelect from "../../EntitySelect";
+import { useSearchContext } from "../SearchContext";
+import { getHolyMountainRowCount } from "../../../services/SeedInfo/infoHandler/InfoProviders/holyMountainLocations";
 
 const availableItems = [
   // 'data/entities/misc/custom_cards/bomb.xml',
@@ -89,6 +91,8 @@ interface IPacifistChestProps {
 // TODO: Handle contents for potions, wands, etc
 const PacifistChest: FC<IPacifistChestProps> = ({ onUpdateConfig, config }) => {
   const { val: entities } = config;
+  const { isNightmare } = useSearchContext();
+  const rowCount = getHolyMountainRowCount(0, isNightmare);
   const [selectOpen, setSelectOpen] = useState(-1);
 
   const setPacifistChest = newConfig => {
@@ -119,6 +123,13 @@ const PacifistChest: FC<IPacifistChestProps> = ({ onUpdateConfig, config }) => {
   const toggleSelect = (n = -1) => {
     setSelectOpen(n);
   };
+
+  useEffect(() => {
+    if (entities.length === rowCount) {
+      return;
+    }
+    setPacifistChest(Array.from({ length: rowCount }, (_, i) => Array.isArray(entities[i]) ? entities[i] : []));
+  }, [entities.length, rowCount]);
 
   return (
     <Container fluid>

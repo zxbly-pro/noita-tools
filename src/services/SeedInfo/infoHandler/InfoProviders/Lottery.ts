@@ -1,15 +1,23 @@
 /* eslint-disable no-unreachable */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import templeData from "../../data/temple-locations.json";
 import { IRule } from "../IRule";
 import { InfoProvider } from "./Base";
+import { getHolyMountainLocation } from "./holyMountainLocations";
 
 export class LotteryInfoProvider extends InfoProvider {
-  temples = templeData;
+  isNightmare = false;
+
+  setNightmareMode(isNightmare: boolean) {
+    this.isNightmare = isNightmare;
+  }
 
   provide(level: number, perkNumber: number, perksOnLevel: number, worldOffset = 0, lotteries = 0) {
-    const { x, y } = this.temples[level];
+    const temple = getHolyMountainLocation(level, this.isNightmare);
+    if (!temple) {
+      return false;
+    }
+    const { x, y } = temple;
     const perkY = y;
     // In Noita's code x is `x + (i-0.5)*item_width`
     // Since we use 0..n-1 instead of 1..n, we use `+ 0.5` since we can

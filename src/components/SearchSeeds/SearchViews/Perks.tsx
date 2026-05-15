@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState, FC } from "react";
+import { useState, useEffect, FC } from "react";
 import { Row, Col, Container, Stack, Button } from "react-bootstrap";
 
 import PerkSelect from "../../PerkSelect";
@@ -8,6 +8,7 @@ import { IRule } from "../../../services/SeedInfo/infoHandler/IRule";
 import Perk from "../../Icons/Perk";
 import { PerkInfoProvider, IPerkRule } from "../../../services/SeedInfo/infoHandler/InfoProviders/Perk";
 import { useSearchContext } from "../SearchContext";
+import { getHolyMountainRowCount } from "../../../services/SeedInfo/infoHandler/InfoProviders/holyMountainLocations";
 
 const perkInfoProvider = new PerkInfoProvider({} as any);
 
@@ -65,6 +66,7 @@ const PerkCol: FC<any> = ({ title, perks, handleDelete, togglePerkSelect }) => {
 const Perks: FC<IPerksProps> = ({ onUpdateConfig, config }) => {
   const { val } = config;
   const { isNightmare } = useSearchContext();
+  const rowCount = getHolyMountainRowCount(0, isNightmare);
   const [selectOpen, setSelectOpen] = useState(-1);
   const [selectType, setSelectType] = useState("");
 
@@ -72,6 +74,26 @@ const Perks: FC<IPerksProps> = ({ onUpdateConfig, config }) => {
   const perksAll = val?.all || [];
   const perksDeck = val?.deck || [];
   const entrance = val?.entrance || { some: [], all: [] };
+
+  useEffect(() => {
+    const normalizeRows = (rows: string[][] = []) =>
+      Array.from({ length: rowCount }, (_, i) => Array.isArray(rows[i]) ? rows[i] : []);
+    const normalizedAll = normalizeRows(perksAll);
+    const normalizedSome = normalizeRows(perksSome);
+    if (
+      normalizedAll.length !== perksAll.length
+      || normalizedSome.length !== perksSome.length
+      || perksDeck.length === 0
+    ) {
+      setPerks({
+        ...val,
+        all: normalizedAll,
+        some: normalizedSome,
+        deck: perksDeck?.length ? perksDeck : [[]],
+        entrance,
+      });
+    }
+  }, [rowCount, perksAll, perksSome, perksDeck, entrance]);
 
   const setPerks = newConfig => {
     onUpdateConfig({

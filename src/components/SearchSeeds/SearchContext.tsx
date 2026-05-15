@@ -104,6 +104,15 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
   useEffect(() => {
     if (!searchInstance) return;
 
+    ruleDispatch({
+      action: "normalizeMode",
+      data: { isNightmare: searchInstance.config.isNightmare || false },
+    });
+  }, [searchInstance?.config.isNightmare]);
+
+  useEffect(() => {
+    if (!searchInstance) return;
+
     const { from: seed, to: seedEnd } = searchInstance.config;
 
     const updateChunkProvider = () => {

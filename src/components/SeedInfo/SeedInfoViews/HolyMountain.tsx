@@ -43,13 +43,13 @@ import classNames from "classnames";
 import Entity from "../../Icons/Entity";
 import { IItem } from "../../../services/SeedInfo/infoHandler/InfoProviders/ChestRandom";
 import { cloneDeep } from "lodash";
+import { getHolyMountainRowCount as getConfiguredHolyMountainRowCount } from "../../../services/SeedInfo/infoHandler/InfoProviders/holyMountainLocations";
 
 const perkWidth = "3rem";
 const gamblePerkDiff = "-0.8rem";
 
 const getHolyMountainRowCount = (worldOffset: number, isNightmare: boolean) => {
-  const baseCount = isNightmare ? 5 : 7;
-  return baseCount - Number(!!worldOffset);
+  return getConfiguredHolyMountainRowCount(worldOffset, isNightmare);
 };
 
 interface IRerollPaneProps {
@@ -865,6 +865,7 @@ const HolyMountain = (props: IHolyMountainProps) => {
 
   // const offset = infoProvider.config.perkWorldOffset;
   const [shopSelected, setShopSelected] = useState(-1);
+  const rowCount = Math.min(perks.length, shop.length);
 
   const handleOpenShopInfo = (level: number) => {
     setShopSelected(level);
@@ -970,7 +971,7 @@ const HolyMountain = (props: IHolyMountainProps) => {
           </tr>
         </thead>
         <tbody>
-          {Array(perks.length)
+          {Array(rowCount)
             .fill("")
             .map((_, level) => {
               const row = perks[level] || [];
@@ -998,7 +999,7 @@ const HolyMountain = (props: IHolyMountainProps) => {
                   isRerollable={(i, l) =>
                     infoProvider.providers.lottery.provide(level, i, l, worldOffset, adjustedLotteries)
                   }
-                  getAlwaysCast={(i, l) => infoProvider.providers.alwaysCast.provide(level, i, l, worldOffset)}
+                  getAlwaysCast={(i, l) => infoProvider.providers.alwaysCast.provide(level, i, l, worldOffset) ?? ""}
                   handleOpenShopInfo={() => handleOpenShopInfo(level)}
                   handleLoad={() => handleGenRowAdvanced(level)}
                 />

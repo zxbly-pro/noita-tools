@@ -17,8 +17,10 @@ import { Container } from "react-bootstrap";
 import { useSearchContext } from "./SearchContext";
 import { getTreeTools } from "./node";
 import PacifistChest from "./SearchViews/PacifistChest";
+import { getHolyMountainRowCount } from "../../services/SeedInfo/infoHandler/InfoProviders/holyMountainLocations";
 
 const treeTools = getTreeTools("id", "rules");
+const createHolyMountainRows = <T,>(count: number, factory: () => T) => Array.from({ length: count }, factory);
 
 export const RuleConstructors = {
   // Logic rules
@@ -74,25 +76,25 @@ export const RuleConstructors = {
   },
   pacifistChest: {
     Component: PacifistChest,
-    defaultConfig: {
+    defaultConfig: (isNightmare = false) => ({
       params: [],
       path: "",
-      val: new Array(7).fill([]),
-    },
+      val: createHolyMountainRows(getHolyMountainRowCount(0, isNightmare), () => [] as string[]),
+    }),
     Title: () => "和平宝箱",
   },
   perk: {
     Component: Perks,
-    defaultConfig: {
+    defaultConfig: (isNightmare = false) => ({
       params: [],
       path: "",
       val: {
-        all: new Array(7).fill([]),
+        all: createHolyMountainRows(getHolyMountainRowCount(0, isNightmare), () => [] as string[]),
         deck: new Array(1).fill([]),
-        some: new Array(7).fill([]),
+        some: createHolyMountainRows(getHolyMountainRowCount(0, isNightmare), () => [] as string[]),
         entrance: { some: [], all: [] },
       },
-    },
+    }),
     Title: () => "天赋",
   },
   search: {
@@ -101,11 +103,11 @@ export const RuleConstructors = {
   },
   shop: {
     Component: Shop,
-    defaultConfig: {
+    defaultConfig: (isNightmare = false) => ({
       params: [],
       path: "",
-      val: new Array(7).fill(undefined),
-    },
+      val: createHolyMountainRows(getHolyMountainRowCount(0, isNightmare), () => undefined),
+    }),
     Title: () => "商店",
   },
   entranceWand: {
@@ -160,6 +162,17 @@ export const RuleConstructors = {
     },
     Title: () => "天气",
   },
+};
+
+export const getRuleDefaultConfig = (type: string, isNightmare = false) => {
+  const constructor = RuleConstructors[type];
+  if (!constructor) {
+    return {};
+  }
+  if (typeof constructor.defaultConfig === "function") {
+    return constructor.defaultConfig(isNightmare);
+  }
+  return constructor.defaultConfig || {};
 };
 type IRuleConstructor = (typeof RuleConstructors)[keyof typeof RuleConstructors];
 

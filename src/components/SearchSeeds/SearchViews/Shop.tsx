@@ -13,6 +13,8 @@ import SpellSelect from "../../SpellSelect";
 import WandSelect from "../../WandSelect";
 import cloneDeep from "lodash/cloneDeep.js";
 import { ConfigRow } from "../../Settings/helpers";
+import { useSearchContext } from "../SearchContext";
+import { getHolyMountainRowCount } from "../../../services/SeedInfo/infoHandler/InfoProviders/holyMountainLocations";
 
 interface WandAdditionalSettingsProps {
   handleClickModal: () => void;
@@ -199,12 +201,27 @@ interface IShopProps {
 
 const Shop = (props: IShopProps) => {
   const { onUpdateConfig, config } = props;
+  const { isNightmare } = useSearchContext();
+  const rowCount = getHolyMountainRowCount(0, isNightmare);
   const [d, setModal] = useState<[number, number]>([-1, IShopType.item]);
   const level = d[0];
   const shopType = d[1];
   const [shops, dispatch] = useReducer(shopReducer, config.val, () => {
     return config.val.map(shop => shop || { type: "", items: [], strict: true });
   });
+
+  useEffect(() => {
+    if (shops.length === rowCount) {
+      return;
+    }
+    const normalized = Array.from({ length: rowCount }, (_, i) => shops[i] || { type: "", items: [], strict: true });
+    onUpdateConfig({
+      type: "shop",
+      path: "",
+      params: [],
+      val: normalized,
+    });
+  }, [rowCount, shops.length]);
 
   useEffect(() => {
     // Only update if shops actually changed

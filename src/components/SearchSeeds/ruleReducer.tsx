@@ -3,8 +3,9 @@ import { ILogicRules, RuleType } from "../../services/SeedInfo/infoHandler/IRule
 import cloneDeep from "lodash/cloneDeep.js";
 
 import { getTreeTools } from "./node";
-import { RuleConstructors } from "./RuleConstructor";
+import { getRuleDefaultConfig } from "./RuleConstructor";
 import { randomUUID } from "../../services/helpers";
+import { normalizeRuleTreeForMode } from "./ruleNormalization";
 
 const treeTools = getTreeTools("id", "rules");
 
@@ -17,6 +18,7 @@ interface IAddAction {
   data: {
     type: string;
     target: string;
+    isNightmare?: boolean;
   };
 }
 interface ISelectAction {
@@ -45,8 +47,14 @@ interface IImportAction {
   action: "import";
   data: string;
 }
+interface INormalizeModeAction {
+  action: "normalizeMode";
+  data: {
+    isNightmare: boolean;
+  };
+}
 
-type IActions = IAddAction | ISelectAction | IUpdateAction | IDeleteAction | IMoveAction | IImportAction;
+type IActions = IAddAction | ISelectAction | IUpdateAction | IDeleteAction | IMoveAction | IImportAction | INormalizeModeAction;
 
 export const initialRuleState: IState = {
   id: "root",
@@ -62,7 +70,7 @@ export const ruleReducer = (state: IState, action: IActions) => {
       newState.rules.push({
         id: randomUUID(),
         type: action.data.type,
-        ...RuleConstructors[action.data.type].defaultConfig,
+        ...getRuleDefaultConfig(action.data.type, action.data.isNightmare),
       });
       return newState;
     }
@@ -95,7 +103,11 @@ export const ruleReducer = (state: IState, action: IActions) => {
         return JSON.parse(atob(str));
       } catch (e) {
         console.error(e);
+        return state;
       }
+    }
+    case "normalizeMode": {
+      return normalizeRuleTreeForMode(newState, action.data.isNightmare);
     }
   }
   return state;

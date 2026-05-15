@@ -1,13 +1,17 @@
 /* eslint-disable no-unreachable */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import templeData from "../../data/temple-locations.json";
 import { IRule } from "../IRule";
 import { InfoProvider } from "./Base";
 import { ACTION_TYPE } from "./Wand";
+import { getHolyMountainLocation } from "./holyMountainLocations";
 
 export class AlwaysCastInfoProvider extends InfoProvider {
-  temples = templeData;
+  isNightmare = false;
+
+  setNightmareMode(isNightmare: boolean) {
+    this.isNightmare = isNightmare;
+  }
 
   providePos(x: number, y: number) {
     this.randoms.SetRandomSeed(x, y);
@@ -36,7 +40,11 @@ export class AlwaysCastInfoProvider extends InfoProvider {
   }
 
   provide(templeLevel: number, perkNumber: number, perksOnLevel: number, worldOffset = 0) {
-    const { x: _x, y: _y } = this.temples[templeLevel];
+    const temple = getHolyMountainLocation(templeLevel, this.isNightmare);
+    if (!temple) {
+      return undefined;
+    }
+    const { x: _x, y: _y } = temple;
     const y = _y;
     // In Noita's code x is `x + (i-0.5)*item_width`
     // Since we use 0..n-1 instead of 1..n, we use `+ 0.5` since we can

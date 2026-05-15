@@ -1,13 +1,13 @@
 /* eslint-disable no-unreachable */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import templeData from "../../data/temple-locations.json";
 import { includesAll, includesSome, between } from "../../../helpers";
 import { IRule } from "../IRule";
 import { IRandom } from "../../random";
 import { InfoProvider } from "./Base";
 import type { WandInfoProvider } from "./Wand";
 import type { SpellInfoProvider } from "./Spell";
+import { getHolyMountainLocation, getHolyMountainLocations } from "./holyMountainLocations";
 
 export enum IShopType {
   "wand" = 1,
@@ -25,6 +25,8 @@ export type IWandShop = {
 export type IShopItems = IItemShop | IWandShop;
 
 export class ShopInfoProvider extends InfoProvider {
+  isNightmare = false;
+
   constructor(randoms: IRandom, wandInfoProvider: WandInfoProvider, spellInfoProvider: SpellInfoProvider) {
     super(randoms);
     this.wandInfoProvider = wandInfoProvider;
@@ -38,8 +40,11 @@ export class ShopInfoProvider extends InfoProvider {
   }
 
   wandInfoProvider: WandInfoProvider;
-  temples = templeData;
   spells: SpellInfoProvider;
+
+  setNightmareMode(isNightmare: boolean) {
+    this.isNightmare = isNightmare;
+  }
 
   biomes = [
     null, // 0
@@ -257,7 +262,8 @@ export class ShopInfoProvider extends InfoProvider {
 
   provide(pickedPerks: Map<number, string[][]> = new Map(), worldOffset: number = 0, tx = 0, ty = 0) {
     const res: ReturnType<ShopInfoProvider["spawn_all_shop_items"]>[] = [];
-    for (let i = 0; i < this.temples.length; i++) {
+    const temples = getHolyMountainLocations(this.isNightmare);
+    for (let i = 0; i < temples.length; i++) {
       res.push(this.provideLevel(i, pickedPerks, worldOffset, tx, ty));
     }
     return res;
@@ -270,7 +276,13 @@ export class ShopInfoProvider extends InfoProvider {
     tx = 0,
     ty = 0,
   ) {
-    const temple = this.temples[level];
+    const temple = getHolyMountainLocation(level, this.isNightmare);
+    if (!temple) {
+      return {
+        type: IShopType.wand,
+        items: [],
+      };
+    }
     // Magic numbers taken from src/services/SeedInfo/infoHandler.check.ts
     let offsetX = 0 - 299,
       offsetY = 0 - 15;
@@ -278,7 +290,10 @@ export class ShopInfoProvider extends InfoProvider {
   }
 
   getShopLevel(shopNumber: number) {
-    const temple = this.temples[shopNumber];
+    const temple = getHolyMountainLocation(shopNumber, this.isNightmare);
+    if (!temple) {
+      return 0;
+    }
     return this.getLevel(temple.y - 15);
   }
 
@@ -294,7 +309,8 @@ export class ShopInfoProvider extends InfoProvider {
   ];
 
   test(rule: IRule): boolean {
-    for (let j = 0; j <= this.temples.length; j++) {
+    const temples = getHolyMountainLocations(this.isNightmare);
+    for (let j = 0; j <= temples.length; j++) {
       const shop = rule.val[j];
       if (!shop) {
         continue;

@@ -5,8 +5,8 @@ import { IRule } from "../IRule";
 import { InfoProvider } from "./Base";
 import { ChestRandomInfoProvider } from "./ChestRandom";
 
-import templeData from "../../data/temple-locations.json";
 import { IRandom } from "../../random";
+import { getHolyMountainLocation, getHolyMountainLocations } from "./holyMountainLocations";
 
 const itemMap = {
   "data/entities/misc/custom_cards/bomb.xml": null,
@@ -51,13 +51,17 @@ const itemMap = {
 };
 
 export class PacifistChestInfoProvider extends InfoProvider {
-  temples = templeData;
+  isNightmare = false;
 
   chestProvider: ChestRandomInfoProvider;
 
   constructor(randoms: IRandom, chestProvider: ChestRandomInfoProvider) {
     super(randoms);
     this.chestProvider = chestProvider;
+  }
+
+  setNightmareMode(isNightmare: boolean) {
+    this.isNightmare = isNightmare;
   }
 
   offsets = [
@@ -67,7 +71,10 @@ export class PacifistChestInfoProvider extends InfoProvider {
 
   provide(level: number, worldOffset = 0, fallback = 0, greed = false) {
     const offset = this.offsets[fallback];
-    const temple = this.temples[level];
+    const temple = getHolyMountainLocation(level, this.isNightmare);
+    if (!temple) {
+      return [];
+    }
     const x = temple.x + offset.x + worldOffset * 35840;
     const y = temple.y + offset.y;
 
@@ -75,7 +82,8 @@ export class PacifistChestInfoProvider extends InfoProvider {
   }
 
   test(rule: IRule): boolean {
-    for (let j = 0; j <= this.temples.length; j++) {
+    const temples = getHolyMountainLocations(this.isNightmare);
+    for (let j = 0; j <= temples.length; j++) {
       if (!rule.val[j]?.length) {
         continue;
       }

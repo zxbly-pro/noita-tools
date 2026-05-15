@@ -147,6 +147,18 @@ export class GameInfoProvider extends EventTarget {
     if (this.providers?.map) {
       this.providers.map.setNightmareMode(this.config.isNightmare);
     }
+    if (this.providers?.shop) {
+      this.providers.shop.setNightmareMode(this.config.isNightmare);
+    }
+    if (this.providers?.pacifistChest) {
+      this.providers.pacifistChest.setNightmareMode(this.config.isNightmare);
+    }
+    if (this.providers?.lottery) {
+      this.providers.lottery.setNightmareMode(this.config.isNightmare);
+    }
+    if (this.providers?.alwaysCast) {
+      this.providers.alwaysCast.setNightmareMode(this.config.isNightmare);
+    }
     if (this.dispatch) {
       this.dispatchEvent(new CustomEvent("update", { detail: {} }));
     }
@@ -327,6 +339,10 @@ export class GameInfoProvider extends EventTarget {
 
     const nightmarePerks = this.config.isNightmare ? ["INVISIBILITY"] : undefined;
     this.providers.perk.ignorePerks = nightmarePerks;
+    this.providers.shop.setNightmareMode(this.config.isNightmare);
+    this.providers.pacifistChest.setNightmareMode(this.config.isNightmare);
+    this.providers.lottery.setNightmareMode(this.config.isNightmare);
+    this.providers.alwaysCast.setNightmareMode(this.config.isNightmare);
 
     let entrancePerks: any[] | undefined;
     let entranceWands: any[] | undefined;

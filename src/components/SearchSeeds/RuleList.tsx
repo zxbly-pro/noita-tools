@@ -572,7 +572,7 @@ const Logic: FC<ILogicProps> = ({ onLogic }) => {
 // I think DND should be replaced with https://github.com/atlassian/react-beautiful-dnd
 interface IRuleListProps {}
 const RuleList: FC<IRuleListProps> = () => {
-  const { ruleTree, computeJobName, ruleDispatch, uuid } = useSearchContext();
+  const { ruleTree, computeJobName, ruleDispatch, uuid, isNightmare } = useSearchContext();
 
   return (
     <DndProvider
@@ -621,7 +621,7 @@ const RuleList: FC<IRuleListProps> = () => {
         <hr />
         <Row lg={1} xl={2} className="d-flex justify-content-between">
           <Col className="my-2" xs={12}>
-            <Add onAdd={type => ruleDispatch({ action: "add", data: { type } })} />
+            <Add onAdd={type => ruleDispatch({ action: "add", data: { type, isNightmare } })} />
           </Col>
           <Col className="my-2" xs={12}>
             <Logic onLogic={type => ruleDispatch({ action: "add", data: { type } })} />

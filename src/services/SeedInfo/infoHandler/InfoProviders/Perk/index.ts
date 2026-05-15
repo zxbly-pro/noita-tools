@@ -6,6 +6,7 @@ import { includesAll, includesSome, Objectify } from "../../../../helpers";
 import { IRule } from "../../IRule";
 import { InfoProvider } from "../Base";
 import { Global } from "../Global";
+import { getHolyMountainRowCount as getConfiguredHolyMountainRowCount } from "../holyMountainLocations";
 
 export enum IPerkChangeStateType {
   shift,
@@ -109,8 +110,7 @@ export class PerkInfoProvider extends InfoProvider {
   }
 
   private getHolyMountainRowCount(worldOffset = 0, ignorePerks = this.ignorePerks) {
-    const baseCount = this.isNightmareMode(ignorePerks) ? 5 : 7;
-    return baseCount - Number(!!worldOffset);
+    return getConfiguredHolyMountainRowCount(worldOffset, this.isNightmareMode(ignorePerks));
   }
 
   getPerk(id: string) {
