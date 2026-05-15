@@ -123,11 +123,17 @@ export const handleCompute = (socket, io) => {
     }
 
     host.emit("compute:get_job", appetite, data => {
+      if (!data || data.done) {
+        cb(data);
+        return;
+      }
+
       data.hostId = hostId;
       pendingJobs[`${hostId}:${data.chunkId}`] = {
         hostId,
         workerId: socket.id,
         appetite,
+        jobName: data.jobName,
         start: Date.now(),
       };
       cb(data);
@@ -137,11 +143,13 @@ export const handleCompute = (socket, io) => {
   socket.on("compute:done", async ({ hostId, result, chunkId }) => {
     const host = io.sockets.sockets.get(hostId);
     if (!host) {
+      cb();
       return;
     }
 
+    const pendingJob = pendingJobs[`${hostId}:${chunkId}`];
     delete pendingJobs[`${hostId}:${chunkId}`];
-    host.emit("compute:done", { result, chunkId });
+    host.emit("compute:done", { result, chunkId, jobName: pendingJob?.jobName });
   });
 
   socket.on("disconnect", () => {

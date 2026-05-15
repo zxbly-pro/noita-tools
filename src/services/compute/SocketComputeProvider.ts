@@ -54,7 +54,10 @@ export class SocketComputeProvider extends BaseComputeProvider {
     cb(data);
   };
 
-  handleResults = ({ result, chunkId }) => {
+  handleResults = ({ result, chunkId, jobName }) => {
+    if (jobName && jobName !== this.chunkProvider.config.jobName) {
+      return;
+    }
     this.chunkProvider.commitChunk(chunkId, result);
     this.onUpdate(this.getStatus());
   };

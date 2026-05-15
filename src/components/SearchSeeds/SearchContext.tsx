@@ -32,6 +32,25 @@ const calculateJobHash = async (string: string) => {
   return Math.abs(hash).toString(16).padStart(8, "0");
 };
 
+const buildSearchJobKey = (
+  config: SearchesItem["config"] | undefined,
+  ruleTree: unknown,
+  customSeedList: string,
+) => {
+  if (!config) {
+    return "";
+  }
+
+  return JSON.stringify({
+    from: config.from,
+    to: config.to,
+    maxResults: config.maxResults || 0,
+    isNightmare: config.isNightmare || false,
+    rules: ruleTree,
+    customSeedList,
+  });
+};
+
 export const SearchContext = React.createContext<any>({});
 
 const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -73,8 +92,6 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
         if (newSearchInstance) {
           setQuery(newSearchInstance);
           ruleDispatch({ action: "import", data: newSearchInstance.config.rules });
-          const newJobHash = await calculateJobHash(newSearchInstance.config.name || "");
-          setComputeJobHash(newJobHash);
         }
       } catch (error) {
         console.error("Error loading query:", error);
@@ -85,6 +102,15 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
 
     loadQuery();
   }, [currentSearchUUID]);
+
+  useEffect(() => {
+    const updateJobHash = async () => {
+      const newJobHash = await calculateJobHash(buildSearchJobKey(searchInstance?.config, ruleTree, customSeedList));
+      setComputeJobHash(newJobHash);
+    };
+
+    updateJobHash().catch(console.error);
+  }, [searchInstance?.config, ruleTree, customSeedList]);
 
   const updateSearchConfig = (config: Partial<SearchesItem["config"]>) => {
     if (searchInstance) {
