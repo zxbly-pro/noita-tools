@@ -5,17 +5,20 @@ import { WandInfoProvider, IWandRule } from "./Wand";
 import { includesAll, includesSome } from "../../../helpers";
 
 const ENTRANCE_WAND_OPTS = [
-  { entity: "wand_level_02", cost: 40, level: 2, force_unshuffle: false },
-  { entity: "wand_level_02_better", cost: 50, level: 2, force_unshuffle: false },
-  { entity: "wand_level_03", cost: 60, level: 3, force_unshuffle: false },
-  { entity: "wand_unshuffle_01", cost: 25, level: 1, force_unshuffle: true },
-  { entity: "wand_unshuffle_02", cost: 40, level: 2, force_unshuffle: true },
-  { entity: "wand_unshuffle_03", cost: 60, level: 3, force_unshuffle: true },
+  { entity: "wand_level_02", cost: 40, level: 2, force_unshuffle: false, procedure: "default" as const },
+  { entity: "wand_level_02_better", cost: 40, level: 2, force_unshuffle: false, procedure: "better" as const },
+  { entity: "wand_level_03", cost: 60, level: 3, force_unshuffle: false, procedure: "default" as const },
+  { entity: "wand_unshuffle_01", cost: 25, level: 1, force_unshuffle: true, procedure: "default" as const },
+  { entity: "wand_unshuffle_02", cost: 40, level: 2, force_unshuffle: true, procedure: "default" as const },
+  { entity: "wand_unshuffle_03", cost: 60, level: 3, force_unshuffle: true, procedure: "default" as const },
 ];
 
-const SPAWN_X = -833;
+// mods/nightmare/data/biome_impl/mountain/hall.png marker 0xff33934c is at local (191, 418),
+// and the nightmare mountain_hall root is tile (36, 13) => global (512, -512).
+const SPAWN_X = 703;
 const SPAWN_Y = -94;
 const ITEM_WIDTH = 44;
+const FIXED_ENTRANCE_WAND_OPT = ENTRANCE_WAND_OPTS[0];
 
 export interface IEntranceWandRule {
   wands: Array<{ wand?: IWandRule; spells?: string[]; spellsStrict?: boolean }>;
@@ -34,11 +37,12 @@ export class EntranceWandInfoProvider extends InfoProvider {
     this.randoms.SetRandomSeed(SPAWN_X, SPAWN_Y);
     const wands: ReturnType<WandInfoProvider["provide"]>[] = [];
     for (let i = 0; i < 3; i++) {
-      const optIdx = this.randoms.Random(1, ENTRANCE_WAND_OPTS.length) - 1;
-      const opt = ENTRANCE_WAND_OPTS[optIdx];
+      // mods/nightmare passes the table itself to Random(1, opts), not #opts.
+      // In-game that ends up selecting the first entry every time.
+      const opt = FIXED_ENTRANCE_WAND_OPT;
       const wandX = SPAWN_X + i * ITEM_WIDTH;
       const wand = this.wandInfoProvider.provide(
-        wandX, SPAWN_Y, opt.cost, opt.level, opt.force_unshuffle, false,
+        wandX, SPAWN_Y, opt.cost, opt.level, opt.force_unshuffle, false, opt.procedure,
       );
       wands.push(wand);
     }

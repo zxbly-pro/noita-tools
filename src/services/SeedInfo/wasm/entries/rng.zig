@@ -59,7 +59,7 @@ export fn RandomDistribution(min: i32, max: i32, mean: i32, sharpness: i32) i32 
 
     const adjusted_mean = @as(f32, @floatFromInt(mean - min)) / @as(f32, @floatFromInt(max - min));
     const distribution = prng.getDistribution(&rng, adjusted_mean, sharpness);
-    const delta: i32 = @intFromFloat(@round(@as(f32, @floatFromInt(max - min)) * distribution));
+    const delta: i32 = prng.roundHalfToEvenI32(@as(f32, @floatFromInt(max - min)) * distribution);
     return min + delta;
 }
 

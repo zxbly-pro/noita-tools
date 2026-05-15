@@ -144,6 +144,9 @@ export class GameInfoProvider extends EventTarget {
     if (this.providers?.perk) {
       this.providers.perk.ignorePerks = this.config.isNightmare ? ["INVISIBILITY"] : undefined;
     }
+    if (this.providers?.map) {
+      this.providers.map.setNightmareMode(this.config.isNightmare);
+    }
     if (this.dispatch) {
       this.dispatchEvent(new CustomEvent("update", { detail: {} }));
     }
@@ -234,6 +237,11 @@ export class GameInfoProvider extends EventTarget {
             deps: [],
             getArgs: () => [this.i18n],
           };
+        case "map":
+          return {
+            deps: [],
+            getArgs: () => [...baseArgs, this.config.isNightmare],
+          };
         default:
           return {
             deps: [],
@@ -278,29 +286,35 @@ export class GameInfoProvider extends EventTarget {
   }
 
   private static ENTRANCE_WAND_OPTS = [
-    { entity: "wand_level_02", cost: 40, level: 2, force_unshuffle: false },
-    { entity: "wand_level_02_better", cost: 50, level: 2, force_unshuffle: false },
-    { entity: "wand_level_03", cost: 60, level: 3, force_unshuffle: false },
-    { entity: "wand_unshuffle_01", cost: 25, level: 1, force_unshuffle: true },
-    { entity: "wand_unshuffle_02", cost: 40, level: 2, force_unshuffle: true },
-    { entity: "wand_unshuffle_03", cost: 60, level: 3, force_unshuffle: true },
+    { entity: "wand_level_02", cost: 40, level: 2, force_unshuffle: false, procedure: "default" as const },
+    { entity: "wand_level_02_better", cost: 40, level: 2, force_unshuffle: false, procedure: "better" as const },
+    { entity: "wand_level_03", cost: 60, level: 3, force_unshuffle: false, procedure: "default" as const },
+    { entity: "wand_unshuffle_01", cost: 25, level: 1, force_unshuffle: true, procedure: "default" as const },
+    { entity: "wand_unshuffle_02", cost: 40, level: 2, force_unshuffle: true, procedure: "default" as const },
+    { entity: "wand_unshuffle_03", cost: 60, level: 3, force_unshuffle: true, procedure: "default" as const },
   ];
 
   generateEntranceWands() {
-    const SPAWN_X = -833;
+    const SPAWN_X = 703;
     const SPAWN_Y = -94;
     const ITEM_WIDTH = 44;
-    const opts = GameInfoProvider.ENTRANCE_WAND_OPTS;
+    const opt = GameInfoProvider.ENTRANCE_WAND_OPTS[0];
 
     this.randoms!.SetRandomSeed(SPAWN_X, SPAWN_Y);
 
     const wands: any[] = [];
     for (let i = 0; i < 3; i++) {
-      const optIdx = this.randoms!.Random(1, opts.length) - 1;
-      const opt = opts[optIdx];
       const wandX = SPAWN_X + i * ITEM_WIDTH;
       const wandY = SPAWN_Y;
-      const wand = this.providers.wand.provide(wandX, wandY, opt.cost, opt.level, opt.force_unshuffle, false);
+      const wand = this.providers.wand.provide(
+        wandX,
+        wandY,
+        opt.cost,
+        opt.level,
+        opt.force_unshuffle,
+        false,
+        opt.procedure,
+      );
       wands.push({ ...wand, entity: opt.entity });
     }
     return wands;

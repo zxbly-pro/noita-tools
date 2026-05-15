@@ -1,6 +1,5 @@
 const std = @import("std");
 
-const u32_max_half = 0x80000000;
 const lcg_modulus = 0x7fffffff;
 const lcg_multiplier = 0x41a7;
 const lcg_divisor = 0x1f31d;
@@ -10,24 +9,19 @@ pub const RandomPos = struct {
     y: i32,
 };
 
-fn asU32(value: bool) u32 {
-    return if (value) 1 else 0;
-}
-
-fn truncDoubleToU32(value: f64) u32 {
-    const truncated: i64 = @intFromFloat(value);
-    return @truncate(@as(u64, @bitCast(truncated)));
-}
-
 fn setRandomSeedHelper(value: f64) u32 {
-    const bits: u64 = @bitCast(value);
-    const finite = ((bits >> 0x20) & 0x7fffffff) < 0x7ff00000;
-    const in_range = -9.223372036854776e18 <= value and value < 9.223372036854776e18;
-    if (!finite or !in_range) {
-        return 0;
-    }
-
-    return truncDoubleToU32(value);
+    const abs_value = @abs(value);
+    const e: u64 = @bitCast(abs_value);
+    const c: i64 = if (value < 0) -1 else 1;
+    const f = (e & 0x000fffffffffffff) | 0x0010000000000000;
+    const g = 0x433 - (e >> 0x34);
+    const h = f >> @intCast(g);
+    const exponent = ((e >> 0x20) & 0xffffffff) >> 0x14;
+    const j: u32 = if (0x433 < exponent) 0 else 0xffffffff;
+    const a = (@as(u64, j) << 0x20) | j;
+    const inner: i64 = @bitCast(((~a) & h) | ((f << 0xd) & a));
+    const b = inner * c;
+    return @truncate(@as(u64, @bitCast(b)));
 }
 
 fn setRandomSeedHelper2(a: u32, b: u32, ws: u32) u32 {
@@ -78,7 +72,7 @@ pub const NollaPrng = struct {
     pub fn next(self: *NollaPrng) f64 {
         const seed_int: i32 = @intFromFloat(self.seed);
         var next_value = (lcg_multiplier *% seed_int) -% (lcg_modulus *% @divTrunc(seed_int, lcg_divisor));
-        if (next_value <= 0) {
+        if (next_value < 0) {
             next_value += lcg_modulus;
         }
 
@@ -121,17 +115,11 @@ pub const NollaPrng = struct {
         const f = setRandomSeedHelper(seed_material);
         const g = setRandomSeedHelper2(e, f, ws);
 
-        const diddle_table = [_]u32{ 0, 4, 6, 25, 12, 39, 52, 9, 21, 64, 78, 92, 104, 118, 18, 32, 44 };
-        const magic_number = 252645135;
-
-        var t = g;
-        t = t +% asU32(g < u32_max_half) +% asU32(g == 0);
-        t -%= g / magic_number;
-        t +%= asU32((g % magic_number < diddle_table[g / magic_number]) and (g < 0xc3c3c3c3 + 4 or g >= 0xc3c3c3c3 + 62));
-        t = (t +% asU32(g > u32_max_half)) >> 1;
-        t +%= asU32(g == 0xffffffff);
-
-        self.seed = @floatFromInt(t);
+        var s: f64 = @floatFromInt(g);
+        s /= 4294967295.0;
+        s *= 2147483639.0;
+        s += 1.0;
+        self.seed = s;
         _ = self.next();
 
         var h = ws & 3;

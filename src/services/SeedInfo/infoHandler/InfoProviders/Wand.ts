@@ -26,6 +26,8 @@ interface IGunProbs {
   }[];
 }
 
+type TWandProcedure = "default" | "better";
+
 const gun_probs: IGunProbs = {
   deck_capacity: [
     { prob: 1, min: 3, max: 10, mean: 6, sharpness: 2 },
@@ -90,6 +92,17 @@ const gun_probs: IGunProbs = {
     { prob: 1, min: 1, max: 5, mean: 2, sharpness: 0 },
   ],
 };
+
+const gun_probs_better: IGunProbs = {
+  deck_capacity: [{ prob: 1, min: 5, max: 13, mean: 8, sharpness: 2 }],
+  reload_time: [{ prob: 1, min: 5, max: 40, mean: 20, sharpness: 2 }],
+  fire_rate_wait: [{ prob: 1, min: 1, max: 35, mean: 5, sharpness: 2 }],
+  spread_degrees: [{ prob: 1, min: -1, max: 2, mean: 0, sharpness: 3 }],
+  speed_multiplier: [{ prob: 1, min: 0.8, max: 1.2, mean: 1, sharpness: 6 }],
+  actions_per_round: [{ prob: 1, min: 1, max: 3, mean: 1, sharpness: 3 }],
+};
+
+const GUN_NAME_COUNT = 83;
 
 const WandDiff = (
   gun: {
@@ -215,12 +228,13 @@ export class WandInfoProvider extends InfoProvider {
     reload_time: number;
   }[];
 
-  get_gun_probs(what: string): IGunProbs[string][number] | undefined {
-    if (gun_probs[what] === undefined) {
+  get_gun_probs(what: string, procedure: TWandProcedure = "default"): IGunProbs[string][number] | undefined {
+    const probsTable = procedure === "better" ? gun_probs_better : gun_probs;
+    if (probsTable[what] === undefined) {
       return undefined;
     }
-    let r = new D(this.randoms.Random() * total_prob(gun_probs[what]));
-    for (const v of gun_probs[what]) {
+    let r = new D(this.randoms.Random() * total_prob(probsTable[what]));
+    for (const v of probsTable[what]) {
       if (typeof v === "number") {
         return { prob: v, min: v, max: v, mean: v, sharpness: 0 };
       }
@@ -367,9 +381,106 @@ export class WandInfoProvider extends InfoProvider {
     return gun;
   }
 
-  apply_random_variable(t_gun: IGun, variable: string): void {
+  get_gun_data_better(cost: number, level: number, force_unshuffle: boolean, unshufflePerk: boolean) {
+    if (level === 1) {
+      if (this.randoms.Random(0, 100) < 50) {
+        cost = cost + 5;
+      }
+    }
+    cost = cost + this.randoms.Random(-3, 3);
+    const gun = new Gun(this.randoms, level, cost);
+
+    let p = this.randoms.Random(0, 100);
+    if (p < 20) {
+      gun["mana_charge_speed"] = (50 * level + this.randoms.Random(-5, 5 * level)) / 5;
+      gun["mana_max"] = (50 + 150 * level + this.randoms.Random(-5, 5) * 10) * 3;
+      if (gun["mana_charge_speed"] < 10) {
+        gun["mana_charge_speed"] = 10;
+      }
+    }
+
+    p = this.randoms.Random(0, 100);
+    if (p < 15 + level * 6) {
+      gun["force_unshuffle"] = 1;
+    }
+
+    p = this.randoms.Random(0, 100);
+    if (p < 5) {
+      gun["is_rare"] = 1;
+      gun["cost"] = gun["cost"] + 65;
+    }
+
+    const variables_01 = ["reload_time", "fire_rate_wait", "spread_degrees", "speed_multiplier"];
+    const variables_02 = ["deck_capacity"];
+    const variables_03 = ["shuffle_deck_when_empty", "actions_per_round"];
+
+    this.shuffleTable(variables_01);
+    if (gun["force_unshuffle"] !== 1) {
+      this.shuffleTable(variables_03);
+    }
+
+    for (const v of variables_01) {
+      this.apply_random_variable(gun, v, "better");
+    }
+    for (const v of variables_02) {
+      this.apply_random_variable(gun, v, "better");
+    }
+    for (const v of variables_03) {
+      this.apply_random_variable(gun, v, "better");
+    }
+
+    if (gun["cost"] > 5 && this.randoms.Random(0, 1000) < 995) {
+      if (gun["shuffle_deck_when_empty"] === 1) {
+        gun["deck_capacity"] = gun["deck_capacity"] + gun["cost"] / 5;
+        gun["cost"] = 0;
+      } else {
+        gun["deck_capacity"] = gun["deck_capacity"] + gun["cost"] / 10;
+        gun["cost"] = 0;
+      }
+    }
+
+    this.randoms.Random(1, GUN_NAME_COUNT);
+
+    if (force_unshuffle || unshufflePerk) {
+      gun["shuffle_deck_when_empty"] = 0;
+    }
+
+    if (this.randoms.Random(0, 10000) <= 9999) {
+      gun["deck_capacity"] = clamp(gun["deck_capacity"], 2, 26);
+    }
+
+    if (gun["deck_capacity"] <= 1) {
+      gun["deck_capacity"] = 2;
+    }
+
+    if (gun["reload_time"] >= 60) {
+      const random_add_actions_per_round = () => {
+        gun["actions_per_round"] = gun["actions_per_round"] + 1;
+        if (this.randoms.Random(0, 100) < 70) {
+          random_add_actions_per_round();
+        }
+      };
+      random_add_actions_per_round();
+
+      if (this.randoms.Random(0, 100) < 50) {
+        let new_actions_per_round = +gun["deck_capacity"];
+        for (let i = 0; i < 6; i++) {
+          let temp_actions_per_round = this.randoms.Random(gun["actions_per_round"], gun["deck_capacity"]);
+          if (temp_actions_per_round < new_actions_per_round) {
+            new_actions_per_round = temp_actions_per_round;
+          }
+        }
+        gun["actions_per_round"] = new_actions_per_round;
+      }
+    }
+
+    gun["actions_per_round"] = clamp(gun["actions_per_round"], 1, gun["deck_capacity"]);
+    return gun;
+  }
+
+  apply_random_variable(t_gun: IGun, variable: string, procedure: TWandProcedure = "default"): void {
     let cost = +t_gun["cost"];
-    let probs = this.get_gun_probs(variable)!;
+    let probs = this.get_gun_probs(variable, procedure)!;
     if (variable === "reload_time") {
       let min = clamp(60 - cost * 5, 1, 240);
       let max = 1024;
@@ -484,7 +595,7 @@ export class WandInfoProvider extends InfoProvider {
     }
   }
 
-  wand_add_random_cards(x: number, y: number, gun: IGun, level = 1): IGunCards {
+  wand_add_random_cards(x: number, y: number, gun: IGun, level = 1, procedure: TWandProcedure = "default"): IGunCards {
     const res: IGunCards = {
       cards: [] as string[],
     };
@@ -543,6 +654,39 @@ export class WandInfoProvider extends InfoProvider {
       }
       AddGunActionPermanent(card);
     }
+    if (procedure === "better") {
+      if (card_count < 3) {
+        if (card_count > 1 && this.randoms.Random(0, 100) < 20) {
+          card = this.randoms.GetRandomActionWithType(x, y, level, ACTION_TYPE.MODIFIER, 2);
+          AddGunAction(card);
+          card_count = card_count - 1;
+        }
+        for (let i = 1; i <= card_count; i++) {
+          AddGunAction(bullet_card);
+        }
+      } else {
+        if (this.randoms.Random(0, 100) < 40) {
+          card = this.randoms.GetRandomActionWithType(x, y, level, ACTION_TYPE.DRAW_MANY, 1);
+          AddGunAction(card);
+          card_count = card_count - 1;
+        }
+        if (card_count > 3 && this.randoms.Random(0, 100) < 40) {
+          card = this.randoms.GetRandomActionWithType(x, y, level, ACTION_TYPE.DRAW_MANY, 1);
+          AddGunAction(card);
+          card_count = card_count - 1;
+        }
+        if (this.randoms.Random(0, 100) < 80) {
+          card = this.randoms.GetRandomActionWithType(x, y, level, ACTION_TYPE.MODIFIER, 2);
+          AddGunAction(card);
+          card_count = card_count - 1;
+        }
+        for (let i = 1; i <= card_count; i++) {
+          AddGunAction(bullet_card);
+        }
+      }
+      return res;
+    }
+
     if (this.randoms.Random(0, 100) < 50) {
       let extra_level = +level;
       while (this.randoms.Random(1, 10) === 10) {
@@ -603,11 +747,34 @@ export class WandInfoProvider extends InfoProvider {
     return res;
   }
 
-  provide(x: number, y: number, cost: number, level: number, force_unshuffle: boolean, unshufflePerk: boolean) {
+  provide(
+    x: number,
+    y: number,
+    cost: number,
+    level: number,
+    force_unshuffle: boolean,
+    unshufflePerk: boolean,
+    procedure: TWandProcedure = "default",
+  ) {
     this.randoms.SetRandomSeed(x, y);
-    const gun = this.get_gun_data(cost, level, force_unshuffle, unshufflePerk).toObject();
-    const ui = this.GetWandUI(gun);
-    const cards = this.wand_add_random_cards(x, y, gun, level);
+    const gun =
+      (procedure === "better"
+        ? this.get_gun_data_better(cost, level, force_unshuffle, unshufflePerk)
+        : this.get_gun_data(cost, level, force_unshuffle, unshufflePerk)
+      ).toObject();
+    let ui;
+    if (procedure === "better") {
+      const cards = this.wand_add_random_cards(x, y, gun, level, procedure);
+      ui = this.GetWandUI(gun);
+      return {
+        gun,
+        ui,
+        cards,
+      };
+    }
+
+    ui = this.GetWandUI(gun);
+    const cards = this.wand_add_random_cards(x, y, gun, level, procedure);
 
     return {
       gun,

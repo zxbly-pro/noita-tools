@@ -117,12 +117,17 @@ interface IRND {
 
 export const genRandom = async (Module: IRandomModule) => {
   const spells = (await import("../data/spells.json")).default;
+  const spellProbTables = (await import("../data/spellProbTables.json")).default as {
+    all: Array<Array<[number, string]> | null>;
+    typed: Array<Array<Array<[number, string]> | null>>;
+  };
   const spellsArr = spells as Array<{
     id: string;
     type: number;
     spawn_probabilities: Partial<Record<string, number>>;
   }>;
   let unlockedSpells: boolean[] = [];
+  const spellIndexById = new Map(spellsArr.map((spell, index) => [spell.id, index]));
 
   Module.print = function (text) {
     if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(" ");
@@ -219,61 +224,73 @@ export const genRandom = async (Module: IRandomModule) => {
     return Module.SeededRandom(seed, Math.fround(x), Math.fround(y));
   };
 
+  const pickFromReferenceTable = (
+    table: Array<[number, string]> | null | undefined,
+    seed: number,
+    x: number,
+    y: number,
+    epsilon = 0,
+  ) => {
+    if (!table?.length) {
+      return undefined;
+    }
+
+    let total = 0;
+    let prev = 0;
+    for (const [cumulative, spellId] of table) {
+      const index = spellIndexById.get(spellId);
+      if (index === undefined || !unlockedSpells[index]) {
+        prev = cumulative;
+        continue;
+      }
+      total += cumulative - prev;
+      prev = cumulative;
+    }
+
+    if (total <= 0) {
+      return undefined;
+    }
+
+    const cutoff = seededRandom(seed, x, y) * total + epsilon;
+    let accumulated = 0;
+    prev = 0;
+
+    for (const [cumulative, spellId] of table) {
+      const delta = cumulative - prev;
+      prev = cumulative;
+
+      const index = spellIndexById.get(spellId);
+      if (index === undefined || !unlockedSpells[index] || delta <= 0) {
+        continue;
+      }
+
+      accumulated += delta;
+      if (accumulated >= cutoff) {
+        return spellId;
+      }
+    }
+
+    return table[table.length - 1][1];
+  };
+
+  const getReferenceLevel = (level: number) => Math.min(Math.max(level, 0), 10);
+
   const GetRandomAction = (x: number, y: number, level: number, offset = 0) => {
     const seed = Module.GetWorldSeed() + offset;
-    let sum = 0;
-    for (let i = 0; i < spellsArr.length; i++) {
-      if (!unlockedSpells[i]) {
-        continue;
-      }
-      sum += getSpawnProbability(spellsArr[i], level);
-    }
-
-    let accumulated = sum * seededRandom(seed, x, y);
-    for (let i = 0; i < spellsArr.length; i++) {
-      if (!unlockedSpells[i]) {
-        continue;
-      }
-      const spell = spellsArr[i];
-      const probability = getSpawnProbability(spell, level);
-      if (probability === 0) {
-        continue;
-      }
-      if (probability >= accumulated) {
-        return spell.id;
-      }
-      accumulated -= probability;
-    }
-
-    return spellsArr[0].id;
+    const picked = pickFromReferenceTable(spellProbTables.all[getReferenceLevel(level)], seed, x, y, 0.00001);
+    return picked ?? spellsArr[0].id;
   };
 
   const GetRandomActionWithType = (x: number, y: number, level: number, type: number, offset = 0) => {
     const seed = Module.GetWorldSeed() + offset;
-    let sum = 0;
-    for (let i = 0; i < spellsArr.length; i++) {
-      if (!unlockedSpells[i]) {
-        continue;
-      }
-      if (spellsArr[i].type === type) {
-        sum += getSpawnProbability(spellsArr[i], level);
-      }
-    }
-
-    let accumulated = sum * seededRandom(seed, x, y);
-    for (let i = 0; i < spellsArr.length; i++) {
-      if (!unlockedSpells[i]) {
-        continue;
-      }
-      const spell = spellsArr[i];
-      if (spell.type !== type) {
-        continue;
-      }
-      const probability = getSpawnProbability(spell, level);
-      if (probability > 0 && probability >= accumulated) {
-        return spell.id;
-      }
-      accumulated -= probability;
+    const picked = pickFromReferenceTable(
+      spellProbTables.typed[getReferenceLevel(level)]?.[type],
+      seed,
+      x,
+      y,
+    );
+    if (picked) {
+      return picked;
     }
 
     const rand = Math.trunc(seededRandom(seed, x, y) * spellsArr.length);
