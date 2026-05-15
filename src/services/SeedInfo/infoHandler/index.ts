@@ -107,6 +107,7 @@ export class GameInfoProvider extends EventTarget {
     }
 
     this.providers = await this.buildInfoProviders();
+    this.applyConfigToProviders();
   }
 
   setRandoms(randoms: IRandom) {
@@ -141,6 +142,13 @@ export class GameInfoProvider extends EventTarget {
   // This should be a reducer;
   updateConfig(config: Partial<IProviderConfig>) {
     Object.assign(this.config, config);
+    this.applyConfigToProviders();
+    if (this.dispatch) {
+      this.dispatchEvent(new CustomEvent("update", { detail: {} }));
+    }
+  }
+
+  applyConfigToProviders() {
     if (this.providers?.perk) {
       this.providers.perk.ignorePerks = this.config.isNightmare ? ["INVISIBILITY"] : undefined;
     }
@@ -158,9 +166,6 @@ export class GameInfoProvider extends EventTarget {
     }
     if (this.providers?.alwaysCast) {
       this.providers.alwaysCast.setNightmareMode(this.config.isNightmare);
-    }
-    if (this.dispatch) {
-      this.dispatchEvent(new CustomEvent("update", { detail: {} }));
     }
   }
 

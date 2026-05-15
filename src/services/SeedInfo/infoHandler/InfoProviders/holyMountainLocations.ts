@@ -10,6 +10,7 @@ const nightmareHolyMountainLocations: HolyMountainLocation[] = [
   { x: -32, y: 3970 },
   { x: -32, y: 6530 },
   { x: -32, y: 10626 },
+  { x: 2560, y: 13181 },
 ];
 
 export const getHolyMountainLocation = (level: number, isNightmare = false): HolyMountainLocation | undefined => {
