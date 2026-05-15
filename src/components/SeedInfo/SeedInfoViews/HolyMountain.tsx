@@ -32,6 +32,7 @@ import {
 import { IShopItems, IShopType, ShopInfoProvider } from "../../../services/SeedInfo/infoHandler/InfoProviders/Shop";
 import { Square } from "../../helpers";
 import ShopItems from "./ShopItems";
+import { Wand } from "./Wand";
 import { useTranslation } from "react-i18next";
 import Perk from "../../Icons/Perk";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -818,10 +819,11 @@ interface IHolyMountainProps {
   perkDeck: ReturnType<PerkInfoProvider["getPerkDeck"]>;
   infoProvider: GameInfoProvider;
   entrancePerks?: IPerk[];
+  entranceWands?: any[];
 }
 
 const HolyMountain = (props: IHolyMountainProps) => {
-  const { shop, infoProvider, perkDeck, entrancePerks } = props;
+  const { shop, infoProvider, perkDeck, entrancePerks, entranceWands } = props;
 
   const { advanced, setAdvanced, perkMethods, perkData } = useContext(HolyMountainContext);
   const {
@@ -939,6 +941,16 @@ const HolyMountain = (props: IHolyMountainProps) => {
               <Perk key={perk.id + i} perk={perk} />
             ))}
           </Stack>
+        </div>
+      )}
+      {entranceWands && entranceWands.length > 0 && (
+        <div className="my-2 p-2 border rounded">
+          <div className="fw-bold mb-1">入口法杖（噩梦模式）</div>
+          <div className="d-flex flex-wrap justify-content-center gap-3">
+            {entranceWands.map((wand, i) => (
+              <Wand key={i} item={wand} isFavorite={isSpellFavorite} />
+            ))}
+          </div>
         </div>
       )}
       <Table borderless responsive="xs" size="sm">

@@ -269,6 +269,35 @@ export class GameInfoProvider extends EventTarget {
     return providers as IProviders;
   }
 
+  private static ENTRANCE_WAND_OPTS = [
+    { entity: "wand_level_02", cost: 40, level: 2, force_unshuffle: false },
+    { entity: "wand_level_02_better", cost: 50, level: 2, force_unshuffle: false },
+    { entity: "wand_level_03", cost: 60, level: 3, force_unshuffle: false },
+    { entity: "wand_unshuffle_01", cost: 25, level: 1, force_unshuffle: true },
+    { entity: "wand_unshuffle_02", cost: 40, level: 2, force_unshuffle: true },
+    { entity: "wand_unshuffle_03", cost: 60, level: 3, force_unshuffle: true },
+  ];
+
+  generateEntranceWands() {
+    const SPAWN_X = -833;
+    const SPAWN_Y = -94;
+    const ITEM_WIDTH = 44;
+    const opts = GameInfoProvider.ENTRANCE_WAND_OPTS;
+
+    this.randoms!.SetRandomSeed(SPAWN_X, SPAWN_Y);
+
+    const wands: any[] = [];
+    for (let i = 0; i < 3; i++) {
+      const optIdx = this.randoms!.Random(1, opts.length) - 1;
+      const opt = opts[optIdx];
+      const wandX = SPAWN_X + i * ITEM_WIDTH;
+      const wandY = SPAWN_Y;
+      const wand = this.providers.wand.provide(wandX, wandY, opt.cost, opt.level, opt.force_unshuffle, false);
+      wands.push({ ...wand, entity: opt.entity });
+    }
+    return wands;
+  }
+
   async provideAll() {
     // I think the c++ code should be immutable. Idea for next refactor.
     const worldSeed = Number(this.config.seed);
@@ -278,11 +307,13 @@ export class GameInfoProvider extends EventTarget {
     this.providers.perk.ignorePerks = nightmarePerks;
 
     let entrancePerks: any[] | undefined;
+    let entranceWands: any[] | undefined;
     const initialPerkIndex = this.config.isNightmare ? 3 : undefined;
 
     if (this.config.isNightmare) {
       const entranceIds = this.providers.perk.generateEntrancePerks(nightmarePerks);
       entrancePerks = this.providers.perk.hydrate([entranceIds])[0];
+      entranceWands = this.generateEntranceWands();
     }
 
     const statelessPerks = this.providers.perk.provideStateless(
@@ -307,6 +338,7 @@ export class GameInfoProvider extends EventTarget {
         initialPerkIndex,
       ),
       entrancePerks,
+      entranceWands,
       statelessPerks: statelessPerks,
       weather: this.providers.weather.provide(),
       shop: this.providers.shop.provide(

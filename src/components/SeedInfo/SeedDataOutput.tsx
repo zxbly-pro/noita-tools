@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useState, useCallback } from "react";
-import { Stack } from "react-bootstrap";
+import { Button, Stack } from "react-bootstrap";
 
 import type { GameInfoProvider } from "../../services/SeedInfo/infoHandler";
 import SeedInfo from "./SeedInfo";
@@ -112,6 +112,14 @@ const SeedDataOutput: React.FC<ISeedDataProps> = ({ seed, isDaily = false, isNig
       <Stack className="seed-info">
         <p className="my-2">
           种子： {seed} {isDaily && ` （每日）`}
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            className="ms-2"
+            onClick={() => navigator.clipboard.writeText(seed)}
+          >
+            复制
+          </Button>
         </p>
         <SeedInfo isDaily={isDaily} seed={seed} infoProvider={gameInfoProvider} data={data} />
       </Stack>
