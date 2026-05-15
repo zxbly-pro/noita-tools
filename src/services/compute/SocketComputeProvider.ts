@@ -9,8 +9,9 @@ export class SocketComputeProvider extends BaseComputeProvider {
     public chunkProvider: ChunkProvider,
     public rules: ILogicRules,
     public socket: ComputeSocket,
+    public isNightmare: boolean = false,
   ) {
-    super(onUpdate, chunkProvider, rules);
+    super(onUpdate, chunkProvider, rules, isNightmare);
   }
 
   destruct = () => {
@@ -43,6 +44,7 @@ export class SocketComputeProvider extends BaseComputeProvider {
 
     const data = {
       rules: this.rules,
+      isNightmare: this.isNightmare,
       to: chunk.to,
       from: chunk.from,
       chunkId: chunk.chunkId,

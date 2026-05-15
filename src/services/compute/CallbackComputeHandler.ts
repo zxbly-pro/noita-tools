@@ -9,8 +9,9 @@ export class CallbackComputeHandler extends BaseComputeProvider {
     public chunkProvider: ChunkProvider,
     public rules: ILogicRules,
     public seedSolver: SeedSolver,
+    public isNightmare: boolean = false,
   ) {
-    super(onUpdate, chunkProvider, rules);
+    super(onUpdate, chunkProvider, rules, isNightmare);
   }
 
   async start() {
@@ -25,7 +26,7 @@ export class CallbackComputeHandler extends BaseComputeProvider {
         this.onUpdate(this.getStatus());
         return;
       }
-      const results = await this.seedSolver.searchChunk(chunk.from, chunk.to, this.rules);
+      const results = await this.seedSolver.searchChunk(chunk.from, chunk.to, this.rules, this.isNightmare);
       this.chunkProvider.commitChunk(chunk.chunkId, results);
       this.onUpdate(this.getStatus());
     }

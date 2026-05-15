@@ -131,7 +131,7 @@ export class ComputeSocket extends SocketHandler {
               return;
             }
 
-            const { from, to, jobName, rules, hostId, chunkId, stats } = data;
+            const { from, to, jobName, rules, hostId, chunkId, stats, isNightmare } = data;
 
             this.jobName = jobName;
             this.jobStats = stats;
@@ -139,7 +139,7 @@ export class ComputeSocket extends SocketHandler {
             this.chunkFrom = from;
             this.onUpdate();
 
-            const result = await this.seedSolver!.searchChunk(from, to, rules);
+            const result = await this.seedSolver!.searchChunk(from, to, rules, isNightmare);
 
             this.io.emit("compute:done", { hostId, result, chunkId });
 

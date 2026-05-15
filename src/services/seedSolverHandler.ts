@@ -17,12 +17,13 @@ export class WorkerHandler extends EventTarget {
     this.worker.postMessage({ type: "init", offset, step });
   }
 
-  async searchChunk(from: number, to: number, rules: ILogicRules) {
+  async searchChunk(from: number, to: number, rules: ILogicRules, isNightmare?: boolean) {
     await this.comlinkWorker.update({
       findAll: true,
       currentSeed: from,
       seedEnd: to,
       rules,
+      isNightmare,
     });
     const res = await this.comlinkWorker.findSync(from, to);
 
@@ -91,7 +92,7 @@ export class SeedSolver {
     }
   }
 
-  public async searchChunk(from: number, to: number, rules: ILogicRules) {
+  public async searchChunk(from: number, to: number, rules: ILogicRules, isNightmare?: boolean) {
     await this.workersReadyPromise;
 
     // If we have map rules, then we'll also check if we need to subdivide the chunk even
@@ -127,7 +128,7 @@ export class SeedSolver {
         for (let config = chunkConfigs.pop(); config; config = chunkConfigs.pop()) {
           const { subFrom, subTo } = config;
           checked += subTo - subFrom;
-          const r = await worker.searchChunk(subFrom, subTo, rules);
+          const r = await worker.searchChunk(subFrom, subTo, rules, isNightmare);
           res = res.concat(r);
           await new Promise(res => setTimeout(res, 0));
         }

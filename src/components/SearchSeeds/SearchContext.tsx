@@ -150,7 +150,7 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
   useEffect(() => {
     if (!chunkProvider || !ruleTree || !seedSolver) return;
 
-    const newCallbackComputeHandler = new CallbackComputeHandler(setSolverStatus, chunkProvider, ruleTree, seedSolver);
+    const newCallbackComputeHandler = new CallbackComputeHandler(setSolverStatus, chunkProvider, ruleTree, seedSolver, searchInstance?.config.isNightmare || false);
 
     setCallbackComputeHandler(newCallbackComputeHandler);
 
@@ -252,6 +252,7 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
       chunkProvider,
       ruleTree,
       newComputeSocket,
+      searchInstance?.config.isNightmare || false,
     );
     setSocketComputeProvider(newSocketComputeProvider);
 

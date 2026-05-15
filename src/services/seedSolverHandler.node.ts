@@ -19,12 +19,13 @@ export class WorkerHandler extends EventTarget {
     this.worker.postMessage({ type: "init", offset, step });
   }
 
-  async searchChunk(from: number, to: number, rules: ILogicRules) {
+  async searchChunk(from: number, to: number, rules: ILogicRules, isNightmare?: boolean) {
     await this.comlinkWorker.update({
       findAll: true,
       currentSeed: from,
       seedEnd: to,
       rules,
+      isNightmare,
     });
     const res = await this.comlinkWorker.findSync(from, to);
 
@@ -93,11 +94,9 @@ export default class SeedSolver {
     }
   }
 
-  public async searchChunk(from: number, to: number, rules: ILogicRules) {
+  public async searchChunk(from: number, to: number, rules: ILogicRules, isNightmare?: boolean) {
     await this.workersReadyPromise;
 
-    // If we have map rules, then we'll also check if we need to subdivide the chunk even
-    // more so that GC will have time to clean up the large memory allocations for maps
     const tt = getTreeTools("id", "rules");
 
     const hasMapRules = tt.dfs(rules, n => {
@@ -106,7 +105,7 @@ export default class SeedSolver {
 
     let subChunkSize = Math.ceil((to - from) / this.workerList.length);
     if (hasMapRules) {
-      subChunkSize = Math.min(subChunkSize, 100); // TODO: Figure out map complexity (by map size?) and adjust further
+      subChunkSize = Math.min(subChunkSize, 100);
     }
 
     const numberOfChunks = Math.ceil((to - from) / subChunkSize);
@@ -122,14 +121,12 @@ export default class SeedSolver {
 
     let checked = 0;
 
-    // This works by awaiting on searchChunk(), so a worker needs to finish their current chunk
-    // before they can start the next one.
     await Promise.all(
       this.workerList.map(async (worker, i) => {
         for (let config = chunkConfigs.pop(); config; config = chunkConfigs.pop()) {
           const { subFrom, subTo } = config;
           checked += subTo - subFrom;
-          const r = await worker.searchChunk(subFrom, subTo, rules);
+          const r = await worker.searchChunk(subFrom, subTo, rules, isNightmare);
           res.push(...r);
           await new Promise(res => setTimeout(res, 0));
         }

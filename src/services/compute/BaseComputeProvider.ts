@@ -9,6 +9,7 @@ export class BaseComputeProvider {
     public onUpdate: (status: Status) => void,
     public chunkProvider: ChunkProvider,
     public rules: ILogicRules,
+    public isNightmare: boolean = false,
   ) {}
 
   start() {
