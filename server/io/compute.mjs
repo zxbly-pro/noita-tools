@@ -78,10 +78,7 @@ export const handleCompute = (socket, io) => {
   let computeAppetite = 0;
 
   const register = async (type, config, cb) => {
-    const [configMajor, configMinor] = config.version.split(".");
-    const [serverMajor, serverMinor] = process.env.npm_package_version.split(".");
-
-    if (configMajor !== serverMajor) {
+    if (config.version !== process.env.npm_package_version) {
       socket.emit("compute:version_mismatch", {
         serverVersion: process.env.npm_package_version,
         clientVersion: config.version,
@@ -119,6 +116,7 @@ export const handleCompute = (socket, io) => {
 
     const host = io.sockets.sockets.get(hostId);
     if (!host) {
+      cb();
       return;
     }
 
@@ -143,7 +141,6 @@ export const handleCompute = (socket, io) => {
   socket.on("compute:done", async ({ hostId, result, chunkId }) => {
     const host = io.sockets.sockets.get(hostId);
     if (!host) {
-      cb();
       return;
     }
 

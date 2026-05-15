@@ -7,7 +7,17 @@ const mkDir = dir => {
   }
 };
 
-["console-build", "console-build/workers", "console-build/noita_random", "console-build/wasm"].forEach(mkDir);
+[
+  "console-build",
+  "console-build/workers",
+  "console-build/noita_random",
+  "console-build/wasm",
+  "console-build/services",
+  "console-build/services/SeedInfo",
+  "console-build/services/SeedInfo/infoHandler",
+  "console-build/services/SeedInfo/noita_random",
+  "console-build/services/SeedInfo/wasm",
+].forEach(mkDir);
 
 const copyFile = (from, to) => {
   fs.copyFileSync(path.resolve(__dirname, from), path.resolve(__dirname, to));
@@ -75,14 +85,39 @@ require("esbuild")
       fs.writeFileSync(fixFile, result);
     }
 
+    {
+      const fixFile = path.resolve(__dirname, "console-build", "services/SeedInfo/infoHandler/index.js");
+      let f = fs.readFileSync(fixFile, "utf8");
+      let result = f.replace("./nodeImageActions", "../../imageActions/nodeImageActions.js");
+      fs.writeFileSync(fixFile, result);
+    }
+
     copyFile("src/services/SeedInfo/noita_random/noita_random.wasm", "console-build/noita_random/noita_random.wasm");
+    copyFile("src/services/SeedInfo/noita_random/noita_random.wasm", "console-build/workers/noita_random.wasm");
+    copyFile(
+      "src/services/SeedInfo/noita_random/noita_random.wasm",
+      "console-build/services/SeedInfo/noita_random/noita_random.wasm",
+    );
+    copyFile(
+      "src/services/SeedInfo/noita_random/noita_random.wasm",
+      "console-build/services/SeedInfo/infoHandler/noita_random.wasm",
+    );
     copyFile("src/services/SeedInfo/wasm/rng.wasm", "console-build/wasm/rng.wasm");
+    copyFile("src/services/SeedInfo/wasm/rng.wasm", "console-build/services/SeedInfo/wasm/rng.wasm");
     copyFile(
       "src/services/SeedInfo/infoHandler/InfoProviders/Alchemy/Alchemy.wasm",
       "console-build/workers/Alchemy.wasm",
     );
     copyFile(
+      "src/services/SeedInfo/infoHandler/InfoProviders/Alchemy/Alchemy.wasm",
+      "console-build/services/SeedInfo/infoHandler/Alchemy.wasm",
+    );
+    copyFile(
       "src/services/SeedInfo/infoHandler/InfoProviders/FungalShift/FungalShift.wasm",
       "console-build/workers/FungalShift.wasm",
+    );
+    copyFile(
+      "src/services/SeedInfo/infoHandler/InfoProviders/FungalShift/FungalShift.wasm",
+      "console-build/services/SeedInfo/infoHandler/FungalShift.wasm",
     );
   });

@@ -249,8 +249,20 @@ export class SeedSearcher {
       this.findAll = config.maxResults === 0;
     }
     if (typeof config.isNightmare === "boolean") {
-      await this.gameInfoProvider.ready();
-      this.gameInfoProvider.updateConfig({ isNightmare: config.isNightmare });
+      if (config.isNightmare !== this.gameInfoProvider.config.isNightmare) {
+        const currentProvider = this.gameInfoProvider;
+        const nextProvider = new GameInfoProvider(
+          { ...currentProvider.config, isNightmare: config.isNightmare },
+          currentProvider.unlockedSpells,
+          currentProvider.i18n,
+          currentProvider.randoms,
+          currentProvider.dispatch,
+        );
+        await nextProvider.ready();
+        this.gameInfoProvider = nextProvider;
+      } else {
+        this.gameInfoProvider.updateConfig({ isNightmare: config.isNightmare });
+      }
     }
     if (config.unlockedSpells) {
       this.gameInfoProvider.unlockedSpells = config.unlockedSpells;
