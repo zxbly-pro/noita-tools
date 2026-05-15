@@ -47,6 +47,11 @@ import { cloneDeep } from "lodash";
 const perkWidth = "3rem";
 const gamblePerkDiff = "-0.8rem";
 
+const getHolyMountainRowCount = (worldOffset: number, isNightmare: boolean) => {
+  const baseCount = isNightmare ? 5 : 7;
+  return baseCount - Number(!!worldOffset);
+};
+
 interface IRerollPaneProps {
   handleRerollUndo?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 
@@ -470,9 +475,9 @@ const HolyMountainHeader = (props: IHolyMountainHeaderProps) => {
   );
 };
 
-const getRerollPrices = (perkStack: IPerkChangeAction[]): [Map<number, number[]>, number] => {
+const getRerollPrices = (perkStack: IPerkChangeAction[], isNightmare: boolean): [Map<number, number[]>, number] => {
   const nextRerollPrices = new Map<number, number[]>();
-  nextRerollPrices.set(0, new Array(7));
+  nextRerollPrices.set(0, new Array(getHolyMountainRowCount(0, isNightmare)));
 
   let rerollTotal = 0;
   let totalRerolls = 0;
@@ -507,14 +512,14 @@ const getRerollPrices = (perkStack: IPerkChangeAction[]): [Map<number, number[]>
       case IPerkChangeStateType.set: {
         offset = event.data;
         if (!nextRerollPrices.has(offset)) {
-          nextRerollPrices.set(offset, new Array(6));
+          nextRerollPrices.set(offset, new Array(getHolyMountainRowCount(offset, isNightmare)));
         }
         break;
       }
       case IPerkChangeStateType.shift: {
-        offset = event.data;
+        offset += event.data;
         if (!nextRerollPrices.has(offset)) {
-          nextRerollPrices.set(offset, new Array(6));
+          nextRerollPrices.set(offset, new Array(getHolyMountainRowCount(offset, isNightmare)));
         }
         break;
       }
@@ -566,7 +571,9 @@ const HolyMountainContextProvider = (props: IHolyMountainContextProviderProps) =
   const favorites = useFavoritePerks(infoProvider.providers.perk, perkDeck);
   const getPerkData = () => {
     const perk = infoProvider.providers.perk;
-    const data = perk.provideStateless(perkStack);
+    const nightmarePerks = infoProvider.config.isNightmare ? ["INVISIBILITY"] : undefined;
+    const initialPerkIndex = infoProvider.config.isNightmare ? 3 : undefined;
+    const data = perk.provideStateless(perkStack, true, nightmarePerks, initialPerkIndex);
     const hydrated = perk.hydrate(data.perks);
     return {
       ...data,
@@ -615,7 +622,7 @@ const HolyMountainContextProvider = (props: IHolyMountainContextProviderProps) =
 
   const rerollPrice = getPrice(totalRerolls);
 
-  let [nextRerollPrices, rerollTotal] = getRerollPrices(perkStack);
+  let [nextRerollPrices, rerollTotal] = getRerollPrices(perkStack, infoProvider.config.isNightmare);
 
   if (!advanced) {
     rerollTotal = getTotal(totalRerolls);
@@ -963,7 +970,7 @@ const HolyMountain = (props: IHolyMountainProps) => {
           </tr>
         </thead>
         <tbody>
-          {Array(7 - Number(!!worldOffset))
+          {Array(perks.length)
             .fill("")
             .map((_, level) => {
               const row = perks[level] || [];

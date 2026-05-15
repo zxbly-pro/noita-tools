@@ -104,6 +104,15 @@ export class PerkInfoProvider extends InfoProvider {
 
   _G = new Global();
 
+  private isNightmareMode(ignorePerks = this.ignorePerks) {
+    return !!ignorePerks?.includes("INVISIBILITY");
+  }
+
+  private getHolyMountainRowCount(worldOffset = 0, ignorePerks = this.ignorePerks) {
+    const baseCount = this.isNightmareMode(ignorePerks) ? 5 : 7;
+    return baseCount - Number(!!worldOffset);
+  }
+
   getPerk(id: string) {
     return this.perks[id];
   }
@@ -432,12 +441,13 @@ export class PerkInfoProvider extends InfoProvider {
 
     while (true) {
       let i = 0;
+      const targetRowCount = this.getHolyMountainRowCount(world, ignorePerks);
       const picksForWorld = perkPicks.get(world) || [];
       const worldRerolls = rerolls?.get(world) || [];
 
       for (const loc of this.temples) {
         if (i >= maxLevels) break;
-        if (worldOffset !== 0 && world !== 0 && i + 1 === this.temples.length) break;
+        if (i >= targetRowCount) break;
 
         const picks = picksForWorld[i] || [];
 
@@ -588,7 +598,8 @@ export class PerkInfoProvider extends InfoProvider {
     if (preview) {
       // Preview the rest of the rows if simple perk table is used
       const ps = perkState.get(worldOffset) || [];
-      while (ps.length !== 7 - Number(!!worldOffset)) {
+      const targetRowCount = this.getHolyMountainRowCount(worldOffset, ignorePerks);
+      while (ps.length !== targetRowCount) {
         let res = this.perk_spawn_many(0, ignorePerks);
         ps.push(res);
       }
