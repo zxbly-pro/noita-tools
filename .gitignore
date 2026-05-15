@@ -128,5 +128,3 @@ cypress/screenshots/
 
 *.private.*
 .claude
-data
-mods

@@ -130,5 +130,164 @@ describe("ShopInfoProvider", () => {
         }),
       ).toBe(true);
     });
+
+    it("matches selected spells against cards across wand shop wands", () => {
+      class TestShopInfoProvider extends ShopInfoProvider {
+        provideLevel() {
+          return {
+            type: IShopType.wand,
+            items: [
+              {
+                cards: {
+                  cards: ["SPELL_1"],
+                  permanentCard: undefined,
+                },
+              },
+              {
+                cards: {
+                  cards: ["SPELL_2"],
+                  permanentCard: undefined,
+                },
+              },
+              {
+                cards: {
+                  cards: ["SPELL_3"],
+                  permanentCard: undefined,
+                },
+              },
+              {
+                cards: {
+                  cards: [],
+                  permanentCard: undefined,
+                },
+              },
+            ],
+          } as any;
+        }
+      }
+
+      const ap = new TestShopInfoProvider(
+        {} as any,
+        {
+          testGun: () => false,
+        } as any,
+        {} as any,
+      );
+      ap.isNightmare = false;
+
+      expect(
+        ap.test({
+          id: "shop-rule",
+          type: "shop",
+          val: [
+            {
+              type: IShopType.item,
+              items: [{ spell: "SPELL_1" }, { spell: "SPELL_2" }, { spell: "SPELL_3" }],
+              strict: true,
+            },
+          ],
+        }),
+      ).toBe(true);
+    });
+
+    it("continues checking later rows after a wand shop match", () => {
+      class TestShopInfoProvider extends ShopInfoProvider {
+        provideLevel(level: number) {
+          if (level === 0) {
+            return {
+              type: IShopType.wand,
+              items: [
+                {
+                  gun: { marker: "row-0" },
+                  cards: { cards: [], permanentCard: undefined },
+                },
+              ],
+            } as any;
+          }
+
+          return {
+            type: IShopType.item,
+            items: [{ spell: { id: "ROW_1_SPELL" } }],
+          } as any;
+        }
+      }
+
+      const ap = new TestShopInfoProvider(
+        {} as any,
+        {
+          testGun: (target, wand) => target.gun?.marker?.[0] === wand.gun?.marker,
+        } as any,
+        {} as any,
+      );
+
+      expect(
+        ap.test({
+          id: "shop-rule",
+          type: "shop",
+          val: [
+            {
+              type: IShopType.wand,
+              items: [{ wand: { gun: { marker: ["row-0", "row-0"] } } }],
+              strict: true,
+            },
+            {
+              type: IShopType.item,
+              items: [{ spell: "ROW_1_SPELL" }],
+              strict: true,
+            },
+          ],
+        }),
+      ).toBe(true);
+    });
+
+    it("fails if a later row does not match after an earlier wand shop match", () => {
+      class TestShopInfoProvider extends ShopInfoProvider {
+        provideLevel(level: number) {
+          if (level === 0) {
+            return {
+              type: IShopType.wand,
+              items: [
+                {
+                  gun: { marker: "row-0" },
+                  cards: { cards: [], permanentCard: undefined },
+                },
+              ],
+            } as any;
+          }
+
+          return {
+            type: IShopType.item,
+            items: [{ spell: { id: "ACTUAL_SPELL" } }],
+          } as any;
+        }
+      }
+
+      const ap = new TestShopInfoProvider(
+        {} as any,
+        {
+          testGun: (target, wand) => target.gun?.marker?.[0] === wand.gun?.marker,
+        } as any,
+        {} as any,
+      );
+
+      expect(
+        ap.test({
+          id: "shop-rule",
+          type: "shop",
+          val: [
+            {
+              type: IShopType.wand,
+              items: [{ wand: { gun: { marker: ["row-0", "row-0"] } } }],
+              strict: true,
+            },
+            {
+              type: IShopType.item,
+              items: [{ spell: "EXPECTED_SPELL" }],
+              strict: true,
+            },
+          ],
+        }),
+      ).toBe(false);
+    });
   });
 });

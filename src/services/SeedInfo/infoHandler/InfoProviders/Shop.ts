@@ -308,6 +308,32 @@ export class ShopInfoProvider extends InfoProvider {
     "spread_degrees",
   ];
 
+  private getWandCards(wand: ReturnType<WandInfoProvider["provide"]>) {
+    const cards = [...wand.cards.cards];
+    if (wand.cards.permanentCard) {
+      cards.push(wand.cards.permanentCard);
+    }
+    return cards;
+  }
+
+  private matchesShopSpellSelection(
+    desiredSpells: string[],
+    strict: boolean,
+    info: ReturnType<ShopInfoProvider["provideLevel"]>,
+  ) {
+    const check = strict ? includesAll : includesSome;
+
+    if (info.type === IShopType.item) {
+      return check(
+        info.items.map(i => String(i.spell.id)),
+        desiredSpells.map(String),
+      );
+    }
+
+    const allCards = info.items.flatMap(wand => this.getWandCards(wand));
+    return check(allCards.map(String), desiredSpells.map(String));
+  }
+
   test(rule: IRule): boolean {
     const temples = getHolyMountainLocations(this.isNightmare);
     for (let j = 0; j <= temples.length; j++) {
@@ -316,25 +342,22 @@ export class ShopInfoProvider extends InfoProvider {
         continue;
       }
       try {
-        const check = shop.strict ? includesAll : includesSome;
         if (shop.type) {
           const info = this.provideLevel(j);
-          if (shop.type !== info.type) {
+          const hasSpellSelection = shop.type === IShopType.item && shop.items.length > 0;
+
+          if (shop.type !== info.type && !hasSpellSelection) {
             return false;
           }
           if (!shop.items.length) {
-            return true;
+            continue;
           }
-          if (info.type === IShopType.wand) {
-            return info.items.some(wand => this.wandInfoProvider.testGun(shop.items[0].wand, wand));
-          } else if (info.type === IShopType.item && shop.items.length) {
-            // https://stackoverflow.com/a/3586788
-            if (
-              !check(
-                info.items.map(i => String(i.spell.id)),
-                shop.items.map(i => String(i.spell)),
-              )
-            ) {
+          if (shop.type === IShopType.item && shop.items.length) {
+            if (!this.matchesShopSpellSelection(shop.items.map(i => String(i.spell)), shop.strict, info)) {
+              return false;
+            }
+          } else if (info.type === IShopType.wand) {
+            if (!info.items.some(wand => this.wandInfoProvider.testGun(shop.items[0].wand, wand))) {
               return false;
             }
           }
