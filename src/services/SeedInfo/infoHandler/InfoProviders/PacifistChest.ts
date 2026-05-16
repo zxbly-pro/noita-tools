@@ -7,6 +7,7 @@ import { ChestRandomInfoProvider } from "./ChestRandom";
 
 import { IRandom } from "../../random";
 import { getHolyMountainLocation, getHolyMountainLocations } from "./holyMountainLocations";
+import { getParallelWorldWidth } from "./worldInfo";
 
 const itemMap = {
   "data/entities/misc/custom_cards/bomb.xml": null,
@@ -75,7 +76,7 @@ export class PacifistChestInfoProvider extends InfoProvider {
     if (!temple) {
       return [];
     }
-    const x = temple.x + offset.x + worldOffset * 35840;
+    const x = temple.x + offset.x + worldOffset * getParallelWorldWidth(this.isNightmare);
     const y = temple.y + offset.y;
 
     return this.chestProvider.provide(x, y, greed);

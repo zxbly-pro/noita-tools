@@ -9,6 +9,13 @@ import { IRandom } from "../../../random";
 import { generatePoints } from "../../../../helpers";
 import { IImageActions } from "../../../../imageActions/IImageActions";
 import { MapHandler } from "../../../random/random";
+import {
+  getParallelWorldOffset,
+  getWorldOffsetX,
+  getWorldOffsetY,
+  getWorldTileWidth,
+  normalizeWorldTileX,
+} from "../worldInfo";
 
 export interface Interest {
   item: string;
@@ -115,8 +122,13 @@ export class MapInfoProvider extends InfoProvider {
       .imageFromBase64(worldMapDataUri)
       .then(map => {
         this.worldMap = map;
+        this.syncWorldOffsets();
       })
       .catch(e => console.error(e));
+  }
+
+  private syncWorldOffsets() {
+    this.randoms.setWorldOffsets?.(getWorldOffsetX(this.isNightmare), getWorldOffsetY());
   }
 
   setNightmareMode(isNightmare: boolean) {
@@ -126,8 +138,31 @@ export class MapInfoProvider extends InfoProvider {
 
     this.isNightmare = isNightmare;
     this.clearCache();
+    this.syncWorldOffsets();
     this.worldMapPromise = this.loadWorldMap();
     return this.worldMapPromise;
+  }
+
+  private normalizeTilePos(tx: number, ty: number) {
+    const worldOffset = getParallelWorldOffset(tx, this.isNightmare);
+    const normalizedX = normalizeWorldTileX(tx, this.isNightmare);
+    return {
+      tx: normalizedX,
+      ty,
+      worldOffset,
+    };
+  }
+
+  private translateArea(area: any, worldOffset: number) {
+    const worldWidth = getWorldTileWidth(this.isNightmare);
+    if (!area || worldOffset === 0) {
+      return area;
+    }
+    return {
+      ...area,
+      x1: area.x1 + worldOffset * worldWidth,
+      x2: area.x2 + worldOffset * worldWidth,
+    };
   }
 
   getMapChunk = (map: OffscreenCanvas, _x: number, _y: number, width: number, height: number) => {
@@ -341,8 +376,9 @@ export class MapInfoProvider extends InfoProvider {
   }
 
   getMapHandler(tx: number, ty: number) {
-    const color = this.imageActions.getColor(this.worldMap, tx, ty);
-    const area = this.getArea(tx, ty, color);
+    const pos = this.normalizeTilePos(tx, ty);
+    const color = this.imageActions.getColor(this.worldMap, pos.tx, pos.ty);
+    const area = this.translateArea(this.getArea(pos.tx, pos.ty, color), pos.worldOffset);
     const mapData = this.maps.get(color)!;
 
     const randomMaterials: number[][] = [];
@@ -406,8 +442,9 @@ export class MapInfoProvider extends InfoProvider {
       this.clearCache();
     }
 
-    const color = this.imageActions.getColor(this.worldMap, tx, ty);
-    const area = this.getArea(tx, ty, color);
+    const pos = this.normalizeTilePos(tx, ty);
+    const color = this.imageActions.getColor(this.worldMap, pos.tx, pos.ty);
+    const area = this.translateArea(this.getArea(pos.tx, pos.ty, color), pos.worldOffset);
     const cacheKey = `${color} ${area.x1} ${area.y1}`;
     const map = this.mapCache.get(cacheKey);
     if (map) {
@@ -475,7 +512,8 @@ export class MapInfoProvider extends InfoProvider {
       for (const key in configs) {
         const config = configs[key];
         const { x, y } = config.pos;
-        const color = this.imageActions.getColor(this.worldMap, x, y);
+        const pos = this.normalizeTilePos(x, y);
+        const color = this.imageActions.getColor(this.worldMap, pos.tx, pos.ty);
         const mapData = this.maps.get(color)!;
         const set = new Set<string>(config.funcs);
 
@@ -504,7 +542,8 @@ export class MapInfoProvider extends InfoProvider {
       for (const key in configs) {
         const config = configs[key];
         const { x, y } = config.pos;
-        const color = this.imageActions.getColor(this.worldMap, x, y);
+        const pos = this.normalizeTilePos(x, y);
+        const color = this.imageActions.getColor(this.worldMap, pos.tx, pos.ty);
         const mh = mapHandlers[key];
         mh.toBig();
         const interestPoints = this.getInterestPoints(mh, x, y, color, config.funcs)!;

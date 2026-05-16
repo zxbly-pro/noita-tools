@@ -4,6 +4,7 @@
 import { IRule } from "../IRule";
 import { InfoProvider } from "./Base";
 import { getHolyMountainLocation } from "./holyMountainLocations";
+import { getParallelWorldWidth } from "./worldInfo";
 
 export class LotteryInfoProvider extends InfoProvider {
   isNightmare = false;
@@ -23,7 +24,9 @@ export class LotteryInfoProvider extends InfoProvider {
     // Since we use 0..n-1 instead of 1..n, we use `+ 0.5` since we can
     // think of this as `i + 1 - 0.5`, which can be simplified to
     // `i + 0.5`
-    const perkX = this.randoms.RoundHalfOfEven(x + (perkNumber + 0.5) * (60 / perksOnLevel)) + 35840 * worldOffset;
+    const perkX =
+      this.randoms.RoundHalfOfEven(x + (perkNumber + 0.5) * (60 / perksOnLevel)) +
+      getParallelWorldWidth(this.isNightmare) * worldOffset;
     const probability = 100 * Math.pow(0.5, lotteries);
     this.randoms.SetRandomSeed(perkX, perkY);
     return !(this.randoms.Random(1, 100) <= probability);

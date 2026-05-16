@@ -533,6 +533,7 @@ const getRerollPrices = (perkStack: IPerkChangeAction[], isNightmare: boolean): 
 interface IPerkData {
   perks: IPerk[][];
   pickedPerks: string[][];
+  pickedState?: Map<number, string[][]>;
   perkRerolls: number[];
   nextRerollPrices: Map<number, number[]>;
   totalRerolls: number;
@@ -557,8 +558,11 @@ interface IHolyMountainContextProviderProps {
 // For refactoring, it should be best to have the stateful provide everything and create a transition function
 // from action[] => old config.
 const HolyMountainContextProvider = (props: IHolyMountainContextProviderProps) => {
-  const { infoProvider, perks: simplePerks, perkDeck } = props;
+  const { infoProvider, perkDeck } = props;
   const [advanced, setAdvanced] = useState(() => infoProvider.config.perksAdvanced);
+
+  const nightmarePerks = infoProvider.config.isNightmare ? ["INVISIBILITY"] : undefined;
+  const initialPerkIndex = infoProvider.config.isNightmare ? 3 : undefined;
 
   const handleAdvancedChange = (value: boolean) => {
     setAdvanced(value);
@@ -571,8 +575,6 @@ const HolyMountainContextProvider = (props: IHolyMountainContextProviderProps) =
   const favorites = useFavoritePerks(infoProvider.providers.perk, perkDeck);
   const getPerkData = () => {
     const perk = infoProvider.providers.perk;
-    const nightmarePerks = infoProvider.config.isNightmare ? ["INVISIBILITY"] : undefined;
-    const initialPerkIndex = infoProvider.config.isNightmare ? 3 : undefined;
     const data = perk.provideStateless(perkStack, true, nightmarePerks, initialPerkIndex);
     const hydrated = perk.hydrate(data.perks);
     return {
@@ -585,16 +587,18 @@ const HolyMountainContextProvider = (props: IHolyMountainContextProviderProps) =
     lotteries: number;
     worldOffset: number;
     pickedPerks: string[][];
+    pickedState?: Map<number, string[][]>;
     perks: IPerk[][];
     perkRerolls: number[];
   }>({
     lotteries: 0,
     worldOffset: 0,
     pickedPerks: [],
+    pickedState: new Map(),
     perks: [],
     perkRerolls: [],
   });
-  const { worldOffset, pickedPerks, perks, perkRerolls } = pd;
+  const { worldOffset, pickedPerks, perks, perkRerolls, pickedState } = pd;
 
   useEffect(() => {
     const newData = getPerkData();
@@ -730,7 +734,7 @@ const HolyMountainContextProvider = (props: IHolyMountainContextProviderProps) =
     if (p[level]?.includes(id)) {
       // if gamble, remove the gamble ones
       if (id === "GAMBLE") {
-        const perkIds = simplePerks[level].map(p => p.id);
+        const perkIds = simplePerksForCurrentOffset[level].map(p => p.id);
         const gamblePerks = perkIds.slice(-2);
         removeFromArr(p[level], gamblePerks[0]);
         removeFromArr(p[level], gamblePerks[1]);
@@ -772,6 +776,16 @@ const HolyMountainContextProvider = (props: IHolyMountainContextProviderProps) =
     handleGenRowAdvanced: advanced ? handleGenRowAdvanced : false,
   };
 
+  const simplePerksForCurrentOffset = infoProvider.providers.perk.provide(
+    infoProvider.config.pickedPerks,
+    undefined,
+    true,
+    worldOffsetSimple,
+    infoProvider.config.perkRerolls,
+    nightmarePerks,
+    initialPerkIndex,
+  );
+
   // For basic mode.
   // If gamble is picked in a row, we need to add the last 2 perks from the row
   // to the pickedPerks.
@@ -783,7 +797,10 @@ const HolyMountainContextProvider = (props: IHolyMountainContextProviderProps) =
       }
       for (let i = 0; i < pp.length; i++) {
         if (pp[i]?.includes("GAMBLE")) {
-          const perkRow = props.perks[i];
+          const perkRow = simplePerksForCurrentOffset[i];
+          if (!perkRow?.length || perkRow.length < 2) {
+            continue;
+          }
           const p1 = perkRow[perkRow.length - 2].id;
           const p2 = perkRow[perkRow.length - 1].id;
           pp[i].push(p1, p2);
@@ -799,8 +816,9 @@ const HolyMountainContextProvider = (props: IHolyMountainContextProviderProps) =
   }, 0);
 
   const perkData: IPerkData = {
-    perks: advanced ? perks : props.perks,
+    perks: advanced ? perks : simplePerksForCurrentOffset,
     pickedPerks: currentPickedPerks,
+    pickedState,
     perkRerolls: advanced
       ? perkRerolls
       : infoProvider.config.perkRerolls.get(infoProvider.config.perkWorldOffset) || [],
@@ -830,7 +848,7 @@ interface IHolyMountainProps {
 }
 
 const HolyMountain = (props: IHolyMountainProps) => {
-  const { shop, infoProvider, perkDeck, entrancePerks, entranceWands } = props;
+  const { infoProvider, perkDeck, entrancePerks, entranceWands } = props;
 
   const { advanced, setAdvanced, perkMethods, perkData } = useContext(HolyMountainContext);
   const {
@@ -855,17 +873,35 @@ const HolyMountain = (props: IHolyMountainProps) => {
     favoritesInNextReroll,
     isFavorite,
     nextRerollPrices,
+    pickedState,
   } = perkData;
   const [showInitialLottery] = useLocalStorage("show-initial-lottery", true);
   const [showAlwaysCastRow] = useLocalStorage("show-always-cast-row", false);
 
   const adjustedLotteries = lotteries === 0 ? Number(showInitialLottery) : lotteries;
+  const nightmarePerks = infoProvider.config.isNightmare ? ["INVISIBILITY"] : undefined;
+  const initialPerkIndex = infoProvider.config.isNightmare ? 3 : undefined;
 
   const { isFavorite: isSpellFavorite } = useSpellFavorite();
 
   // const offset = infoProvider.config.perkWorldOffset;
   const [shopSelected, setShopSelected] = useState(-1);
-  const rowCount = Math.min(perks.length, shop.length);
+  const displayedPerks = advanced
+    ? perks
+    : infoProvider.providers.perk.provide(
+        infoProvider.config.pickedPerks,
+        undefined,
+        true,
+        worldOffset,
+        infoProvider.config.perkRerolls,
+        nightmarePerks,
+        initialPerkIndex,
+      );
+  const displayedShop = infoProvider.providers.shop.provide(
+    advanced ? pickedState || new Map() : infoProvider.config.pickedPerks,
+    worldOffset,
+  );
+  const rowCount = Math.min(displayedPerks.length, displayedShop.length);
 
   const handleOpenShopInfo = (level: number) => {
     setShopSelected(level);
@@ -974,7 +1010,7 @@ const HolyMountain = (props: IHolyMountainProps) => {
           {Array(rowCount)
             .fill("")
             .map((_, level) => {
-              const row = perks[level] || [];
+              const row = displayedPerks[level] || [];
               return (
                 <PerkRow
                   key={`${worldOffset}-${level}`}
@@ -982,7 +1018,7 @@ const HolyMountain = (props: IHolyMountainProps) => {
                   pickedPerks={pickedPerks[level]}
                   perkRerolls={perkRerolls[level]}
                   perks={row}
-                  shop={shop[level]}
+                  shop={displayedShop[level]}
                   rerollsToFavorite={rerollsToFavorite}
                   favoritesInNextReroll={favoritesInNextReroll}
                   nextRerollPrices={
@@ -1008,7 +1044,7 @@ const HolyMountain = (props: IHolyMountainProps) => {
         </tbody>
       </Table>
       <ShopItems
-        shop={shop[shopSelected]}
+        shop={displayedShop[shopSelected]}
         show={shopSelected >= 0}
         handleClose={() => handleOpenShopInfo(-1)}
         isFavorite={isSpellFavorite}

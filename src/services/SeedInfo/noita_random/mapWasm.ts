@@ -62,8 +62,8 @@ interface MapWasmExports extends WebAssembly.Exports {
   ): void;
 }
 
-const WORLD_OFFSET_X = 35;
-const WORLD_OFFSET_Y = 14;
+const WASM_WORLD_OFFSET_X = 35;
+const WASM_WORLD_OFFSET_Y = 14;
 
 const defaultWasmUrl = () => new URL("./noita_random.wasm", import.meta.url).href;
 
@@ -101,6 +101,10 @@ export const loadMapWasmModule = async (source: WasmSource = defaultWasmUrl()): 
   const malloc = (size: number) => wasm.malloc(size);
   const free = (ptr: number) => wasm.free(ptr);
   const imageCache = new Map<string, number>();
+  let worldOffsetX = WASM_WORLD_OFFSET_X;
+  let worldOffsetY = WASM_WORLD_OFFSET_Y;
+
+  const floorDiv = (value: number, divisor: number) => Math.floor(value / divisor);
 
   const writeBytes = (bytes: Uint8Array) => {
     const ptr = malloc(bytes.length);
@@ -137,8 +141,8 @@ export const loadMapWasmModule = async (source: WasmSource = defaultWasmUrl()): 
       worldY: number,
     ) {
       super(width, height, color, isCoalMine, shouldBlockOutRooms, randomMaterials, worldX, worldY);
-      this.internalWorldX = worldX - WORLD_OFFSET_X;
-      this.internalWorldY = worldY - WORLD_OFFSET_Y;
+      this.internalWorldX = worldX - worldOffsetX;
+      this.internalWorldY = worldY - worldOffsetY;
       this.handle = wasm.MapHandlerNew(
         width,
         height,
@@ -146,8 +150,8 @@ export const loadMapWasmModule = async (source: WasmSource = defaultWasmUrl()): 
         Number(isCoalMine),
         Number(shouldBlockOutRooms),
         randomMaterials,
-        worldX,
-        worldY,
+        worldX + (WASM_WORLD_OFFSET_X - worldOffsetX),
+        worldY + (WASM_WORLD_OFFSET_Y - worldOffsetY),
       );
       this.map = wasm.MapHandlerMapPtr(this.handle);
       this.bigMap = wasm.MapHandlerBigMapPtr(this.handle);
@@ -164,12 +168,12 @@ export const loadMapWasmModule = async (source: WasmSource = defaultWasmUrl()): 
     }
 
     iterateMap(x: number, y: number, cb: (gx: number, gy: number, color: number) => void) {
-      const gx = wasm.GetGlobalPosX(x, y);
-      const gy = wasm.GetGlobalPosY(x, y);
+      const gx = 512 * (x - worldOffsetX);
+      const gy = 512 * (y - worldOffsetY);
       const cw = wasm.GetWidthFromPixRaw(x, x + 1);
       const ch = wasm.GetWidthFromPixRaw(y, y + 1);
-      const dw = wasm.GetWidthFromPixRaw(this.internalWorldX + WORLD_OFFSET_X, x);
-      const dh = wasm.GetWidthFromPixRaw(this.internalWorldY + WORLD_OFFSET_Y, y);
+      const dw = wasm.GetWidthFromPixRaw(this.internalWorldX + worldOffsetX, x);
+      const dh = wasm.GetWidthFromPixRaw(this.internalWorldY + worldOffsetY, y);
       const heap = new Uint8Array(wasm.memory.buffer);
 
       for (let px = 0; px < cw; px++) {
@@ -233,12 +237,17 @@ export const loadMapWasmModule = async (source: WasmSource = defaultWasmUrl()): 
     },
     _malloc: malloc,
     _free: free,
+    setWorldOffsets: (x: number, y: number) => {
+      worldOffsetX = x;
+      worldOffsetY = y;
+    },
     SetWorldSeed: wasm.SetWorldSeedRaw,
     GetWorldSeed: wasm.GetWorldSeedRaw,
     GetWidthFromPix: wasm.GetWidthFromPixRaw,
     GetWidthFromPixWithOffset: wasm.GetWidthFromPixWithOffsetRaw,
-    GetGlobalPos: (x: number, y: number) => vector2(wasm.GetGlobalPosX(x, y), wasm.GetGlobalPosY(x, y)),
-    GetTilePos: (gx: number, gy: number) => vector2(wasm.GetTilePosX(gx, gy), wasm.GetTilePosY(gx, gy)),
+    GetGlobalPos: (x: number, y: number) => vector2(512 * (x - worldOffsetX), 512 * (y - worldOffsetY)),
+    GetTilePos: (gx: number, gy: number) =>
+      vector2(floorDiv(gx, 512) + worldOffsetX, floorDiv(gy, 512) + worldOffsetY),
     GenerateMap: (
       rgbaTiles: number,
       color: number,

@@ -5,6 +5,7 @@ import { IRule } from "../IRule";
 import { InfoProvider } from "./Base";
 import { ACTION_TYPE } from "./Wand";
 import { getHolyMountainLocation } from "./holyMountainLocations";
+import { getParallelWorldWidth } from "./worldInfo";
 
 export class AlwaysCastInfoProvider extends InfoProvider {
   isNightmare = false;
@@ -50,7 +51,9 @@ export class AlwaysCastInfoProvider extends InfoProvider {
     // Since we use 0..n-1 instead of 1..n, we use `+ 0.5` since we can
     // think of this as `i + 1 - 0.5`, which can be simplified to
     // `i + 0.5`
-    const x = this.randoms.RoundHalfOfEven(_x + (perkNumber + 0.5) * (60 / perksOnLevel)) + 35840 * worldOffset;
+    const x =
+      this.randoms.RoundHalfOfEven(_x + (perkNumber + 0.5) * (60 / perksOnLevel)) +
+      getParallelWorldWidth(this.isNightmare) * worldOffset;
     return this.providePos(x, y);
   }
 

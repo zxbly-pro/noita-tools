@@ -71,6 +71,7 @@ export interface IRandomModule {
   SetWorldSeed(arg0: number): void;
   GetWorldSeed(): number;
   SeededRandom?(seed: number, x: number, y: number): number;
+  setWorldOffsets?(x: number, y: number): void;
 
   GetRandomAction(x: number, y: number, level: number, i: number): string;
 
@@ -337,6 +338,7 @@ export const genRandom = async (Module: IRandomModule) => {
     SetRandomSeed: Module.SetRandomSeed,
     SetWorldSeed: Module.SetWorldSeed,
     GetWorldSeed: Module.GetWorldSeed,
+    setWorldOffsets: Module.setWorldOffsets,
     RoundHalfOfEven: Module.RoundHalfOfEven,
     GetRandomAction,
     GetRandomActionWithType,

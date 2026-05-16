@@ -8,6 +8,7 @@ import { InfoProvider } from "./Base";
 import type { WandInfoProvider } from "./Wand";
 import type { SpellInfoProvider } from "./Spell";
 import { getHolyMountainLocation, getHolyMountainLocations } from "./holyMountainLocations";
+import { getParallelWorldWidth } from "./worldInfo";
 
 export enum IShopType {
   "wand" = 1,
@@ -286,7 +287,11 @@ export class ShopInfoProvider extends InfoProvider {
     // Magic numbers taken from src/services/SeedInfo/infoHandler.check.ts
     let offsetX = 0 - 299,
       offsetY = 0 - 15;
-    return this.spawn_all_shop_items(temple.x + offsetX + worldOffset * 35840, temple.y + offsetY, pickedPerks);
+    return this.spawn_all_shop_items(
+      temple.x + offsetX + worldOffset * getParallelWorldWidth(this.isNightmare),
+      temple.y + offsetY,
+      pickedPerks,
+    );
   }
 
   getShopLevel(shopNumber: number) {
