@@ -13,7 +13,7 @@ echo "[1/1] 构建 Worker 镜像..."
 docker build -t "$IMAGE" -f Dockerfile.worker .
 
 echo ""
-echo "完成! 镜像: $IMAGE"
+echo "完成！镜像: $IMAGE"
 echo ""
 echo "运行方式:"
 echo "  docker run -d --name noitool-worker noitool-worker:latest"

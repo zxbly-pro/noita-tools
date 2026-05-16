@@ -10,6 +10,8 @@ IMAGE="noitool:latest"
 CONTAINER="noitool"
 PORT="${PORT:-3000}"
 BASE_PATH="${BASE_PATH:-}"
+LOG_LEVEL="${LOG_LEVEL:-info}"
+LOG_TIMEZONE="${LOG_TIMEZONE:-GMT+8}"
 
 echo "[1/3] 停止旧容器（如果存在）..."
 docker stop "$CONTAINER" 2>/dev/null || true
@@ -23,15 +25,17 @@ docker run -d \
   -p "$PORT:$PORT" \
   -e "PORT=$PORT" \
   -e "BASE_PATH=$BASE_PATH" \
+  -e "LOG_LEVEL=$LOG_LEVEL" \
+  -e "LOG_TIMEZONE=$LOG_TIMEZONE" \
   --name "$CONTAINER" \
   --restart unless-stopped \
   "$IMAGE"
 
 echo ""
 if [ -n "$BASE_PATH" ]; then
-  echo "部署完成! 访问 http://0.0.0.0:$PORT$BASE_PATH/"
+  echo "部署完成！访问 http://0.0.0.0:$PORT$BASE_PATH/"
 else
-  echo "部署完成! 访问 http://0.0.0.0:$PORT"
+  echo "部署完成！访问 http://0.0.0.0:$PORT"
 fi
 echo ""
 echo "管理命令:"

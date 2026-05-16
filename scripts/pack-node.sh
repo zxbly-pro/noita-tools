@@ -1,7 +1,7 @@
 #!/bin/bash
-# 打包 Node.js 部署包（Linux/macOS）
-# 使用前请先完成: npm ci --legacy-peer-deps && npm run build
-# 产物包含 node_modules，目标机器解压即可运行，无需网络
+# 打包 Node.js 离线部署包（Linux/macOS）
+# 使用前请先完成 npm ci --legacy-peer-deps && npm run build
+# 产物包含 node_modules，目标机器解压后即可运行，无需联网
 
 set -e
 
@@ -18,7 +18,7 @@ if ! command -v npm &>/dev/null; then
   read -r answer
   answer="${answer:-Y}"
   if [[ "$answer" =~ ^[Yy]$ ]]; then
-    echo "正在安装 Node.js 22.x (Ubuntu amd64)..."
+    echo "正在安装 Node.js 22.x（Ubuntu amd64）..."
     apt-get update -qq
     apt-get install -y -qq ca-certificates curl gnupg
     mkdir -p /etc/apt/keyrings
@@ -58,7 +58,7 @@ cat > "$DIST/package.json" << EOF
 }
 EOF
 
-echo "[4/5] 安装运行时依赖（将打入包内）..."
+echo "[4/5] 安装运行时依赖（将打包进部署包）..."
 cd "$DIST"
 if ! npm install --omit=dev; then
   echo "错误: npm install 失败"
@@ -75,7 +75,7 @@ rm -rf "$DIST"
 
 echo ""
 BASENAME="$(basename "$ARCHIVE")"
-echo "完成! 部署包: $BASENAME（含 node_modules，完全离线部署）"
+echo "完成！部署包: $BASENAME（含 node_modules，可完全离线部署）"
 echo "部署步骤:"
 echo "  1. 解压: mkdir noitool && tar -xzf $BASENAME -C noitool"
 echo "  2. cd noitool && node --experimental-modules ./server/standalone.mjs"

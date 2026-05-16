@@ -19,7 +19,7 @@ echo [3/3] 重载 nginx...
 nginx -s reload
 
 echo.
-echo 部署完成!
+echo 部署完成！
 echo 注意: 请根据实际 nginx 安装路径修改脚本中的目录
 echo 此模式不支持计算池功能
 endlocal

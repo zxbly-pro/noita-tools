@@ -1,5 +1,5 @@
 #!/bin/bash
-# 打包 Docker 部署包（Linux/macOS）
+# 打包 Docker 部署源码包（Linux/macOS）
 # 包含构建 Docker 镜像所需的全部源码
 
 set -e
@@ -38,7 +38,7 @@ rm -rf "$DIST"
 
 echo ""
 BASENAME="$(basename "$ARCHIVE")"
-echo "完成! 部署包: $BASENAME"
+echo "完成！部署包: $BASENAME"
 echo "部署步骤:"
 echo "  1. 解压: mkdir noitool && tar -xzf $BASENAME -C noitool"
 echo "  2. cd noitool && docker build -t noitool:latest ."

@@ -1,6 +1,6 @@
 #!/bin/bash
-# 打包 nginx 纯静态部署包（Linux/macOS）
-# 使用前请先完成: npm ci --legacy-peer-deps && npm run build
+# 打包 nginx 静态部署包（Linux/macOS）
+# 使用前请先完成 npm ci --legacy-peer-deps && npm run build
 # 此模式不支持计算池功能
 
 set -e
@@ -45,9 +45,9 @@ rm -rf "$DIST"
 
 echo ""
 BASENAME="$(basename "$ARCHIVE")"
-echo "完成! 部署包: $BASENAME"
+echo "完成！部署包: $BASENAME"
 echo "部署步骤:"
 echo "  1. 解压: mkdir noitool && tar -xzf $BASENAME -C noitool"
 echo "  2. 将 build/ 内容放到 nginx html 目录"
 echo "  3. 将 nginx.conf 放到 /etc/nginx/conf.d/"
-echo "  注意: 此模式不支持计算池功能"
+echo "注意: 此模式不支持计算池功能"

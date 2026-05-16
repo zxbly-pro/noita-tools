@@ -1,6 +1,6 @@
 #!/bin/bash
 # Node.js 离线安装脚本（Ubuntu amd64）
-# 优先使用当前目录的离线安装包，没有则下载一份到当前目录供后续离线使用
+# 优先使用当前目录中的离线安装包；如果没有则下载一份，方便后续离线复用
 
 set -e
 
@@ -11,7 +11,7 @@ INSTALL_DIR="/usr/local"
 
 cd "$(dirname "$0")"
 
-# 检查是否已安装且版本满足
+# 检查是否已安装且版本满足要求
 if command -v node &>/dev/null; then
   CURRENT=$(node -v | tr -d v | cut -d. -f1)
   if [ "$CURRENT" -ge 22 ]; then
@@ -21,13 +21,13 @@ if command -v node &>/dev/null; then
   echo "当前 Node.js 版本过低 ($(node -v))，将安装 v${NODE_VERSION}"
 fi
 
-# 优先使用当前目录的离线包
+# 优先使用当前目录中的离线包
 if [ -f "$TARBALL" ]; then
   echo "检测到离线安装包: $TARBALL"
 else
   echo "未找到离线安装包，正在下载 Node.js v${NODE_VERSION}..."
   curl -fSL -o "$TARBALL" "https://nodejs.org/dist/v${NODE_VERSION}/${TARBALL}"
-  echo "已下载到当前目录: $TARBALL（可拷贝到离线环境复用）"
+  echo "已下载到当前目录: $TARBALL（可复制到离线环境复用）"
 fi
 
 echo "正在安装 Node.js v${NODE_VERSION}..."

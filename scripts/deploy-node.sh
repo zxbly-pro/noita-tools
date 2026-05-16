@@ -1,5 +1,5 @@
 #!/bin/bash
-# Node.js 部署启动脚本（Linux 目标服务器 - Ubuntu）
+# Node.js 部署启动脚本（Linux 目标服务器，Ubuntu）
 # 在解压后的 noitool 目录中运行
 
 set -e

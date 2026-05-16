@@ -1,360 +1,234 @@
-# Noitool 项目文档
+# Noitool
 
-## 项目概述
+Noita 种子工具，支持：
 
-Noita 游戏种子工具，支持种子信息查看、种子搜索、多机协同计算池。
+- 单种子详情查看
+- 浏览器本地搜索
+- 本地多线程搜索
+- 计算池协同搜索
+- CLI / Docker Worker 计算节点
+- 普通模式与噩梦模式种子解析
 
-已针对离线/内网环境优化：
-- 兼容 HTTP 和 HTTPS（无需 SSL 证书）
-- 核心功能纯前端运行，无需后端
-- 计算池功能需要 Node.js 后端做 Socket.IO 任务中转
+## 当前技术栈
 
-## 项目结构
+- 前端：React + TypeScript + Vite
+- 服务端：Node.js + Express + Socket.IO
+- 计算执行：Web Worker、`worker_threads`、CLI Worker、Docker Worker
+- 当前版本：`35.0.1`
+- Node 要求：`22.16.0`
 
-```
+## 目录结构
+
+```text
 noitool/
-├── src/                        前端源码（React + TypeScript）
-│   ├── components/             UI 组件
-│   ├── services/               业务逻辑、种子计算引擎
-│   │   └── SeedInfo/           种子信息核心（含 WASM 模块）
-│   └── workers/                Web Worker（浏览器端并行计算）
-├── server/                     后端（仅计算池调度）
-│   ├── standalone.mjs          服务入口（静态文件 + Socket.IO）
-│   ├── logger.mjs              日志模块
-│   └── io/compute.mjs          计算池任务分发逻辑
-├── public/                     静态资源（主题CSS、图标、本地化）
-├── scripts/                    打包和部署脚本
-├── data.zip                    游戏元数据（从 data.wak 提取）
-├── mods/                       Noita 安装目录 mods 文件夹内容
-├── consoleBuild.cjs            CLI Worker 构建脚本（esbuild）
-├── search.package.json         CLI Worker 独立 package.json
-├── Dockerfile                  主服务 Docker 构建
-├── Dockerfile.worker           计算池 Worker Docker 构建
-├── vite.config.ts              Vite 构建配置
-├── tsconfig.json               TypeScript 配置
-├── tsconfig.node.json          Node 相关 TS 配置
-├── index.html                  SPA 入口
-└── package.json                项目依赖和脚本
+├── src/                    前端源码、搜索逻辑、SeedInfo、Worker
+├── server/                 轻量服务端与计算池中转
+├── public/                 静态资源
+├── scripts/                打包与部署脚本
+├── mods/                   Noita mods 数据（含 nightmare）
+├── data/                   Noita 解包数据
+├── consoleBuild.cjs        CLI Worker 打包脚本
+├── Dockerfile              主站 Docker 镜像
+├── Dockerfile.worker       Worker Docker 镜像
+├── search.package.json     console-build 产物模板包
+└── package.json
 ```
 
-## 功能模块
+## 功能概览
 
-| 功能 | 运行位置 | 是否需要后端 |
-|------|---------|-------------|
-| 种子信息查看 | 浏览器 | 否 |
-| 种子搜索（本地） | 浏览器 WebWorker | 否 |
-| 计算池（多机协同） | 浏览器 + 服务器 | 是（Socket.IO） |
-| CLI Worker | Node.js | 是（连接服务器） |
+| 功能 | 运行位置 | 是否依赖后端 |
+| --- | --- | --- |
+| 种子详情查看 | 浏览器 | 否 |
+| 本地种子搜索 | 浏览器 + Web Worker | 否 |
+| 本地多线程搜索 | 浏览器 / Node Worker | 否 |
+| 计算池协同搜索 | 浏览器 + 服务端 + Worker | 是 |
+| CLI Worker | Node.js | 是 |
 
-## 环境要求
+## 开发
 
-- Node.js 22.16.0+
-- npm 10+
-- 现代浏览器（Chrome/Edge/Firefox，需支持 WebWorker + WASM）
-
----
-
-## 启动模块
-
-### 开发模式
-
-```bash
-npm run dev
-```
-
-同时启动：
-- Node.js 后端（端口 3001）
-- Vite 开发服务器（端口 3000，代理 `/socket.io` 和 `/api` 到 3001）
-
-访问 `http://localhost:3000`。
-
-### 生产模式
-
-```bash
-npm run start
-```
-
-启动 standalone 服务器（默认端口 3001，通过 `PORT` 环境变量修改）。
-生产部署时 Dockerfile 设置 `PORT=3000`。
-
-### CLI Worker（计算池客户端）
-
-```bash
-npm run console-search -- --url http://zxbly.com:3000 --cores 4
-```
-
----
-
-## 构建要求
-
-### 前端构建
-
-依赖 Vite + TypeScript + React，构建产物为纯静态文件。
-
-### 后端
-
-无需构建，`server/` 下的 `.mjs` 文件直接由 Node.js 运行。
-运行时仅依赖 `express` 和 `socket.io`。
-
-### CLI Worker 构建
-
-使用 esbuild 打包 `src/consoleSearch.ts` 为独立 Node.js ESM 包。
-
----
-
-## 编译步骤
-
-### 1. 安装依赖
+安装依赖：
 
 ```bash
 npm ci --legacy-peer-deps
 ```
 
-`--legacy-peer-deps` 是必须的（react-slider 不兼容 React 19）。
+启动开发环境：
 
-### 2. 前端编译
+```bash
+npm run dev
+```
+
+说明：
+
+- Vite 默认运行在 `http://localhost:3000`
+- Node 服务端默认运行在 `http://localhost:3001`
+- `/api` 与 `/socket.io` 会代理到 `3001`
+
+## 构建
+
+前端构建：
 
 ```bash
 npm run build
 ```
 
-执行 `tsc && vite build`，产物输出到 `build/` 目录。
-
-### 3. CLI Worker 编译（可选）
+CLI Worker 构建：
 
 ```bash
 npm run console-build
 ```
 
-产物输出到 `console-build/` 目录。
+运行 CLI Worker：
 
----
+```bash
+npm run console-search -- --url http://127.0.0.1:3000 --cores 4
+```
 
-## 部署方案
+## 运行方式
 
-### 方案一：Docker（推荐）
+### 1. 直接运行 Node 服务端
+
+```bash
+PORT=3000 BASE_PATH= LOG_LEVEL=info LOG_TIMEZONE=GMT+8 \
+node --experimental-modules ./server/standalone.mjs
+```
+
+说明：
+
+- 代码内默认端口是 `3001`
+- 部署脚本默认端口是 `3000`
+- 日志时间格式为 `yyyy-MM-dd HH:mm:ss`
+- 日志时区默认是 `GMT+8`
+
+### 2. Docker 主站
 
 ```bash
 docker build -t noitool:latest .
 docker run -d -p 3000:3000 --name noitool noitool:latest
 ```
 
-迁移到离线服务器：
+### 3. Docker Worker
 
 ```bash
-docker save noitool:latest -o noitool.tar
-# 目标机器
-docker load -i noitool.tar
-docker run -d -p 3000:3000 --name noitool noitool:latest
-```
-
-### 方案二：Node.js 直接部署
-
-```bash
-npm ci --legacy-peer-deps
-npm run build
-PORT=3000 node --experimental-modules ./server/standalone.mjs
-```
-
-或使用打包脚本生成离线部署包（含 node_modules）：
-
-```bash
-./scripts/pack-node.sh
-# 产物 noitool-node.tar.gz 解压即可运行，无需网络
-```
-
-### 方案三：nginx 反向代理 + Node.js
-
-Node.js 后端处理 Socket.IO，nginx 做反代和静态文件服务：
-
-```bash
-PORT=3001 node --experimental-modules ./server/standalone.mjs
-```
-
-```nginx
-server {
-    listen 80;
-    server_name _;
-
-    location /socket.io/ {
-        proxy_pass http://127.0.0.1:3001;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_read_timeout 86400;
-    }
-
-    location /api/ {
-        proxy_pass http://127.0.0.1:3001;
-    }
-
-    location / {
-        root /path/to/noitool/build;
-        try_files $uri $uri/ /index.html;
-    }
-}
-```
-
-### 方案四：纯静态（无计算池）
-
-只需将 `build/` 目录放到任意 Web 服务器，计算池功能不可用。
-
----
-
-## 子路径部署
-
-默认部署在根路径 `/`。支持部署到子路径（如 `http://server/noita`），**无需重新构建**，运行时通过环境变量指定。
-
-项目使用 HashRouter + 相对资源路径，URL 格式为 `http://server/noita/#/search`。
-
-### Docker 子路径部署
-
-```bash
-docker run -d -p 3000:3000 \
-  -e BASE_PATH=/noita \
-  --name noitool noitool:latest
-```
-
-访问 `http://服务器IP:3000/noita/`。
-
-### Node.js 子路径部署
-
-```bash
-BASE_PATH=/noita node --experimental-modules ./server/standalone.mjs
-```
-
-访问 `http://服务器IP:3001/noita/`。
-
-### nginx 子路径部署（反代到 Node.js）
-
-Node.js 后端以根路径运行：
-
-```bash
-node --experimental-modules ./server/standalone.mjs
-```
-
-nginx 将子路径转发到后端：
-
-```nginx
-location /noita/ {
-    proxy_pass http://127.0.0.1:3001/;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection "upgrade";
-    proxy_set_header Host $host;
-}
-```
-
-### nginx 纯静态子路径（无计算池）
-
-```nginx
-location /noita/ {
-    alias /path/to/noitool/build/;
-    index index.html;
-}
-```
-
-由于使用 HashRouter，不需要 `try_files` 回退规则。
-
-### 注意事项
-
-- `BASE_PATH` 必须以 `/` 开头，不以 `/` 结尾（如 `/noita`）
-- 不设置 `BASE_PATH` 时默认为根路径 `/`，行为不变
-- 同一份构建产物可部署到任意路径，无需重新编译
-- URL 中 `#` 后面是前端路由（如 `/noita/#/search`）
-- Socket.IO 连接自动适配 HTTP/HTTPS 协议（ws/wss），无需额外配置
-
----
-
-## 计算池 Worker Docker 镜像
-
-```bash
-# 构建
 docker build -t noitool-worker:latest -f Dockerfile.worker .
-
-# 运行
 docker run -d --name noitool-worker \
-  -e NOITOOL_URL=http://zxbly.com:3000 \
+  -e NOITOOL_URL=http://127.0.0.1:3000 \
   -e NOITOOL_CORES=4 \
   noitool-worker:latest
 ```
 
----
+## 子路径部署
 
-## 打包脚本
+项目使用相对资源路径和 `HashRouter`，支持运行时通过 `BASE_PATH` 部署到子路径，无需重新构建。
 
-位于 `scripts/` 目录，详见 [scripts/README.md](scripts/README.md)。
+示例：
 
-| 脚本 | 说明 | 产物 |
-|------|------|------|
-| `pack-docker.sh` | 打包 Docker 构建源码 | `noitool-docker.tar.gz` |
-| `pack-node.bat/.sh` | 打包 Node.js 离线部署包 | `noitool-node.tar.gz`（含 node_modules） |
-| `pack-nginx.bat/.sh` | 打包 nginx 静态文件 | `noitool-nginx.tar.gz` |
-| `pack-worker.sh` | 构建 Worker Docker 镜像 | `noitool-worker:latest` |
+```bash
+BASE_PATH=/noita PORT=3000 node --experimental-modules ./server/standalone.mjs
+```
 
----
+访问路径：
+
+```text
+http://server:3000/noita/#/search
+```
+
+## 打包与部署脚本
+
+详见 [scripts/README.md](scripts/README.md)。
+
+常用脚本：
+
+| 脚本 | 作用 | 产物 |
+| --- | --- | --- |
+| `scripts/pack-node.sh` / `.bat` | 打包 Node.js 离线部署包 | `noitool-node.tar.gz` / `.zip` |
+| `scripts/pack-nginx.sh` / `.bat` | 打包 nginx 静态部署包 | `noitool-nginx.tar.gz` / `.zip` |
+| `scripts/pack-docker.sh` | 打包 Docker 构建源码包 | `noitool-docker.tar.gz` |
+| `scripts/pack-worker.sh` | 构建 Worker Docker 镜像 | 本地镜像 `noitool-worker:latest` |
+
+注意：
+
+- `pack-worker.sh` 不会直接生成 `tar.gz`
+- 如需导出 Worker 镜像，请手动执行 `docker save`
 
 ## 环境变量
 
+### 服务端
+
 | 变量 | 默认值 | 说明 |
-|------|--------|------|
-| `PORT` | `3001`（开发）/ `3000`（Docker） | 后端服务端口 |
+| --- | --- | --- |
+| `PORT` | `3001` | 服务端监听端口 |
+| `BASE_PATH` | 空 | 子路径部署前缀 |
 | `NODE_ENV` | `production` | 运行环境 |
 | `LOG_LEVEL` | `info` | 日志级别 |
-| `BASE_PATH` | 空（根路径） | 子路径前缀（运行时指定，如 `/noita`） |
-| `NOITOOL_URL` | `http://zxbly.com:3000` | Worker 连接的服务器地址 |
-| `NOITOOL_CORES` | `0`（全部） | Worker 使用的 CPU 核心数 |
+| `LOG_TIMEZONE` | `GMT+8` | 日志时区 |
 
----
+### Worker
 
-## npm scripts
+| 变量 | 默认值 | 说明 |
+| --- | --- | --- |
+| `NOITOOL_URL` | `http://zxbly.com:3000` | Worker 连接的主站地址 |
+| `NOITOOL_CORES` | `0` | `0` 表示使用全部核心，非 `0` 表示指定核心数 |
 
-| 命令 | 说明 |
-|------|------|
-| `npm run dev` | 开发模式（后端 + Vite） |
-| `npm run build` | 前端编译（tsc + vite build） |
-| `npm run start` | 生产模式启动后端 |
-| `npm run console-build` | 编译 CLI Worker |
-| `npm run console-search` | 运行 CLI Worker |
-| `npm run test` | 运行测试（vitest） |
+## 计算池说明
 
----
+服务端只负责：
 
-## 注意事项
+- 托管前端静态文件
+- 提供 `/api/cluster_stats`
+- 提供 `/api/session`
+- 提供 Socket.IO 中转
+- 管理 Host / Worker 注册、任务分发、结果回收
 
-- 项目兼容 HTTP 和 HTTPS，内网部署无需 SSL 证书
-- `npm ci` 必须加 `--legacy-peer-deps`
-- Docker 镜像基于 `node:22.16.0-alpine`
-- 使用 HashRouter，URL 格式为 `http://server/#/path`
-- 同一份构建产物可部署到任意子路径，运行时通过 `BASE_PATH` 环境变量指定
-- `node_modules` 包含平台相关二进制，Windows 和 Linux 不通用
+真正的搜索计算仍然发生在：
 
----
+- 浏览器本地 Worker
+- Node `worker_threads`
+- CLI Worker
+- Docker Worker
 
-## 游戏数据提取
+为避免旧版本 Worker 混入新搜索，当前计算池注册阶段会按完整版本号校验，版本不一致会被直接拒绝。
 
-项目根目录的 `data.zip` 为从游戏 `data.wak` 文件提取的元数据，`mods/` 为 Noita 安装目录下 `mods` 文件夹的内容（含官方噩梦模式 mod）。
+## 噩梦模式说明
 
-Noita 的所有基础资产（精灵图、Lua 脚本、实体定义）都打包在 `Noita/data/data.wak` 中。
+噩梦模式不是普通模式上的简单布尔开关，核心逻辑依赖：
 
-### Windows 提取方式
+- `mods/nightmare/`
+- 独立世界地图
+- 独立圣山布局
+- 独立入口法杖生成
+- 独立部分 Perk / 药水 / 敌人生成逻辑
 
-1. 将 Noita 安装目录下 `/tools_modding/` 文件夹中的所有文件复制到 Noita 根目录
-2. 运行 `data_wak_unpack.bat`，终端窗口会打开
-3. 文件资源管理器会打开 Noita 资源目录：`%UserProfile%/AppData/LocalLow/Nolla_Games_Noita`
-4. 将此文件夹收藏或复制到方便访问的位置
-5. 部分资源可能被隐藏，需在文件资源管理器中勾选"查看 → 隐藏的项目"
+详细说明见：
 
-### Linux 提取方式
+- [普通模式与噩梦模式差异说明.md](<普通模式与噩梦模式差异说明.md>)
+- [项目结构与维护指南.md](<项目结构与维护指南.md>)
 
-在 Steam 中为 Noita 添加启动参数：
+## 文档状态
 
-```
--wizard_unpak
-```
+当前仓库内这些项目文档已按现状同步：
 
-设置方式：右键 Noita → 属性 → 通用 → 启动选项，填入上述参数后启动一次游戏即可完成提取。
+- `README.md`
+- `scripts/README.md`
+- `项目结构与维护指南.md`
+- `普通模式与噩梦模式差异说明.md`
 
-### 提取后
+## 常见问题
 
-提取完成后可直接访问 Noita 的所有 Lua 代码、实体 XML 定义和精灵图集。项目使用这些数据来解析种子信息和搜索规则。
+### 为什么 `npm ci` 需要 `--legacy-peer-deps`
+
+当前依赖树里仍存在 React 19 相关 peer dependency 兼容问题，直接使用默认解析可能失败。
+
+### 为什么本地看到的计算池状态大部分为空
+
+如果只是本地主站加浏览器，没有额外 Host / Worker 接入，那么：
+
+- `hosts = 0`
+- `workers = 0`
+- `pendingJobs = []`
+
+这是正常现象，不表示服务异常。
+
+### 为什么 GitHub Actions 之前会报 `Permission denied`
+
+因为仓库中的 `.sh` 脚本之前缺少可执行权限。当前主要脚本已经修正为可执行，并且工作流中也显式使用了 `bash ./scripts/*.sh`。

@@ -1,8 +1,7 @@
 @echo off
-REM 打包 Node.js 部署包（Windows）
-REM 使用前请先完成: npm ci --legacy-peer-deps && npm run build
-REM 产物包含 node_modules，目标机器解压即可运行
-
+REM 打包 Node.js 离线部署包（Windows）
+REM 使用前请先完成 npm ci --legacy-peer-deps && npm run build
+REM 产物包含 node_modules，目标机器解压后即可运行
 setlocal
 
 set SCRIPT_DIR=%~dp0
@@ -30,7 +29,7 @@ for /f "delims=" %%v in ('node -p "require('./package.json').version"') do set P
 popd
 echo {"name":"noitool","version":"%PKG_VERSION%","private":true,"type":"module","dependencies":{"express":"^4.21.2","socket.io":"4.8.1"}} > "%DIST%\package.json"
 
-echo [4/5] 安装运行时依赖（将打入包内）...
+echo [4/5] 安装运行时依赖（将打包进部署包）...
 pushd "%DIST%"
 npm install --omit=dev
 if errorlevel 1 (
@@ -47,7 +46,7 @@ powershell -Command "Compress-Archive -Path '%DIST%\*' -DestinationPath '%ARCHIV
 rmdir /s /q "%DIST%"
 
 echo.
-echo 完成! 部署包: noitool-node.zip（含 node_modules，完全离线部署）
+echo 完成！部署包: noitool-node.zip（含 node_modules，可完全离线部署）
 echo 部署步骤:
 echo   1. 解压到服务器
 echo   2. cd noitool

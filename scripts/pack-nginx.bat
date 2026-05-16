@@ -1,8 +1,7 @@
 @echo off
-REM 打包 nginx 纯静态部署包（Windows）
-REM 使用前请先完成: npm ci --legacy-peer-deps && npm run build
+REM 打包 nginx 静态部署包（Windows）
+REM 使用前请先完成 npm ci --legacy-peer-deps && npm run build
 REM 此模式不支持计算池功能
-
 setlocal
 
 set SCRIPT_DIR=%~dp0
@@ -43,7 +42,7 @@ powershell -Command "Compress-Archive -Path '%DIST%\*' -DestinationPath '%ARCHIV
 rmdir /s /q "%DIST%"
 
 echo.
-echo 完成! 部署包: noitool-nginx.zip
+echo 完成！部署包: noitool-nginx.zip
 echo 部署步骤:
 echo   1. 解压到服务器
 echo   2. 将 build/ 内容放到 nginx html 目录

@@ -20,5 +20,5 @@ echo "[3/3] 重载 nginx..."
 nginx -t && nginx -s reload
 
 echo ""
-echo "部署完成! 访问 http://服务器IP"
+echo "部署完成！访问 http://服务器IP"
 echo "注意: 此模式不支持计算池功能"
