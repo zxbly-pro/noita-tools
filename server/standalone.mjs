@@ -19,9 +19,11 @@ process.env.npm_package_version = pkg.version;
 const PORT = process.env.PORT || 3001;
 const BASE_PATH = process.env.BASE_PATH || "";
 const app = express();
-const IDLE_CLUSTER_REQUEST_LOG_INTERVAL_MS = 60_000;
+const IDLE_CLUSTER_REQUEST_LOG_INTERVAL_MS = 300_000;
 let lastIdleSocketClusterStatsLogAt = 0;
 let lastIdleHttpClusterStatsLogAt = 0;
+
+const staticAssetPattern = /\.(?:js|css|map|png|jpg|jpeg|gif|svg|webp|ico|woff2?|ttf|eot|wasm)$/i;
 
 const shouldLogClusterStatsRequest = (snapshot, lastLoggedAt) => {
   const idle = snapshot.counts.hosts === 0
@@ -35,6 +37,22 @@ const shouldLogClusterStatsRequest = (snapshot, lastLoggedAt) => {
   return Date.now() - lastLoggedAt >= IDLE_CLUSTER_REQUEST_LOG_INTERVAL_MS;
 };
 
+const shouldLogHttpRequest = ({ path, statusCode, durationMs }) => {
+  if (statusCode >= 400 || durationMs >= 1000) {
+    return true;
+  }
+
+  if (path.includes("/socket.io/")) {
+    return false;
+  }
+
+  if (staticAssetPattern.test(path)) {
+    return false;
+  }
+
+  return true;
+};
+
 app.use((req, res, next) => {
   const startedAt = Date.now();
   const forwardedFor = req.headers["x-forwarded-for"];
@@ -44,7 +62,7 @@ app.use((req, res, next) => {
     null;
 
   res.on("finish", () => {
-    logger.http("HTTP 请求", {
+    const payload = {
       method: req.method,
       path: req.originalUrl,
       statusCode: res.statusCode,
@@ -52,7 +70,10 @@ app.use((req, res, next) => {
       remoteAddress,
       userAgent: req.headers["user-agent"] || null,
       referer: req.headers.referer || null,
-    });
+    };
+    if (shouldLogHttpRequest(payload)) {
+      logger.http("HTTP 请求", payload);
+    }
   });
 
   next();

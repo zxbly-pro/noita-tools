@@ -10,7 +10,7 @@ const sockets = {
   hosts: new Set(),
   workers: new Set(),
 };
-const IDLE_SNAPSHOT_LOG_INTERVAL_MS = 60_000;
+const IDLE_SNAPSHOT_LOG_INTERVAL_MS = 300_000;
 let lastSnapshotSignature = "";
 let lastIdleSnapshotLogAt = 0;
 
