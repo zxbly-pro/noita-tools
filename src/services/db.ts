@@ -183,7 +183,7 @@ export class NoitaDB extends Dexie {
       })
       .upgrade(async t => {
         const uuid = randomUUID();
-        const search = await ((t as any).db.seedInfo as NoitaDB["searches"]).add({
+        await ((t as any).db.searches as NoitaDB["searches"]).add({
           uuid,
           config: {
             name: "",
@@ -313,7 +313,8 @@ export class NoitaDB extends Dexie {
         return;
       }
 
-      if (deepEqual(config, exists.config)) {
+      const existingConfig = JSON.parse(exists.config, reviver);
+      if (deepEqual(config, existingConfig)) {
         return;
       }
 

@@ -5,6 +5,7 @@ import { useSearchParamsState } from "react-use-search-params-state";
 import "./App.css";
 import { ThemeProvider } from "./ThemeContext";
 import { AlchemyConfigProvider } from "./AlchemyConfigContext";
+import { getBasePath } from "./utils";
 
 import LoadingComponent from "./LoadingComponent";
 import { db } from "../services/db";
@@ -95,7 +96,7 @@ const Header = () => {
     <Container fluid="sm" className="mb-2 p-0 d-flex justify-content-between px-2">
       <div className="text-nowrap lh-1">
         <h3 className="fs-1 fw-bolder mb-0 text-center position-relative pb-2">
-          <a href="/" className="text-decoration-none text-reset">
+          <a href={`${getBasePath() || ""}/`} className="text-decoration-none text-reset">
             Noitool
           </a>
         </h3>

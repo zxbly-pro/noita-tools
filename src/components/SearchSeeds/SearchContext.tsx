@@ -185,14 +185,27 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
   useEffect(() => {
     if (!chunkProvider || !ruleTree || !seedSolver) return;
 
-    const newCallbackComputeHandler = new CallbackComputeHandler(setSolverStatus, chunkProvider, ruleTree, seedSolver, searchInstance?.config.isNightmare || false, searchInstance?.config.maxResults || 0);
+    const newCallbackComputeHandler = new CallbackComputeHandler(
+      setSolverStatus,
+      chunkProvider,
+      ruleTree,
+      seedSolver,
+      searchInstance?.config.isNightmare || false,
+      searchInstance?.config.maxResults || 0,
+    );
 
     setCallbackComputeHandler(newCallbackComputeHandler);
 
     return () => {
       newCallbackComputeHandler.destruct();
     };
-  }, [seedSolver, ruleTree, chunkProvider]);
+  }, [
+    seedSolver,
+    ruleTree,
+    chunkProvider,
+    searchInstance?.config.isNightmare,
+    searchInstance?.config.maxResults,
+  ]);
 
   const handleMultithreading = useCallback(() => {
     setUseCores(useCores > 1 ? 1 : concurrency);
@@ -231,17 +244,21 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
 
   const initializeStatsSocket = useCallback(() => {
     try {
-      const socket = socketIOClient(window.location.origin, { path: `${getBasePath()}/socket.io/`, timeout: 3000, reconnectionAttempts: 1 });
-      setStatsSocket(socket);
+      return socketIOClient(window.location.origin, {
+        path: `${getBasePath()}/socket.io/`,
+        timeout: 3000,
+        reconnectionAttempts: 1,
+      });
     } catch (e) {}
   }, []);
 
   useEffect(() => {
-    initializeStatsSocket();
+    const socket = initializeStatsSocket();
+    if (socket) {
+      setStatsSocket(socket);
+    }
     return () => {
-      if (statsSocket) {
-        statsSocket.disconnect();
-      }
+      socket?.disconnect();
     };
   }, [initializeStatsSocket]);
 
@@ -296,7 +313,12 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
       newComputeSocket.terminate();
       newSocketComputeProvider.destruct();
     };
-  }, [chunkProvider, ruleTree, clusterHelpEnabled]);
+  }, [
+    chunkProvider,
+    ruleTree,
+    clusterHelpEnabled,
+    searchInstance?.config.isNightmare,
+  ]);
 
   const startCalculation = useCallback(async () => {
     socketComputeProvider?.start();
@@ -350,7 +372,7 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
   const running = solverStatus?.running;
   const seedsChecked = chunkProvider?.progress || 0;
   const totalSeeds = searchInstance ? searchInstance.config.to - searchInstance.config.from : 0;
-  const percentChecked = Math.floor((seedsChecked / totalSeeds) * 100);
+  const percentChecked = totalSeeds > 0 ? Math.floor((seedsChecked / totalSeeds) * 100) : 0;
   const seedsPerSecond = solverStatus?.rate;
 
   const contextValue = {

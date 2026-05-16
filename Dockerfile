@@ -22,7 +22,6 @@ COPY --from=builder /app/build ./build/
 
 ENV NODE_ENV=production
 ENV PORT=3000
-ENV npm_package_version=35.0.1
 
 EXPOSE 3000
 

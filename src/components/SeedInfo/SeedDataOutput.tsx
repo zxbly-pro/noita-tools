@@ -31,7 +31,7 @@ const waitToLoad = async (gameInfoProvider?: GameInfoProvider): Promise<void> =>
 
 const importGameInfoProvider = async (branch: string) => {
   // TODO: handle beta branch
-  return (await import("../../services/SeedInfo/infoHandler/index.ts")).default;
+  return (await import("../../services/SeedInfo/infoHandler")).default;
 };
 
 const createGameInfoProvider = async (
@@ -78,11 +78,11 @@ export const useGameInfoProvider = (
   const [branch] = useLocalStorage<string>("noita-branch", "main");
   const [gameInfoProvider, setGameInfoProvider] = useState<GameInfoProvider>();
 
-  const initializeGameInfoProvider = useCallback(async () => {
+  const initializeGameInfoProvider = useCallback(async (setActiveData: typeof setData) => {
     setData(undefined);
     setGameInfoProvider(undefined);
     const config = await db.getSeedInfo(seed);
-    const newGameInfoProvider = await createGameInfoProvider(branch, seed, unlockedSpells, setData);
+    const newGameInfoProvider = await createGameInfoProvider(branch, seed, unlockedSpells, setActiveData);
 
     await waitToLoad(newGameInfoProvider);
 
@@ -95,7 +95,17 @@ export const useGameInfoProvider = (
   }, [seed, unlockedSpells, branch, isNightmare]);
 
   useEffect(() => {
-    initializeGameInfoProvider();
+    let active = true;
+
+    initializeGameInfoProvider(nextData => {
+      if (active) {
+        setData(nextData);
+      }
+    }).catch(console.error);
+
+    return () => {
+      active = false;
+    };
   }, [initializeGameInfoProvider]);
 
   return [gameInfoProvider, data];
