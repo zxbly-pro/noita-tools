@@ -51,6 +51,10 @@ const buildSearchJobKey = (
   });
 };
 
+const searchLog = (message: string, details?: Record<string, unknown>) => {
+  console.info(`[搜索] ${message}`, details || {});
+};
+
 export const SearchContext = React.createContext<any>({});
 
 const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -94,7 +98,7 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
           ruleDispatch({ action: "import", data: newSearchInstance.config.rules });
         }
       } catch (error) {
-        console.error("Error loading query:", error);
+        console.error("加载搜索配置失败:", error);
       } finally {
         setIsLoading(false);
       }
@@ -208,19 +212,27 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
   ]);
 
   const handleMultithreading = useCallback(() => {
+    searchLog("切换多线程", {
+      previousWorkers: useCores,
+      nextWorkers: useCores > 1 ? 1 : concurrency,
+      maxConcurrency: concurrency,
+    });
     setUseCores(useCores > 1 ? 1 : concurrency);
   }, [useCores, concurrency, setUseCores]);
 
   useEffect(() => {
     const newSeedSolver = new SeedSolver(useCores, true);
+    searchLog("种子求解器已创建", { workers: useCores });
     setSeedSolver(newSeedSolver);
     setSolverReady(false);
     newSeedSolver.workersReadyPromise
       .then(() => {
         setSolverReady(true);
+        searchLog("种子求解器已就绪", { workers: useCores });
       })
       .catch(console.error);
     return () => {
+      searchLog("种子求解器已销毁", { workers: useCores });
       newSeedSolver.destroy().catch(console.error);
     };
   }, [useCores]);
@@ -283,6 +295,11 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
   useEffect(() => {
     if (!clusterHelpEnabled || !chunkProvider || !ruleTree) return;
 
+    searchLog("已启用集群协助", {
+      jobName: computeJobHash,
+      isNightmare: searchInstance?.config.isNightmare || false,
+    });
+
     const newComputeSocket = new ComputeSocket({
       url: window.location.origin,
       path: `${getBasePath()}/socket.io/`,
@@ -309,6 +326,9 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
     setSocketComputeProvider(newSocketComputeProvider);
 
     return () => {
+      searchLog("已禁用集群协助", {
+        jobName: computeJobHash,
+      });
       setClusterConnected(false);
       newComputeSocket.terminate();
       newSocketComputeProvider.destruct();
@@ -321,16 +341,34 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
   ]);
 
   const startCalculation = useCallback(async () => {
+    searchLog("搜索已开始", {
+      searchName: searchInstance?.config.name || "",
+      from: searchInstance?.config.from,
+      to: searchInstance?.config.to,
+      maxResults: searchInstance?.config.maxResults || 0,
+      isNightmare: searchInstance?.config.isNightmare || false,
+      localWorkers: useCores,
+      clusterHelpEnabled,
+      jobName: computeJobHash,
+      customSeedCount: chunkProvider?.customSeeds?.length || 0,
+    });
     socketComputeProvider?.start();
     callbackComputeHandler?.start().catch(console.error);
-  }, [ruleTree, socketComputeProvider, callbackComputeHandler]);
+  }, [socketComputeProvider, callbackComputeHandler, searchInstance, useCores, clusterHelpEnabled, computeJobHash, chunkProvider]);
 
   const stopCalculation = useCallback(async () => {
+    searchLog("搜索停止中", {
+      checked: chunkProvider?.progress || 0,
+      results: chunkProvider?.results.size || 0,
+      pendingChunks: chunkProvider?.unCommittedChunks.length || 0,
+      orphanChunks: chunkProvider?.orphanChunks.length || 0,
+      jobName: computeJobHash,
+    });
     socketComputeProvider?.stop();
     if (!chunkProvider?.customSeeds?.length) {
       await callbackComputeHandler?.stop();
     }
-  }, [socketComputeProvider, callbackComputeHandler, chunkProvider]);
+  }, [socketComputeProvider, callbackComputeHandler, chunkProvider, computeJobHash]);
 
   const handleCopy = useCallback(() => {
     const seedList = chunkProvider?.results.size ? [...chunkProvider.results.values()] : [];
@@ -338,6 +376,11 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
   }, [chunkProvider]);
 
   const clearSearch = useCallback(() => {
+    searchLog("搜索结果已清空", {
+      previousChecked: chunkProvider?.progress || 0,
+      previousResults: chunkProvider?.results.size || 0,
+      jobName: computeJobHash,
+    });
     setSolverStatus(undefined);
     if (chunkProvider) {
       chunkProvider.clear();
@@ -365,7 +408,7 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
         })
         .catch(console.error);
     } catch (error) {
-      console.error("Error importing search:", error);
+      console.error("导入搜索配置失败:", error);
     }
   }, []);
 

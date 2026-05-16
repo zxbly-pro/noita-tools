@@ -46,8 +46,7 @@ export function register(config?: Config) {
         // service worker/PWA documentation.
         navigator.serviceWorker.ready.then(() => {
           console.log(
-            "This web app is being served cache-first by a service " +
-              "worker. To learn more, visit https://bit.ly/CRA-PWA",
+            "当前 Web 应用正由 Service Worker 以缓存优先模式提供服务。详情参见 https://bit.ly/CRA-PWA",
           );
         });
       } else {
@@ -74,8 +73,7 @@ function registerValidSW(swUrl: string, config?: Config) {
               // but the previous service worker will still serve the older
               // content until all client tabs are closed.
               console.log(
-                "New content is available and will be used when all " +
-                  "tabs for this page are closed. See https://bit.ly/CRA-PWA.",
+                "检测到新内容，关闭当前页面的所有标签页后将自动启用。详情参见 https://bit.ly/CRA-PWA。",
               );
 
               // Execute callback
@@ -86,7 +84,7 @@ function registerValidSW(swUrl: string, config?: Config) {
               // At this point, everything has been precached.
               // It's the perfect time to display a
               // "Content is cached for offline use." message.
-              console.log("Content is cached for offline use.");
+              console.log("内容已缓存，可离线使用。");
 
               // Execute callback
               if (config && config.onSuccess) {
@@ -98,7 +96,7 @@ function registerValidSW(swUrl: string, config?: Config) {
       };
     })
     .catch(error => {
-      console.error("Error during service worker registration:", error);
+      console.error("注册 Service Worker 时出错:", error);
     });
 }
 
@@ -123,7 +121,7 @@ function checkValidServiceWorker(swUrl: string, config?: Config) {
       }
     })
     .catch(() => {
-      console.log("No internet connection found. App is running in offline mode.");
+      console.log("未检测到网络连接，应用当前以离线模式运行。");
     });
 }
 

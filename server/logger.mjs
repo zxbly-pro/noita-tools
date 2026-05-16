@@ -9,6 +9,22 @@ const levelWeights = {
 const configuredLevel = process.env.LOG_LEVEL || (process.env.NODE_ENV === "production" ? "info" : "debug");
 const minLevel = levelWeights[configuredLevel] || levelWeights.info;
 const reservedFields = new Set(["time", "level", "message", "error", "details"]);
+const logTimeZone = process.env.LOG_TIMEZONE || "GMT+8";
+const gmtOffsetMatch = /^GMT([+-])(\d{1,2})(?::?(\d{2}))?$/i.exec(logTimeZone);
+const logOffsetMinutes = gmtOffsetMatch
+  ? (gmtOffsetMatch[1] === "+" ? 1 : -1) * (Number(gmtOffsetMatch[2]) * 60 + Number(gmtOffsetMatch[3] || 0))
+  : 8 * 60;
+const pad2 = value => String(value).padStart(2, "0");
+
+export const formatLogTime = (date = new Date()) => {
+  const shiftedDate = new Date(date.getTime() + logOffsetMinutes * 60 * 1000);
+  return [
+    shiftedDate.getUTCFullYear(),
+    pad2(shiftedDate.getUTCMonth() + 1),
+    pad2(shiftedDate.getUTCDate()),
+  ].join("-")
+    + ` ${pad2(shiftedDate.getUTCHours())}:${pad2(shiftedDate.getUTCMinutes())}:${pad2(shiftedDate.getUTCSeconds())}`;
+};
 
 const redactString = value =>
   value
@@ -112,7 +128,7 @@ const addDetail = (entry, value) => {
 const createEntry = (level, args) => {
   const [first, ...rest] = args;
   const entry = {
-    time: new Date().toISOString(),
+    time: formatLogTime(),
     level,
   };
 
@@ -141,7 +157,7 @@ const stringify = entry => {
     return JSON.stringify(entry);
   } catch (error) {
     return JSON.stringify({
-      time: new Date().toISOString(),
+      time: formatLogTime(),
       level: "error",
       message: "Failed to serialize log entry",
       error: sanitize(error),

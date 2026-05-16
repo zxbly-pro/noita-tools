@@ -127,7 +127,7 @@ export class SeedSearcher {
       try {
         found = this.rules.rules.every(r => this.check(r));
       } catch (e) {
-        console.error(`Seed ${seed} error: `, e);
+        console.error(`种子 ${seed} 处理出错:`, e);
       }
       const endTime = performance.now();
       this.sumExecTime += endTime - startTime;
@@ -184,7 +184,7 @@ export class SeedSearcher {
       try {
         found = this.rules.rules.every(r => this.check(r));
       } catch (e) {
-        console.error(`Seed ${this.currentSeed} error: `, e);
+        console.error(`种子 ${this.currentSeed} 处理出错:`, e);
       }
       const endTime = performance.now();
       this.sumExecTime += endTime - startTime;
@@ -220,9 +220,9 @@ export class SeedSearcher {
 
   async start() {
     this.foundSeed = undefined;
-    console.log("Getting ready");
+    console.log("正在准备搜索环境");
     await this.gameInfoProvider.ready();
-    console.log("Starting");
+    console.log("搜索已启动");
     return this.work();
   }
 

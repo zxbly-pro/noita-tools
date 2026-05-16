@@ -7,7 +7,7 @@ import "./index.css";
 import "./i18n";
 import App from "./components/App";
 
-console.log(`v${APP_VERSION}`);
+console.log(`当前版本: v${APP_VERSION}`);
 
 const root = createRoot(document.getElementById("root")!);
 root.render(

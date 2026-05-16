@@ -55,7 +55,7 @@ export class SeedSolver {
     this.workersReadyPromise = Promise.allSettled(workerReady)
       .catch(e => console.error(e))
       .then(() => {
-        console.log("workers ready");
+        console.log("工作线程已就绪");
       });
   }
 
@@ -120,6 +120,17 @@ export class SeedSolver {
     let res: number[] = [];
 
     let checked = 0;
+    const startedAt = Date.now();
+
+    console.debug("[搜索] SeedSolver 分块搜索开始", {
+      from,
+      to,
+      workerCount: this.workerList.length,
+      hasMapRules,
+      subChunkSize,
+      numberOfChunks,
+      isNightmare: !!isNightmare,
+    });
 
     // This works by awaiting on searchChunk(), so a worker needs to finish their current chunk
     // before they can start the next one.
@@ -134,6 +145,16 @@ export class SeedSolver {
         }
       }),
     );
+
+    console.info("[搜索] SeedSolver 分块搜索完成", {
+      from,
+      to,
+      checked,
+      resultCount: res.length,
+      durationMs: Date.now() - startedAt,
+      workerCount: this.workerList.length,
+      isNightmare: !!isNightmare,
+    });
 
     return res;
   }

@@ -40,7 +40,7 @@ class SocketHandler extends EventTarget {
     });
 
     this.io.on("disconnect", reason => {
-      console.log("disconnected: ", reason);
+      console.log("Socket 已断开:", reason);
       this.connected = false;
       this.onUpdate();
     });

@@ -57,7 +57,7 @@ export class ComputeSocket extends SocketHandler {
     });
 
     this.io.on("disconnect", reason => {
-      console.log("disconnected: ", reason);
+      console.log("计算 Socket 已断开:", reason);
       this.connected = false;
       this.onUpdate();
     });
@@ -114,7 +114,7 @@ export class ComputeSocket extends SocketHandler {
       return;
     }
     if (!this.seedSolver) {
-      console.error("No seed solver. Running from Console?");
+      console.error("未找到种子求解器，当前可能是从控制台模式运行。");
       return;
     }
     this.running = true;

@@ -35,7 +35,7 @@ const argv = yargs(hideBin(process.argv))
   })
   .parseSync();
 
-console.log(`Noitool console search ${APP_VERSION}`, argv, os.cpus().length);
+console.log(`Noitool 控制台搜索 ${APP_VERSION}`, argv, os.cpus().length);
 
 // const seedSolver = new SeedSolver(1, false);
 const seedSolver = new SeedSolver(argv.cores || os.cpus().length, false);
@@ -85,21 +85,21 @@ const newComputeSocket = new ComputeSocket({
       }
     }
 
-    console.log("Done!");
+    console.log("搜索任务已完成");
     newComputeSocket.terminate();
     exitHandler();
   },
 });
 
 newComputeSocket.on("compute:version_mismatch", () => {
-  console.log("Version mismatch. Please update your client.");
+  console.log("版本不匹配，请更新客户端。");
   newComputeSocket.terminate();
   exitHandler();
 });
 
 newComputeSocket.on("compute:unauthorized", config => {
-  console.log("userID or sessionToken is invalid");
-  console.log("Used config:");
+  console.log("userID 或 sessionToken 无效");
+  console.log("当前使用的配置:");
   console.log(config);
   newComputeSocket.terminate();
   exitHandler();
