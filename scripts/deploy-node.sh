@@ -8,6 +8,8 @@ cd "$(dirname "$0")"
 
 PORT="${PORT:-3000}"
 BASE_PATH="${BASE_PATH:-}"
+LOG_LEVEL="${LOG_LEVEL:-info}"
+LOG_TIMEZONE="${LOG_TIMEZONE:-GMT+8}"
 
 echo "[1/3] 检查并安装 Node.js..."
 if ! command -v node &>/dev/null || [[ "$(node -v | cut -d. -f1 | tr -d v)" -lt 22 ]]; then
@@ -37,5 +39,7 @@ fi
 export NODE_ENV=production
 export PORT
 export BASE_PATH
+export LOG_LEVEL
+export LOG_TIMEZONE
 
 exec node --experimental-modules ./server/standalone.mjs
