@@ -272,7 +272,7 @@ const Shop = (props: IShopProps) => {
     <Container fluid>
       <p>计算密集型功能，请谨慎使用！</p>
       <div className="small text-muted mb-2">
-        閫夋嫨娉曟湳鏃讹紝鏃㈠尮閰嶇洿鎺ュ嚭鍞硶鏈殑鍟嗗簵锛屼篃鍖归厤娉曟潠鍟嗗簵涓墍鏈夋硶鏉栧唴缃殑娉曟湳銆?
+        选择法术时，既匹配直接出售法术的商店，也匹配法杖商店中所有法杖内置的法术。
       </div>
       <Row className="justify-content-md-center">
         <Col xs="auto">

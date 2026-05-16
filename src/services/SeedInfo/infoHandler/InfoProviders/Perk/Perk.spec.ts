@@ -100,18 +100,6 @@ describe("PerkInfoProvider", () => {
       });
     });
 
-    it("changes nightmare perks when switching parallel worlds", async () => {
-      const randoms = await loadRandom();
-      const ap = new PerkInfoProvider(randoms);
-      await ap.ready();
-      randoms.SetWorldSeed(10003796);
-
-      const main = ap.provide(undefined, undefined, undefined, 0, undefined, ["INVISIBILITY"], 3);
-      randoms.SetWorldSeed(10003796);
-      const east = ap.provide(undefined, undefined, undefined, 1, undefined, ["INVISIBILITY"], 3);
-
-      expect(east).not.toEqual(main);
-    });
   });
 
   describe("#provideStateless", () => {

@@ -160,7 +160,7 @@ const TriStateToggle = ({
       else onChange(-1);
     }}
   >
-    {t(translationKey)}: {state === -1 ? "No" : state === 0 ? "Any" : "Yes"}
+    {t(translationKey)}: {state === -1 ? "否" : state === 0 ? "任意" : "是"}
   </Button>
 );
 

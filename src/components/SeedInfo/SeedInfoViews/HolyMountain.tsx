@@ -3,12 +3,10 @@ import React, {
   createContext,
   FC,
   memo,
-  ReactElement,
   useCallback,
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import { Button, Col, Form, Stack, Modal, Row, Table } from "react-bootstrap";
@@ -25,8 +23,6 @@ import {
   IPerkChangeStateType,
   IRerollAction,
   ISelectAction,
-  ISetAction,
-  IShiftAction,
   PerkInfoProvider,
 } from "../../../services/SeedInfo/infoHandler/InfoProviders/Perk";
 import { IShopItems, IShopType, ShopInfoProvider } from "../../../services/SeedInfo/infoHandler/InfoProviders/Shop";
@@ -50,6 +46,18 @@ const gamblePerkDiff = "-0.8rem";
 
 const getHolyMountainRowCount = (worldOffset: number, isNightmare: boolean) => {
   return getConfiguredHolyMountainRowCount(worldOffset, isNightmare);
+};
+
+const stripParallelWorldActions = (stack: IPerkChangeAction[]) =>
+  stack.filter(action => action.type !== IPerkChangeStateType.shift && action.type !== IPerkChangeStateType.set);
+
+const keepOnlyMainWorld = <T,>(source?: Map<number, T>, clone?: (value: T) => T) => {
+  const result = new Map<number, T>();
+  const main = source?.get(0);
+  if (main !== undefined) {
+    result.set(0, clone ? clone(main) : main);
+  }
+  return result;
 };
 
 interface IRerollPaneProps {
@@ -375,8 +383,6 @@ interface IHolyMountainHeaderProps {
   perkDeck: IPerk[];
   lotteries: number;
   setAdvanced: (boolean) => void;
-  handleOffset: (type: "+" | "-") => void;
-  offsetText: () => ReactElement;
   handleReset: () => void;
   handleBack: () => void;
   isPerkFavorite: (string) => boolean;
@@ -391,10 +397,8 @@ const HolyMountainHeader = (props: IHolyMountainHeaderProps) => {
     perkDeck,
     lotteries,
     setAdvanced,
-    handleOffset,
     handleReset,
     handleBack,
-    offsetText,
     isPerkFavorite,
   } = props;
 
@@ -404,16 +408,6 @@ const HolyMountainHeader = (props: IHolyMountainHeaderProps) => {
   return (
     <>
       <Stack gap={2} direction="horizontal" className="flex-wrap">
-        <Stack gap={3} direction="horizontal">
-          <Button variant="outline-primary" size="sm" onClick={() => handleOffset("-")}>
-            &lt;
-          </Button>
-          <span className="block capitalize">{offsetText()}</span>
-          <Button variant="outline-primary" size="sm" onClick={() => handleOffset("+")}>
-            &gt;
-          </Button>
-        </Stack>
-        <div className="ms-auto" />
         <Form.Switch
           checked={advanced}
           onChange={e => {
@@ -569,8 +563,21 @@ const HolyMountainContextProvider = (props: IHolyMountainContextProviderProps) =
     infoProvider.updateConfig({ perksAdvanced: value });
   };
 
-  const [perkStacks, setPerkStacks] = useState<IPerkChangeAction[][]>(() => infoProvider.config.perkStacks);
+  const [perkStacks, setPerkStacks] = useState<IPerkChangeAction[][]>(() => {
+    const sanitized = (infoProvider.config.perkStacks || [[]]).map(stripParallelWorldActions);
+    return sanitized.length ? sanitized : [[]];
+  });
   const perkStack = perkStacks[perkStacks.length - 1];
+
+  useEffect(() => {
+    infoProvider.updateConfig({
+      perkWorldOffset: 0,
+      pickedPerks: keepOnlyMainWorld(infoProvider.config.pickedPerks, rows => rows.map(row => [...row])),
+      perkRerolls: keepOnlyMainWorld(infoProvider.config.perkRerolls, rows => [...rows]),
+      perkStacks,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const favorites = useFavoritePerks(infoProvider.providers.perk, perkDeck);
   const getPerkData = () => {
@@ -603,10 +610,13 @@ const HolyMountainContextProvider = (props: IHolyMountainContextProviderProps) =
   useEffect(() => {
     const newData = getPerkData();
     infoProvider.updateConfig({
-      perkWorldOffset: +newData.worldOffset,
+      perkWorldOffset: 0,
       perkStacks,
     });
-    setPerkData(newData);
+    setPerkData({
+      ...newData,
+      worldOffset: 0,
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [perkStack]);
 
@@ -614,9 +624,7 @@ const HolyMountainContextProvider = (props: IHolyMountainContextProviderProps) =
     ? perkStack.reduce((c, n) => {
         return c + (n.type === IPerkChangeStateType.reroll ? 1 : 0);
       }, 0)
-    : [...infoProvider.config.perkRerolls.entries()].reduce((c, [, n]) => {
-        return c + n.reduce((cc, nn) => cc + nn, 0);
-      }, 0);
+    : (infoProvider.config.perkRerolls.get(0) || []).reduce((c, n) => c + n, 0);
 
   const getPrice = (rerolls: number) => 200 * Math.pow(2, rerolls);
   const getTotal = (rerolls = 0) => {
@@ -632,36 +640,7 @@ const HolyMountainContextProvider = (props: IHolyMountainContextProviderProps) =
     rerollTotal = getTotal(totalRerolls);
   }
 
-  const worldOffsetSimple = +infoProvider.config.perkWorldOffset;
-
-  const handleOffsetAdvanced = (dir: "+" | "-" | number) => {
-    let action: IShiftAction | ISetAction;
-
-    if (typeof dir === "number") {
-      action = {
-        type: IPerkChangeStateType.set,
-        data: dir,
-      };
-    } else {
-      action = {
-        type: IPerkChangeStateType.shift,
-        data: dir === "+" ? 1 : -1,
-      };
-    }
-
-    setPerkStacks([...perkStacks, [...perkStack, action]]);
-  };
-  const handleOffsetSimple = (dir: "+" | "-" | number) => {
-    if (dir === "+") {
-      infoProvider.updateConfig({ perkWorldOffset: +worldOffsetSimple + 1 });
-    }
-    if (dir === "-") {
-      infoProvider.updateConfig({ perkWorldOffset: +worldOffsetSimple - 1 });
-    }
-    if (typeof dir === "number") {
-      infoProvider.updateConfig({ perkWorldOffset: dir });
-    }
-  };
+  const worldOffsetSimple = 0;
 
   const handleGenRowAdvanced = (level: number) => {
     const action: IGenRowAction = {
@@ -772,7 +751,6 @@ const HolyMountainContextProvider = (props: IHolyMountainContextProviderProps) =
     handleClickPerk: advanced ? handleClickPerkAdvanced : handleClickPerkSimple,
     handleReset: advanced ? handleResetAdvanced : handleResetSimple,
     handleBack: advanced ? handleBackAdvanced : false,
-    handleOffset: advanced ? handleOffsetAdvanced : handleOffsetSimple,
     handleGenRowAdvanced: advanced ? handleGenRowAdvanced : false,
   };
 
@@ -790,7 +768,7 @@ const HolyMountainContextProvider = (props: IHolyMountainContextProviderProps) =
   // If gamble is picked in a row, we need to add the last 2 perks from the row
   // to the pickedPerks.
   const pickedPerksWithGambles = () => {
-    const pickedPerks = cloneDeep(infoProvider.config.pickedPerks || new Map());
+    const pickedPerks = cloneDeep(keepOnlyMainWorld(infoProvider.config.pickedPerks));
     for (const [offset, pp] of pickedPerks) {
       if (offset !== worldOffsetSimple) {
         continue;
@@ -811,9 +789,7 @@ const HolyMountainContextProvider = (props: IHolyMountainContextProviderProps) =
   };
 
   const currentPickedPerks = advanced ? pickedPerks : pickedPerksWithGambles().get(worldOffsetSimple) || [];
-  const lotteriesSimple = [...pickedPerksWithGambles().values()].reduce((c, n) => {
-    return c + n.filter(p => p?.includes("PERKS_LOTTERY")).length;
-  }, 0);
+  const lotteriesSimple = (pickedPerksWithGambles().get(0) || []).filter(p => p?.includes("PERKS_LOTTERY")).length;
 
   const perkData: IPerkData = {
     perks: advanced ? perks : simplePerksForCurrentOffset,
@@ -821,12 +797,12 @@ const HolyMountainContextProvider = (props: IHolyMountainContextProviderProps) =
     pickedState,
     perkRerolls: advanced
       ? perkRerolls
-      : infoProvider.config.perkRerolls.get(infoProvider.config.perkWorldOffset) || [],
+      : infoProvider.config.perkRerolls.get(0) || [],
     nextRerollPrices: advanced ? nextRerollPrices : new Map(),
     totalRerolls,
     rerollPrice,
     rerollTotal,
-    worldOffset: advanced ? worldOffset : infoProvider.config.perkWorldOffset,
+    worldOffset: 0,
     lotteries: advanced ? pd.lotteries : lotteriesSimple,
     ...favorites,
   };
@@ -857,7 +833,6 @@ const HolyMountain = (props: IHolyMountainProps) => {
     handleClickPerk,
     handleReset,
     handleBack,
-    handleOffset,
     handleGenRowAdvanced,
   } = perkMethods;
   const {
@@ -867,7 +842,6 @@ const HolyMountain = (props: IHolyMountainProps) => {
     totalRerolls,
     rerollPrice,
     rerollTotal,
-    worldOffset,
     lotteries,
     rerollsToFavorite,
     favoritesInNextReroll,
@@ -884,8 +858,8 @@ const HolyMountain = (props: IHolyMountainProps) => {
 
   const { isFavorite: isSpellFavorite } = useSpellFavorite();
 
-  // const offset = infoProvider.config.perkWorldOffset;
   const [shopSelected, setShopSelected] = useState(-1);
+  const worldOffset = 0;
   const displayedPerks = advanced
     ? perks
     : infoProvider.providers.perk.provide(
@@ -907,53 +881,9 @@ const HolyMountain = (props: IHolyMountainProps) => {
     setShopSelected(level);
   };
 
-  const pacifistChestItems = useCallback(
-    (l, w) => infoProvider.providers.pacifistChest.provide(l, w),
-    [infoProvider.providers.pacifistChest],
-  );
-
-  const OffsetText = () => {
-    const [clicked, setClicked] = useState(false);
-    const formRef = useRef<HTMLInputElement>(null);
-    let direction = worldOffset === 0 ? "主世界" : worldOffset < 0 ? "西" : "东";
-
-    useEffect(() => {
-      if (clicked) {
-        formRef.current!.focus();
-      }
-    }, [clicked]);
-
-    return (
-      <div
-        className={classNames(!clicked && "border border-dark rounded px-3 py-1")}
-        onClick={() => {
-          setClicked(true);
-        }}
-      >
-        {!clicked && `${direction} ${worldOffset === 0 ? "" : "世界 " + Math.abs(worldOffset)}`}
-        <Form.Control
-          size="sm"
-          style={{ width: "8rem" }}
-          hidden={!clicked}
-          ref={formRef}
-          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-            if (e.key === "Enter") {
-              e.currentTarget.blur();
-            }
-          }}
-          onBlur={e => {
-            setClicked(false);
-            const value = parseInt(e.target.value);
-            if (isNaN(value)) {
-              return;
-            }
-            handleOffset(value);
-          }}
-          placeholder={worldOffset}
-        />
-      </div>
-    );
-  };
+  const pacifistChestItems = useCallback((l: number) => infoProvider.providers.pacifistChest.provide(l, 0), [
+    infoProvider.providers.pacifistChest,
+  ]);
 
   return (
     <div
@@ -971,9 +901,7 @@ const HolyMountain = (props: IHolyMountainProps) => {
         total={rerollTotal}
         perkDeck={perkDeck}
         handleReset={handleReset}
-        handleOffset={handleOffset}
         handleBack={handleBack}
-        offsetText={OffsetText}
         isPerkFavorite={isFavorite}
         lotteries={lotteries}
       />
@@ -1013,7 +941,7 @@ const HolyMountain = (props: IHolyMountainProps) => {
               const row = displayedPerks[level] || [];
               return (
                 <PerkRow
-                  key={`${worldOffset}-${level}`}
+                  key={level}
                   advanced={advanced}
                   pickedPerks={pickedPerks[level]}
                   perkRerolls={perkRerolls[level]}
@@ -1022,7 +950,7 @@ const HolyMountain = (props: IHolyMountainProps) => {
                   rerollsToFavorite={rerollsToFavorite}
                   favoritesInNextReroll={favoritesInNextReroll}
                   nextRerollPrices={
-                    nextRerollPrices.get(worldOffset) ? nextRerollPrices.get(worldOffset)[level] : undefined
+                    nextRerollPrices.get(0) ? nextRerollPrices.get(0)[level] : undefined
                   }
                   isPerkFavorite={isFavorite}
                   showAllAlwaysCast={showAlwaysCastRow}
@@ -1031,11 +959,9 @@ const HolyMountain = (props: IHolyMountainProps) => {
                   handleRerollUndo={e => handleRerollUndo(e, level)}
                   handleReroll={e => handleReroll(e, level)}
                   handleClickPerk={id => handleClickPerk(level, id)()}
-                  pacifistChestItems={pacifistChestItems(level, worldOffset)}
-                  isRerollable={(i, l) =>
-                    infoProvider.providers.lottery.provide(level, i, l, worldOffset, adjustedLotteries)
-                  }
-                  getAlwaysCast={(i, l) => infoProvider.providers.alwaysCast.provide(level, i, l, worldOffset) ?? ""}
+                  pacifistChestItems={pacifistChestItems(level)}
+                  isRerollable={(i, l) => infoProvider.providers.lottery.provide(level, i, l, 0, adjustedLotteries)}
+                  getAlwaysCast={(i, l) => infoProvider.providers.alwaysCast.provide(level, i, l, 0) ?? ""}
                   handleOpenShopInfo={() => handleOpenShopInfo(level)}
                   handleLoad={() => handleGenRowAdvanced(level)}
                 />
@@ -1061,3 +987,4 @@ const e = props => (
 );
 
 export default e;
+

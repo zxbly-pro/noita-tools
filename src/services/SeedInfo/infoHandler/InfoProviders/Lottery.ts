@@ -4,7 +4,7 @@
 import { IRule } from "../IRule";
 import { InfoProvider } from "./Base";
 import { getHolyMountainLocation } from "./holyMountainLocations";
-import { getParallelWorldWidth } from "./worldInfo";
+import { getHolyMountainParallelWorldWidth } from "./worldInfo";
 
 export class LotteryInfoProvider extends InfoProvider {
   isNightmare = false;
@@ -26,7 +26,7 @@ export class LotteryInfoProvider extends InfoProvider {
     // `i + 0.5`
     const perkX =
       this.randoms.RoundHalfOfEven(x + (perkNumber + 0.5) * (60 / perksOnLevel)) +
-      getParallelWorldWidth(this.isNightmare) * worldOffset;
+      getHolyMountainParallelWorldWidth() * worldOffset;
     const probability = 100 * Math.pow(0.5, lotteries);
     this.randoms.SetRandomSeed(perkX, perkY);
     return !(this.randoms.Random(1, 100) <= probability);

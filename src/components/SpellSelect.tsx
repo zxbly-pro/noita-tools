@@ -88,8 +88,8 @@ const SpellSelect: FC<ISpellSelectProps> = ({
     <Modal fullscreen="sm-down" scrollable show={show} onHide={handleClose}>
       <Modal.Header closeButton>
         <Modal.Title>
-          Spell Select {disabled && <small className="text-muted">(Max capacity reached)</small>}
-          {filter && <small className="text-muted ms-2">({strict ? "All required" : "Any of these"})</small>}
+          选择法术 {disabled && <small className="text-muted">（已达到最大容量）</small>}
+          {filter && <small className="text-muted ms-2">（{strict ? "全部包含" : "包含任一"}）</small>}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -116,9 +116,9 @@ const SpellSelect: FC<ISpellSelectProps> = ({
           <Row className="p-1 ps-4 pe-4 align-items-center">
             <FormControl
               type="search"
-              placeholder="Filter"
+              placeholder="筛选"
               className=""
-              aria-label="Filter"
+              aria-label="筛选"
               value={selectedFilter}
               onChange={handleFilter}
             />

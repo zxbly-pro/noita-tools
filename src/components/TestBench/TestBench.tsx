@@ -31,7 +31,6 @@ const perf = async (infoProvider: GameInfoProvider) => {
 const GameInfoProviderView = (props: { infoProvider: GameInfoProvider }) => {
   const { infoProvider } = props;
 
-  const [worldOffset, setworldOffset] = useState(0);
   const [xOffset, setxOffset] = useState(0);
   const [yOffset, setyOffset] = useState(0);
   const [iter, setiter] = useState(1);
@@ -42,12 +41,6 @@ const GameInfoProviderView = (props: { infoProvider: GameInfoProvider }) => {
         value={infoProvider.config.seed}
         onChange={e => infoProvider.updateConfig({ seed: parseInt(e.target.value, 10) })}
         placeholder="world seed"
-      />
-      <Form.Control
-        type="number"
-        value={worldOffset}
-        onChange={e => setworldOffset(parseInt(e.target.value, 10) || 0)}
-        placeholder="worldOffset"
       />
       <Form.Control
         type="number"
@@ -68,7 +61,7 @@ const GameInfoProviderView = (props: { infoProvider: GameInfoProvider }) => {
         placeholder="iter"
       />
       <Button onClick={() => perf(infoProvider)}>Test</Button>
-      <MapComponent mapPart="coalmines" worldOffset={worldOffset} infoProvider={infoProvider} />
+      <MapComponent mapPart="coalmines" worldOffset={0} infoProvider={infoProvider} />
     </div>
   );
 };

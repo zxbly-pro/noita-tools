@@ -5,7 +5,7 @@ import { IRule } from "../IRule";
 import { InfoProvider } from "./Base";
 import { ACTION_TYPE } from "./Wand";
 import { getHolyMountainLocation } from "./holyMountainLocations";
-import { getParallelWorldWidth } from "./worldInfo";
+import { getHolyMountainParallelWorldWidth } from "./worldInfo";
 
 export class AlwaysCastInfoProvider extends InfoProvider {
   isNightmare = false;
@@ -53,7 +53,7 @@ export class AlwaysCastInfoProvider extends InfoProvider {
     // `i + 0.5`
     const x =
       this.randoms.RoundHalfOfEven(_x + (perkNumber + 0.5) * (60 / perksOnLevel)) +
-      getParallelWorldWidth(this.isNightmare) * worldOffset;
+      getHolyMountainParallelWorldWidth() * worldOffset;
     return this.providePos(x, y);
   }
 

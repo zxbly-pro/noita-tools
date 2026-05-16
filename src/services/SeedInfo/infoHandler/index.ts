@@ -375,7 +375,7 @@ export class GameInfoProvider extends EventTarget {
         this.config.pickedPerks,
         undefined,
         true,
-        this.config.perkWorldOffset,
+        0,
         this.config.perkRerolls,
         nightmarePerks,
         initialPerkIndex,
@@ -386,7 +386,7 @@ export class GameInfoProvider extends EventTarget {
       weather: this.providers.weather.provide(),
       shop: this.providers.shop.provide(
         this.config.perksAdvanced ? statelessPerks.pickedState : this.config.pickedPerks,
-        this.config.perkWorldOffset,
+        0,
       ),
       startingBombSpell: this.providers.startingBombSpell.provide(),
       startingFlask: this.providers.startingFlask.provide(),

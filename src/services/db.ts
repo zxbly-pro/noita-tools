@@ -76,7 +76,7 @@ async function createDefaultSearch(db: NoitaDB) {
   await db.searches.add({
     uuid,
     config: {
-      name: "Default Search",
+      name: "默认搜索",
       from: 1,
       to: Math.pow(2, 31),
       rules: btoa(

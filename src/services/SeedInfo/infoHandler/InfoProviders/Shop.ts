@@ -8,7 +8,7 @@ import { InfoProvider } from "./Base";
 import type { WandInfoProvider } from "./Wand";
 import type { SpellInfoProvider } from "./Spell";
 import { getHolyMountainLocation, getHolyMountainLocations } from "./holyMountainLocations";
-import { getParallelWorldWidth } from "./worldInfo";
+import { getHolyMountainParallelWorldWidth } from "./worldInfo";
 
 export enum IShopType {
   "wand" = 1,
@@ -288,7 +288,7 @@ export class ShopInfoProvider extends InfoProvider {
     let offsetX = 0 - 299,
       offsetY = 0 - 15;
     return this.spawn_all_shop_items(
-      temple.x + offsetX + worldOffset * getParallelWorldWidth(this.isNightmare),
+      temple.x + offsetX + worldOffset * getHolyMountainParallelWorldWidth(),
       temple.y + offsetY,
       pickedPerks,
     );
