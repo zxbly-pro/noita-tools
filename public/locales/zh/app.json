@@ -1,1 +1,28 @@
-{}
+{
+  "common": {
+    "no": "否",
+    "any": "任意",
+    "yes": "是"
+  },
+  "entranceWand": {
+    "description": "筛选噩梦入口生成的法杖，以及入口 {{perk}} 天赋产生的法术。",
+    "wandSpells": "法杖法术 ({{count}})",
+    "wandSpellsAll": "法杖法术全部包含",
+    "wandSpellsAny": "法杖法术包含任一",
+    "perkSpells": "天赋法术 ({{count}})",
+    "perkSpellsAll": "天赋法术全部包含",
+    "perkSpellsAny": "天赋法术包含任一",
+    "wandStats": "法杖属性筛选"
+  },
+  "wandSearch": {
+    "title": "法杖搜索",
+    "addSpell": "添加法术",
+    "anyAlwaysCast": "任意始终施放",
+    "noAlwaysCastSpellSelected": "未选择始终施放法术",
+    "clearAll": "清除全部",
+    "spellDeck": "法术槽 ({{capacity}})",
+    "matchAll": "全部",
+    "matchSome": "部分",
+    "clearAllSpells": "清除全部法术"
+  }
+}

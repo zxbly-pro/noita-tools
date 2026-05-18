@@ -12,8 +12,7 @@ import EntranceWand from "./SearchViews/EntranceWand";
 import FungalShifts from "./SearchViews/FungalShifts";
 import MapSearch from "./SearchViews/Map";
 import Search from "./SearchViews/Search";
-import { FC, useContext } from "react";
-import { Container } from "react-bootstrap";
+import { FC } from "react";
 import { useSearchContext } from "./SearchContext";
 import { getTreeTools } from "./node";
 import PacifistChest from "./SearchViews/PacifistChest";
@@ -23,12 +22,11 @@ const treeTools = getTreeTools("id", "rules");
 const createHolyMountainRows = <T,>(count: number, factory: () => T) => Array.from({ length: count }, factory);
 
 export const RuleConstructors = {
-  // Logic rules
   [RuleType.AND]: {
     defaultConfig: {
       rules: [],
     },
-    Title: () => "且",
+    Title: () => "与",
   },
   [RuleType.OR]: {
     defaultConfig: {
@@ -43,7 +41,6 @@ export const RuleConstructors = {
     Title: () => "非",
   },
 
-  // Search rules
   alchemy: {
     Component: Alchemy,
     defaultConfig: {
@@ -117,10 +114,10 @@ export const RuleConstructors = {
       path: "",
       val: {
         wands: [],
-        anyWand: { spells: [], spellsStrict: false },
+        anyWand: { spells: [], spellsStrict: false, perkSpells: [], perkSpellsStrict: false },
       },
     },
-    Title: () => "入口法杖（噩梦）",
+    Title: () => "噩梦入口",
   },
   startingBombSpell: {
     Component: StartingBombSpell,
@@ -174,11 +171,11 @@ export const getRuleDefaultConfig = (type: string, isNightmare = false) => {
   }
   return constructor.defaultConfig || {};
 };
-type IRuleConstructor = (typeof RuleConstructors)[keyof typeof RuleConstructors];
 
 interface IRuleConstructorProps {}
+
 const RuleConstructor: FC<IRuleConstructorProps> = () => {
-  const { ruleTree, query, ruleDispatch } = useSearchContext();
+  const { ruleTree, ruleDispatch } = useSearchContext();
   const rule = treeTools.getById(ruleTree, ruleTree.selectedRule);
   if (!rule) {
     return <></>;
@@ -205,4 +202,5 @@ const RuleConstructor: FC<IRuleConstructorProps> = () => {
     </div>
   );
 };
+
 export default RuleConstructor;

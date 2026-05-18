@@ -1,11 +1,12 @@
 import { useState, useContext, useMemo, useEffect } from "react";
-import { Modal, Form, Container, Stack, Button, Row, Col } from "react-bootstrap";
+import { Modal, Form, Button, Row, Col } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
+
 import MultiRangeSlider from "./misc/MultiRangeSlider";
 import SpellSelect from "./SpellSelect";
 import Icon from "./Icons/Icon";
-import { GameInfoContext } from "./SeedInfo/SeedDataOutput";
-import { useTranslation } from "react-i18next";
 import Entity from "./Icons/Entity";
+import { GameInfoContext } from "./SeedInfo/SeedDataOutput";
 import { ticksToS } from "../services/helpers";
 
 interface IWandSelectProps {
@@ -30,6 +31,13 @@ interface IWandSearchParams {
   cards: string[];
   cardsStrict: boolean;
   permanentCard?: string[] | null | true;
+}
+
+interface ISliderConfig {
+  min: number;
+  max: number;
+  step?: number;
+  format?: (val: number) => string;
 }
 
 const sliderConfigs: Record<string, ISliderConfig> = {
@@ -143,12 +151,14 @@ const TriStateToggle = ({
   onChange,
   translationKey,
   t,
+  tApp,
   className,
 }: {
   state: number;
   onChange: (val: number) => void;
   translationKey: string;
   t: (key: string) => string;
+  tApp: (key: string, options?: any) => string;
   className?: string;
 }) => (
   <Button
@@ -160,27 +170,18 @@ const TriStateToggle = ({
       else onChange(-1);
     }}
   >
-    {t(translationKey)}: {state === -1 ? "否" : state === 0 ? "任意" : "是"}
+    {t(translationKey)}: {state === -1 ? tApp("common.no") : state === 0 ? tApp("common.any") : tApp("common.yes")}
   </Button>
 );
-
-interface ISliderConfig {
-  min: number;
-  max: number;
-  step?: number;
-  transform?: (val: number) => number;
-  inverse?: (val: number) => number;
-  format?: (val: number) => string;
-}
 
 const WandSelect = (props: IWandSelectProps) => {
   const { show, handleClose, onParamsChange, initialParams } = props;
   const { gameInfoProvider } = useContext(GameInfoContext);
   const { t } = useTranslation("materials");
+  const { t: tApp } = useTranslation("app");
 
-  // Update state initialization to use a useCallback to ensure consistent initial state
   const getInitialParams = useMemo(() => {
-    const baseParams = {
+    return {
       ...defaultParams,
       ...initialParams,
       gun: {
@@ -188,12 +189,10 @@ const WandSelect = (props: IWandSelectProps) => {
         ...(initialParams?.gun || {}),
       },
     };
-    return baseParams;
   }, [initialParams]);
 
   const [params, setParams] = useState<IWandSearchParams>(getInitialParams);
 
-  // Reset params when initialParams changes
   useEffect(() => {
     setParams(getInitialParams);
   }, [getInitialParams]);
@@ -281,22 +280,15 @@ const WandSelect = (props: IWandSelectProps) => {
     speed_multiplier: 1,
   });
 
-  // Fix shuffle state calculation
   const getShuffleState = (range: [number, number]): number => {
-    if (range[0] === 0 && range[1] === 0) return -1; // No
-    if (range[0] === 0 && range[1] === 1) return 0; // Any
-    if (range[0] === 1 && range[1] === 1) return 1; // Yes
-    return 0; // Default to Any for any other case
+    if (range[0] === 0 && range[1] === 0) return -1;
+    if (range[0] === 0 && range[1] === 1) return 0;
+    if (range[0] === 1 && range[1] === 1) return 1;
+    return 0;
   };
 
-  // Fix shuffle toggle handler
   const handleShuffleToggle = (val: number) => {
-    const newRange: [number, number] =
-      val === -1
-        ? [0, 0] // No
-        : val === 0
-          ? [0, 1] // Any
-          : [1, 1]; // Yes
+    const newRange: [number, number] = val === -1 ? [0, 0] : val === 0 ? [0, 1] : [1, 1];
 
     handleParamsChange({
       ...params,
@@ -310,7 +302,7 @@ const WandSelect = (props: IWandSelectProps) => {
   return (
     <Modal fullscreen="sm-down" scrollable show={show} onHide={handleClose}>
       <Modal.Header closeButton>
-        <Modal.Title>法杖搜索</Modal.Title>
+        <Modal.Title>{tApp("wandSearch.title")}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Row className="mb-4">
@@ -321,6 +313,7 @@ const WandSelect = (props: IWandSelectProps) => {
                 onChange={handleShuffleToggle}
                 translationKey="$inventory_shuffle"
                 t={t}
+                tApp={tApp}
               />
               <TriStateToggle
                 state={params.permanentCard === null ? -1 : params.permanentCard === undefined ? 0 : 1}
@@ -332,6 +325,7 @@ const WandSelect = (props: IWandSelectProps) => {
                 }
                 translationKey="$inventory_alwayscasts"
                 t={t}
+                tApp={tApp}
               />
             </div>
           </Col>
@@ -349,7 +343,7 @@ const WandSelect = (props: IWandSelectProps) => {
               const displayMax = config.format ? config.format(max) : max;
 
               return (
-                <div key={key} className="">
+                <div key={key}>
                   <StatDisplay label={key} value={min === max ? displayMin : `${displayMin} - ${displayMax}`} t={t} />
                   <MultiRangeSlider
                     min={config.min}
@@ -374,9 +368,9 @@ const WandSelect = (props: IWandSelectProps) => {
             {params.permanentCard !== null && (
               <div className="p-3 border border-secondary rounded mb-3">
                 <div className="d-flex justify-content-between mb-3">
-                  <h6 className="mb-0">始终施放</h6>
+                  <h6 className="mb-0">{t("$inventory_alwayscasts")}</h6>
                   <Button variant="primary" size="sm" onClick={() => setAlwaysCastOpen(true)}>
-                    添加法术
+                    {tApp("wandSearch.addSpell")}
                   </Button>
                 </div>
                 <div className="d-flex align-items-center flex-wrap gap-2">
@@ -391,13 +385,15 @@ const WandSelect = (props: IWandSelectProps) => {
                     ))}
                   {(!Array.isArray(params.permanentCard) || params.permanentCard.length === 0) && (
                     <div className="text-muted">
-                      {params.permanentCard === true ? "任意始终施放" : "未选择始终施放法术"}
+                      {params.permanentCard === true
+                        ? tApp("wandSearch.anyAlwaysCast")
+                        : tApp("wandSearch.noAlwaysCastSpellSelected")}
                     </div>
                   )}
                 </div>
                 {Array.isArray(params.permanentCard) && params.permanentCard.length > 0 && (
                   <Button variant="outline-danger" size="sm" className="mt-2" onClick={() => handleAlwaysCastRemove()}>
-                    清除全部
+                    {tApp("wandSearch.clearAll")}
                   </Button>
                 )}
               </div>
@@ -405,18 +401,18 @@ const WandSelect = (props: IWandSelectProps) => {
 
             <div className="p-3 border border-secondary rounded">
               <div className="d-flex justify-content-between mb-3">
-                <h6 className="mb-0">法术槽 ({params.gun.deck_capacity[1]})</h6>
+                <h6 className="mb-0">{tApp("wandSearch.spellDeck", { capacity: params.gun.deck_capacity[1] })}</h6>
                 <div className="d-flex align-items-center">
                   <Form.Check
                     type="switch"
                     id="spell-strict-mode"
-                    label={params.cardsStrict ? "全部" : "部分"}
+                    label={params.cardsStrict ? tApp("wandSearch.matchAll") : tApp("wandSearch.matchSome")}
                     checked={params.cardsStrict}
-                    onChange={e => setParams(prev => ({ ...prev, cardsStrict: e.target.checked }))}
+                    onChange={e => handleParamsChange({ ...params, cardsStrict: e.target.checked })}
                     className="me-3"
                   />
                   <Button variant="primary" size="sm" onClick={() => setSpellSelectOpen(true)}>
-                    添加法术
+                    {tApp("wandSearch.addSpell")}
                   </Button>
                 </div>
               </div>
@@ -438,12 +434,8 @@ const WandSelect = (props: IWandSelectProps) => {
               </div>
               {params.cards.length ? (
                 <div className="mt-2">
-                  <Button
-                    variant="outline-danger"
-                    size="sm"
-                    onClick={() => setParams(prev => ({ ...prev, cards: [] }))}
-                  >
-                    清除全部法术
+                  <Button variant="outline-danger" size="sm" onClick={() => handleParamsChange({ ...params, cards: [] })}>
+                    {tApp("wandSearch.clearAllSpells")}
                   </Button>
                 </div>
               ) : null}

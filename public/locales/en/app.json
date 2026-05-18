@@ -1,1 +1,28 @@
-{}
+{
+  "common": {
+    "no": "No",
+    "any": "Any",
+    "yes": "Yes"
+  },
+  "entranceWand": {
+    "description": "Filter nightmare entrance wands and spells produced by the entrance {{perk}} perk.",
+    "wandSpells": "Wand Spells ({{count}})",
+    "wandSpellsAll": "Include all wand spells",
+    "wandSpellsAny": "Include any wand spell",
+    "perkSpells": "Perk Spells ({{count}})",
+    "perkSpellsAll": "Include all perk spells",
+    "perkSpellsAny": "Include any perk spell",
+    "wandStats": "Wand Stat Filter"
+  },
+  "wandSearch": {
+    "title": "Wand Search",
+    "addSpell": "Add Spell",
+    "anyAlwaysCast": "Any always cast",
+    "noAlwaysCastSpellSelected": "No always cast spell selected",
+    "clearAll": "Clear All",
+    "spellDeck": "Spell Slots ({{capacity}})",
+    "matchAll": "All",
+    "matchSome": "Partial",
+    "clearAllSpells": "Clear All Spells"
+  }
+}

@@ -2,6 +2,8 @@ import { IRule } from "../IRule";
 import { InfoProvider } from "./Base";
 import { IRandom } from "../../random";
 import { WandInfoProvider, IWandRule } from "./Wand";
+import { PerkInfoProvider } from "./Perk";
+import { AlwaysCastInfoProvider } from "./AlwaysCast";
 import { includesAll, includesSome } from "../../../helpers";
 
 const ENTRANCE_WAND_OPTS = [
@@ -19,18 +21,38 @@ const SPAWN_X = 703;
 const SPAWN_Y = -94;
 const ITEM_WIDTH = 44;
 const FIXED_ENTRANCE_WAND_OPT = ENTRANCE_WAND_OPTS[0];
+const NIGHTMARE_ENTRANCE_PERK_SPAWN_X = 622;
+const NIGHTMARE_ENTRANCE_PERK_SPAWN_Y = -94;
+const NIGHTMARE_ENTRANCE_PERK_WIDTH = 60;
+const NIGHTMARE_ENTRANCE_PERK_COUNT = 3;
+const NIGHTMARE_IGNORE_PERKS = ["INVISIBILITY"];
 
 export interface IEntranceWandRule {
   wands: Array<{ wand?: IWandRule; spells?: string[]; spellsStrict?: boolean }>;
-  anyWand?: { wand?: IWandRule; spells?: string[]; spellsStrict?: boolean };
+  anyWand?: {
+    wand?: IWandRule;
+    spells?: string[];
+    spellsStrict?: boolean;
+    perkSpells?: string[];
+    perkSpellsStrict?: boolean;
+  };
 }
 
 export class EntranceWandInfoProvider extends InfoProvider {
   wandInfoProvider: WandInfoProvider;
+  perkInfoProvider: PerkInfoProvider;
+  alwaysCastInfoProvider: AlwaysCastInfoProvider;
 
-  constructor(randoms: IRandom, wandInfoProvider: WandInfoProvider) {
+  constructor(
+    randoms: IRandom,
+    wandInfoProvider: WandInfoProvider,
+    perkInfoProvider: PerkInfoProvider,
+    alwaysCastInfoProvider: AlwaysCastInfoProvider,
+  ) {
     super(randoms);
     this.wandInfoProvider = wandInfoProvider;
+    this.perkInfoProvider = perkInfoProvider;
+    this.alwaysCastInfoProvider = alwaysCastInfoProvider;
   }
 
   provide() {
@@ -60,15 +82,20 @@ export class EntranceWandInfoProvider extends InfoProvider {
         if (!matched) return false;
       }
       if (target.spells?.length) {
-        const allCards = wands.flatMap(w => {
-          const cards = [...w.cards.cards];
-          if (w.cards.permanentCard) cards.push(w.cards.permanentCard);
-          return cards;
-        });
+        const allCards = wands.flatMap(w => this.getWandCards(w));
         if (target.spellsStrict === true) {
           if (!includesAll(allCards, target.spells)) return false;
         } else {
           if (!includesSome(allCards, target.spells)) return false;
+        }
+      }
+      if (target.perkSpells?.length) {
+        const perkSpells = this.getNightmareEntranceAlwaysCastSpells();
+        if (!perkSpells.length) return false;
+        if (target.perkSpellsStrict === true) {
+          if (!includesAll(perkSpells, target.perkSpells)) return false;
+        } else {
+          if (!includesSome(perkSpells, target.perkSpells)) return false;
         }
       }
     }
@@ -92,12 +119,38 @@ export class EntranceWandInfoProvider extends InfoProvider {
       if (!this.wandInfoProvider.testGun(target.wand, wand)) return false;
     }
     if (target.spells?.length) {
-      const cards = [...wand.cards.cards];
-      if (wand.cards.permanentCard) cards.push(wand.cards.permanentCard);
+      const cards = this.getWandCards(wand);
       const check = target.spellsStrict ? includesAll : includesSome;
       if (!check(cards, target.spells)) return false;
     }
     return true;
+  }
+
+  private getWandCards(wand: ReturnType<WandInfoProvider["provide"]>) {
+    const cards = [...wand.cards.cards];
+    if (wand.cards.permanentCard) cards.push(wand.cards.permanentCard);
+    return cards;
+  }
+
+  private getNightmareEntranceAlwaysCastSpells(): string[] {
+    const entrancePerks = this.perkInfoProvider.generateEntrancePerks(NIGHTMARE_IGNORE_PERKS);
+    const spells: string[] = [];
+
+    for (let index = 0; index < Math.min(NIGHTMARE_ENTRANCE_PERK_COUNT, entrancePerks.length); index++) {
+      if (entrancePerks[index] !== "ALWAYS_CAST") {
+        continue;
+      }
+
+      const spell = this.alwaysCastInfoProvider.providePos(
+        NIGHTMARE_ENTRANCE_PERK_SPAWN_X + (index + 0.5) * (NIGHTMARE_ENTRANCE_PERK_WIDTH / NIGHTMARE_ENTRANCE_PERK_COUNT),
+        NIGHTMARE_ENTRANCE_PERK_SPAWN_Y,
+      );
+      if (spell) {
+        spells.push(spell);
+      }
+    }
+
+    return spells;
   }
 }
 

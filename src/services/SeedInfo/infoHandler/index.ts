@@ -235,8 +235,8 @@ export class GameInfoProvider extends EventTarget {
           };
         case "entranceWand":
           return {
-            deps: ["wand"],
-            getArgs: () => [...baseArgs, providers.wand],
+            deps: ["wand", "perk", "alwaysCast"],
+            getArgs: () => [...baseArgs, providers.wand, providers.perk, providers.alwaysCast],
           };
         case "excavationsiteCubeChamber":
         case "snowcaveSecretChamber":
