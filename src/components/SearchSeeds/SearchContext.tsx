@@ -15,6 +15,11 @@ import { ChunkProvider, Status } from "../../services/compute/ChunkProvider";
 import { SocketComputeProvider } from "../../services/compute/SocketComputeProvider";
 import { ComputeSocket } from "../../services/compute/ComputeSocket";
 import { SearchesItem, db } from "../../services/db";
+import {
+  clampConcurrency,
+  getBrowserHardwareConcurrency,
+  getRecommendedConcurrency,
+} from "../../services/concurrency";
 
 import { ruleReducer, initialRuleState } from "./ruleReducer";
 
@@ -69,8 +74,14 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
   const [computeJobHash, setComputeJobHash] = useState("");
 
   const [unlockedSpells] = useLocalStorage<boolean[] | undefined>("unlocked-spells", undefined);
+  const maxHardwareConcurrency = getBrowserHardwareConcurrency();
   const [useCores, setUseCores] = useLocalStorage("useCores", 1);
-  const [concurrency] = useLocalStorage("search-max-concurrency", navigator.hardwareConcurrency);
+  const [concurrency, setConcurrency] = useLocalStorage(
+    "search-max-concurrency",
+    getRecommendedConcurrency(maxHardwareConcurrency),
+  );
+  const normalizedConcurrency = clampConcurrency(concurrency, maxHardwareConcurrency);
+  const normalizedUseCores = clampConcurrency(useCores, normalizedConcurrency);
 
   const [customSeedList, setCustomSeedList] = useState("");
   const [solverReady, setSolverReady] = useState(false);
@@ -115,6 +126,18 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
 
     updateJobHash().catch(console.error);
   }, [searchInstance?.config, ruleTree, customSeedList]);
+
+  useEffect(() => {
+    if (concurrency !== normalizedConcurrency) {
+      setConcurrency(normalizedConcurrency);
+    }
+  }, [concurrency, normalizedConcurrency, setConcurrency]);
+
+  useEffect(() => {
+    if (useCores !== normalizedUseCores) {
+      setUseCores(normalizedUseCores);
+    }
+  }, [useCores, normalizedUseCores, setUseCores]);
 
   const updateSearchConfig = (config: Partial<SearchesItem["config"]>) => {
     if (searchInstance) {
@@ -213,29 +236,29 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
 
   const handleMultithreading = useCallback(() => {
     searchLog("切换多线程", {
-      previousWorkers: useCores,
-      nextWorkers: useCores > 1 ? 1 : concurrency,
-      maxConcurrency: concurrency,
+      previousWorkers: normalizedUseCores,
+      nextWorkers: normalizedUseCores > 1 ? 1 : normalizedConcurrency,
+      maxConcurrency: normalizedConcurrency,
     });
-    setUseCores(useCores > 1 ? 1 : concurrency);
-  }, [useCores, concurrency, setUseCores]);
+    setUseCores(normalizedUseCores > 1 ? 1 : normalizedConcurrency);
+  }, [normalizedUseCores, normalizedConcurrency, setUseCores]);
 
   useEffect(() => {
-    const newSeedSolver = new SeedSolver(useCores, true);
-    searchLog("种子求解器已创建", { workers: useCores });
+    const newSeedSolver = new SeedSolver(normalizedUseCores, true);
+    searchLog("种子求解器已创建", { workers: normalizedUseCores });
     setSeedSolver(newSeedSolver);
     setSolverReady(false);
     newSeedSolver.workersReadyPromise
       .then(() => {
         setSolverReady(true);
-        searchLog("种子求解器已就绪", { workers: useCores });
+        searchLog("种子求解器已就绪", { workers: normalizedUseCores });
       })
       .catch(console.error);
     return () => {
-      searchLog("种子求解器已销毁", { workers: useCores });
+      searchLog("种子求解器已销毁", { workers: normalizedUseCores });
       newSeedSolver.destroy().catch(console.error);
     };
-  }, [useCores]);
+  }, [normalizedUseCores]);
 
   const handleCustomSeedListChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -347,14 +370,22 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
       to: searchInstance?.config.to,
       maxResults: searchInstance?.config.maxResults || 0,
       isNightmare: searchInstance?.config.isNightmare || false,
-      localWorkers: useCores,
+      localWorkers: normalizedUseCores,
       clusterHelpEnabled,
       jobName: computeJobHash,
       customSeedCount: chunkProvider?.customSeeds?.length || 0,
     });
     socketComputeProvider?.start();
     callbackComputeHandler?.start().catch(console.error);
-  }, [socketComputeProvider, callbackComputeHandler, searchInstance, useCores, clusterHelpEnabled, computeJobHash, chunkProvider]);
+  }, [
+    socketComputeProvider,
+    callbackComputeHandler,
+    searchInstance,
+    normalizedUseCores,
+    clusterHelpEnabled,
+    computeJobHash,
+    chunkProvider,
+  ]);
 
   const stopCalculation = useCallback(async () => {
     searchLog("搜索停止中", {
@@ -429,8 +460,8 @@ const SearchContextProvider: FC<{ children: React.ReactNode }> = ({ children }) 
     solverStatus,
     computeJobHash,
     unlockedSpells,
-    useCores,
-    concurrency,
+    useCores: normalizedUseCores,
+    concurrency: normalizedConcurrency,
     customSeedList,
     clusterState,
     clusterHelpAvailable: clusterHelpAvailable && !computeVersionMismatch,

@@ -1,4 +1,4 @@
-import { Container, Stack, Row, Col } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 import SearchContextProvider, { useSearchContext } from "./SearchContext";
 import RuleConstructor from "./RuleConstructor";
 import RuleList from "./RuleList";
@@ -32,7 +32,7 @@ const SearchSeeds = () => {
           </SearchContextProvider>
         </GameInfoContext.Provider>
       ) : (
-        <p>加载中</p>
+        <p>首次初始化中,请等待...</p>
       )}
     </Container>
   );

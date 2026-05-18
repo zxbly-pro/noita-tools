@@ -48,9 +48,10 @@ export default class SeedSolver {
   workersReadyPromise: Promise<void>;
 
   constructor(workerCount: number = 1, stopOnFind = true) {
+    const normalizedWorkerCount = Math.max(1, Math.floor(workerCount) || 1);
     const workerReady: Promise<void>[] = [];
-    for (let i = 0; i < workerCount; i++) {
-      const worker = new WorkerHandler(i, workerCount);
+    for (let i = 0; i < normalizedWorkerCount; i++) {
+      const worker = new WorkerHandler(i, normalizedWorkerCount);
       this.workerList.push(worker);
       workerReady.push(worker.ready());
     }

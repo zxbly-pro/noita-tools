@@ -1,17 +1,31 @@
+import { useEffect, type ChangeEvent } from "react";
 import { Col, Form, ListGroup } from "react-bootstrap";
+import {
+  clampConcurrency,
+  getBrowserHardwareConcurrency,
+  getRecommendedConcurrency,
+} from "../../services/concurrency";
 import useLocalStorage from "../../services/useLocalStorage";
 
-// import { db } from "../services/db";
-
-import { ConfigRow, ConfigTitle, PanelToggle } from "./helpers";
+import { ConfigRow, ConfigTitle } from "./helpers";
 
 const Multithread = () => {
-  const [concurrency, setConcurrency] = useLocalStorage("search-max-concurrency", navigator.hardwareConcurrency);
-  const handleRange = (e: any) => {
-    setConcurrency(e.target.valueAsNumber);
-  };
+  const maxConcurrency = getBrowserHardwareConcurrency();
+  const [concurrency, setConcurrency] = useLocalStorage(
+    "search-max-concurrency",
+    getRecommendedConcurrency(maxConcurrency),
+  );
+  const normalizedConcurrency = clampConcurrency(concurrency, maxConcurrency);
 
-  const maxConcurrency = navigator.hardwareConcurrency;
+  useEffect(() => {
+    if (concurrency !== normalizedConcurrency) {
+      setConcurrency(normalizedConcurrency);
+    }
+  }, [concurrency, normalizedConcurrency, setConcurrency]);
+
+  const handleRange = (e: ChangeEvent<HTMLInputElement>) => {
+    setConcurrency(clampConcurrency(e.target.valueAsNumber, maxConcurrency));
+  };
 
   return (
     <ConfigRow
@@ -19,21 +33,19 @@ const Multithread = () => {
         <>
           <strong className="">多线程限制</strong>
           <p className="text-muted fw-light mb-0">
-            如果 Noitool 在最大并发时不稳定，请降低此滑块直到稳定。
+            默认值改为可用核心数的一半，至少为 1，避免一开启多线程就直接占满 CPU。
             <br />
-            在搜索中禁用并重新启用多线程以使更改生效。
+            搜索页也可以直接调核心数，这里保留全局上限设置。
           </p>
         </>
       }
       right={
-        <>
-          <div className="d-flex justify-content-center">
-            <Form.Group as={Col} xs={6} controlId="code">
-              <Form.Label className="m-0">最大并发数： {concurrency}</Form.Label>
-              <Form.Range value={concurrency} onChange={handleRange} min="1" max={maxConcurrency} />
-            </Form.Group>
-          </div>
-        </>
+        <div className="d-flex justify-content-center">
+          <Form.Group as={Col} xs={6} controlId="search-max-concurrency">
+            <Form.Label className="m-0">最大并发数：{normalizedConcurrency}</Form.Label>
+            <Form.Range value={normalizedConcurrency} onChange={handleRange} min="1" max={maxConcurrency} />
+          </Form.Group>
+        </div>
       }
     />
   );

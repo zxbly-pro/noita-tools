@@ -15,7 +15,6 @@ import humanize from "humanize-duration";
 import { localizeNumber } from "../../../../services/helpers";
 import SeedDataOutput from "../../../SeedInfo/SeedDataOutput";
 import { useSearchContext } from "../../SearchContext";
-import UseMultithreadingButton from "../../UseMultithreading";
 import { Status } from "../../../../services/compute/ChunkProvider";
 import useLocalStorage from "../../../../services/useLocalStorage";
 import ClusterInfo from "./Cluster";

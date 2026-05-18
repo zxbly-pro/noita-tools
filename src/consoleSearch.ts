@@ -8,11 +8,14 @@ import { hideBin } from "yargs/helpers";
 import logUpdate from "log-update";
 
 import { ComputeSocket } from "./services/compute/ComputeSocket";
+import { clampConcurrency, getRecommendedConcurrency } from "./services/concurrency";
 import SeedSolver from "./services/seedSolverHandler.node";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkg = JSON.parse(readFileSync(resolve(__dirname, "./package.json"), "utf-8"));
 const APP_VERSION = pkg.version;
+const cpuCount = os.cpus().length;
+const recommendedCores = getRecommendedConcurrency(cpuCount);
 
 const argv = yargs(hideBin(process.argv))
   .env("NOITOOL")
@@ -20,7 +23,7 @@ const argv = yargs(hideBin(process.argv))
     default: "http://zxbly.com:3000",
   })
   .option("cores", {
-    default: 0,
+    default: recommendedCores,
     type: "number",
   })
   .option("userId", {})
@@ -35,10 +38,10 @@ const argv = yargs(hideBin(process.argv))
   })
   .parseSync();
 
-console.log(`Noitool 控制台搜索 ${APP_VERSION}`, argv, os.cpus().length);
+console.log(`Noitool 控制台搜索 ${APP_VERSION}`, argv, cpuCount);
 
 // const seedSolver = new SeedSolver(1, false);
-const seedSolver = new SeedSolver(argv.cores || os.cpus().length, false);
+const seedSolver = new SeedSolver(clampConcurrency(argv.cores || recommendedCores, cpuCount), false);
 
 const initTime = new Date().getTime();
 

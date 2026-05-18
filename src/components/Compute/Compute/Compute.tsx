@@ -8,6 +8,11 @@ import { SeedSolver } from "../../../services/seedSolverHandler";
 import useLocalStorage from "../../../services/useLocalStorage";
 import UseMultithreadingButton from "../../SearchSeeds/UseMultithreading";
 import { ComputeSocket } from "../../../services/compute/ComputeSocket";
+import {
+  clampConcurrency,
+  getBrowserHardwareConcurrency,
+  getRecommendedConcurrency,
+} from "../../../services/concurrency";
 import { localizeNumber } from "../../../services/helpers";
 import { VersionMisatch } from "../../misc/VersionMismatch";
 import { getBasePath } from "../../utils";
@@ -26,9 +31,16 @@ const testInfo = {
 const Compute = () => {
   const [computeSocket, setComputeSocket] = useState<ComputeSocket>();
 
+  const maxHardwareConcurrency = getBrowserHardwareConcurrency();
   const [useCores, setUseCores] = useLocalStorage("useCores", 1);
   const [startAutomatically, setStartAutomatically] = useLocalStorage("search-start-automatically", false);
   const [seedSolver, setSeedSolver] = useState<SeedSolver>();
+  const [concurrency, setConcurrency] = useLocalStorage(
+    "search-max-concurrency",
+    getRecommendedConcurrency(maxHardwareConcurrency),
+  );
+  const normalizedConcurrency = clampConcurrency(concurrency, maxHardwareConcurrency);
+  const normalizedUseCores = clampConcurrency(useCores, normalizedConcurrency);
 
   const [computeUrl, setComputeUrl] = useState(window.location.origin);
   const noitoolSessionToken = Cookies.get("noitoolSessionToken");
@@ -102,12 +114,24 @@ const Compute = () => {
   }, [computeSocket, startAutomatically]);
 
   useEffect(() => {
-    const newSeedSolver = new SeedSolver(useCores, false);
+    if (concurrency !== normalizedConcurrency) {
+      setConcurrency(normalizedConcurrency);
+    }
+  }, [concurrency, normalizedConcurrency, setConcurrency]);
+
+  useEffect(() => {
+    if (useCores !== normalizedUseCores) {
+      setUseCores(normalizedUseCores);
+    }
+  }, [useCores, normalizedUseCores, setUseCores]);
+
+  useEffect(() => {
+    const newSeedSolver = new SeedSolver(normalizedUseCores, false);
     setSeedSolver(newSeedSolver);
     return () => {
       newSeedSolver.destroy().catch(e => {});
     };
-  }, [useCores]);
+  }, [normalizedUseCores]);
 
   return (
     <Container className="py-4">
