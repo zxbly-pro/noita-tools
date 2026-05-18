@@ -42,23 +42,25 @@ export const createCanvas = (w, h): OffscreenCanvas => {
 };
 
 export const imageFromBase64 = async (dataUri: string): Promise<ImageData> => {
-  // const { data, width, height } = decode(blob);
-  // return new ImageData(new Uint8ClampedArray(data), width, height);
+  const drawToImageData = (source: CanvasImageSource, width: number, height: number) => {
+    const can = createCanvas(width, height);
+    const ctx = getContext(can);
+    ctx.drawImage(source, 0, 0);
+    return getContext(can).getImageData(0, 0, width, height);
+  };
 
-  // return new Promise(res => {
-  // 	getPixelsFromString(blob, (err, pixels) => {
-  // 		savePixels(pixels, 'image/png').then(arr => {
-  // 			res(new ImageData(new Uint8ClampedArray(arr), pixels.shape[0], pixels.shape[1]));
-  // 		}).catch(e => console.error(e));
-  // 	});
-  // });
-
-  const btmp = await createImageBitmap(await (await fetch(dataUri.toString())).blob());
-  const can = createCanvas(btmp.width, btmp.height);
-  const ctx = getContext(can);
-  ctx.drawImage(btmp, 0, 0);
-  const imageData = getContext(can).getImageData(0, 0, btmp.width, btmp.height);
-  return imageData;
+  try {
+    const btmp = await createImageBitmap(await (await fetch(dataUri.toString())).blob());
+    return drawToImageData(btmp, btmp.width, btmp.height);
+  } catch (bitmapError) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "Anonymous";
+      img.onload = () => resolve(drawToImageData(img, img.width, img.height));
+      img.onerror = () => reject(bitmapError);
+      img.src = dataUri;
+    });
+  }
 };
 
 export const imageToBase64 = async (img: ImageData | ImageBitmap): Promise<string> => {

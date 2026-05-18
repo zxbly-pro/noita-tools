@@ -3,7 +3,7 @@ import type { BiomeInfoProvider } from "./InfoProviders/Biome";
 import type { BiomeModifierInfoProvider } from "./InfoProviders/BiomeModifier";
 import type { FungalShiftInfoProvider } from "./InfoProviders/FungalShift";
 import type { InfoProvider } from "./InfoProviders/Base";
-import type { IPerkChangeAction, PerkInfoProvider } from "./InfoProviders/Perk";
+import type { IEntrancePerkPreview, IPerkChangeAction, PerkInfoProvider } from "./InfoProviders/Perk";
 import type { LotteryInfoProvider } from "./InfoProviders/Lottery";
 import type { MapInfoProvider } from "./InfoProviders/Map";
 import type { MaterialInfoProvider } from "./InfoProviders/Material";
@@ -350,12 +350,14 @@ export class GameInfoProvider extends EventTarget {
     this.providers.alwaysCast.setNightmareMode(this.config.isNightmare);
 
     let entrancePerks: any[] | undefined;
+    let entrancePerkPreview: IEntrancePerkPreview[] | undefined;
     let entranceWands: any[] | undefined;
     const initialPerkIndex = this.config.isNightmare ? 3 : undefined;
 
     if (this.config.isNightmare) {
       const entranceIds = this.providers.perk.generateEntrancePerks(nightmarePerks);
       entrancePerks = this.providers.perk.hydrate([entranceIds])[0];
+      entrancePerkPreview = this.providers.perk.generateEntrancePerkPreview(nightmarePerks);
       entranceWands = this.generateEntranceWands();
     }
 
@@ -381,6 +383,7 @@ export class GameInfoProvider extends EventTarget {
         initialPerkIndex,
       ),
       entrancePerks,
+      entrancePerkPreview,
       entranceWands,
       statelessPerks: statelessPerks,
       weather: this.providers.weather.provide(),

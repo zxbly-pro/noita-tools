@@ -83,6 +83,10 @@ const clonePerkPicks = (perkPicks?: Map<number, string[][]>) => {
 };
 
 export type IPerk = IPerkType[string];
+export interface IEntrancePerkPreview {
+  perkId: string;
+  gamblePerkIds?: string[];
+}
 export class PerkInfoProvider extends InfoProvider {
   perksDataPromise = import("../../../data/obj/perks.json")
     .catch(e => {
@@ -203,6 +207,47 @@ export class PerkInfoProvider extends InfoProvider {
     }
     result.push("EDIT_WANDS_EVERYWHERE");
     return result;
+  }
+
+  generateEntrancePerkPreview(ignorePerks?: string[]): IEntrancePerkPreview[] {
+    const entranceIds = this.generateEntrancePerks(ignorePerks);
+    const previews: IEntrancePerkPreview[] = entranceIds.map(perkId => ({ perkId }));
+
+    for (let rowPos = 0; rowPos < Math.min(3, entranceIds.length); rowPos++) {
+      if (entranceIds[rowPos] !== "GAMBLE") {
+        continue;
+      }
+
+      this._G = new Global();
+      this._G.SetValue("TEMPLE_PERK_COUNT", 3);
+      const entranceDeck: string[] = this.perk_get_spawn_order(["EDIT_WANDS_EVERYWHERE"], ignorePerks);
+      const row: string[] = [];
+
+      for (let i = 0; i < 3; i++) {
+        row.push(this._getNextPerk(entranceDeck));
+      }
+
+      if (row[rowPos] !== "GAMBLE") {
+        continue;
+      }
+
+      this.handlePerkPickup("GAMBLE");
+      const gamblePerkIds: string[] = [];
+
+      for (let i = 0; i < 2; i++) {
+        const perkDeck = this.getPerkDeck(false, ignorePerks);
+        let perkId = this._getNextPerk(perkDeck);
+        if (perkId === "GAMBLE") {
+          perkId = this._getNextPerk(perkDeck);
+        }
+        gamblePerkIds.push(perkId);
+        this.handlePerkPickup(perkId);
+      }
+
+      previews[rowPos].gamblePerkIds = gamblePerkIds;
+    }
+
+    return previews;
   }
 
   table_contains = (table: { [s: string]: unknown } | ArrayLike<unknown>, element: unknown) => {

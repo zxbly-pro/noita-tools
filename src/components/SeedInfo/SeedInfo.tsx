@@ -58,7 +58,15 @@ const SeedInfo = ({ data, infoProvider, seed, isDaily }) => {
         }}
       >
         <WithShow id="holy-mountain">
-          <HolyMountain infoProvider={infoProvider} shop={data.shop} perks={data.perks} perkDeck={data.perkDeck} entrancePerks={data.entrancePerks} entranceWands={data.entranceWands} />
+          <HolyMountain
+            infoProvider={infoProvider}
+            shop={data.shop}
+            perks={data.perks}
+            perkDeck={data.perkDeck}
+            entrancePerks={data.entrancePerks}
+            entrancePerkPreview={data.entrancePerkPreview}
+            entranceWands={data.entranceWands}
+          />
         </WithShow>
         <div
           style={{

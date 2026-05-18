@@ -17,6 +17,7 @@ import BadgesWrapper, { CountBadge } from "../../Icons/BadgesWrapper";
 import LightBulletIcon from "../../Icons/LightBullet";
 import { localizeNumber, removeFromArr } from "../../../services/helpers";
 import {
+  IEntrancePerkPreview,
   IGenRowAction,
   IPerk,
   IPerkChangeAction,
@@ -43,6 +44,10 @@ import { getHolyMountainRowCount as getConfiguredHolyMountainRowCount } from "..
 
 const perkWidth = "3rem";
 const gamblePerkDiff = "-0.8rem";
+const NIGHTMARE_ENTRANCE_PERK_SPAWN_X = 622;
+const NIGHTMARE_ENTRANCE_PERK_SPAWN_Y = -94;
+const NIGHTMARE_ENTRANCE_PERK_WIDTH = 60;
+const NIGHTMARE_ENTRANCE_PERK_COUNT = 3;
 
 const getHolyMountainRowCount = (worldOffset: number, isNightmare: boolean) => {
   return getConfiguredHolyMountainRowCount(worldOffset, isNightmare);
@@ -58,6 +63,62 @@ const keepOnlyMainWorld = <T,>(source?: Map<number, T>, clone?: (value: T) => T)
     result.set(0, clone ? clone(main) : main);
   }
   return result;
+};
+
+interface IGamblePerkPreviewProps {
+  perks?: { perk: IPerk; alwaysCast?: string }[];
+}
+const GamblePerkPreview: FC<IGamblePerkPreviewProps> = ({ perks }) => {
+  if (!perks?.length) {
+    return null;
+  }
+  const alwaysCastSpells = perks.map(perk => perk.alwaysCast).filter(Boolean) as string[];
+
+  return (
+    <div
+      className="position-absolute top-0 start-0"
+      style={{
+        width: "1.6rem",
+        height: "3.0rem",
+        transform: "translate(-28%, -84%)",
+        pointerEvents: "none",
+        zIndex: 3,
+        overflow: "visible",
+      }}
+    >
+      {!!alwaysCastSpells.length && (
+        <div
+          className="position-absolute top-50"
+          style={{
+            right: "100%",
+            transform: "translate(0.3rem, -30%)",
+          }}
+        >
+          <div className="d-flex flex-column align-items-center" style={{ gap: "0.12rem" }}>
+            {alwaysCastSpells.map((spellId, index) => (
+              <Entity
+                key={`${spellId}-${index}`}
+                id="Spell"
+                entityParams={{ extra: spellId }}
+                width="0.9rem"
+                height="0.9rem"
+              />
+            ))}
+          </div>
+        </div>
+      )}
+      <div className="position-relative" style={{ width: "1.35rem", height: "2.2rem" }}>
+        <div className="position-absolute top-0 start-0">
+          <Perk width="1.35rem" perk={perks[0].perk} />
+        </div>
+        {perks[1] && (
+          <div className="position-absolute start-0" style={{ top: "1.52rem" }}>
+            <Perk width="1.35rem" perk={perks[1].perk} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 interface IRerollPaneProps {
@@ -197,11 +258,13 @@ const Shop = ({ type, handleOpenShopInfo, favoriteSpells }) => {
 };
 
 interface IPerkRowProps {
+  level: number;
   pickedPerks: string[];
   perkRerolls: number;
   nextRerollPrices: number;
   shop: IShopItems;
   perks: IPerk[];
+  gamblePreviewPerks?: (IPerk[] | undefined)[];
   advanced: boolean;
   rerollsToFavorite?: number;
   favoritesInNextReroll?: number;
@@ -221,6 +284,7 @@ interface IPerkRowProps {
 }
 const PerkRow: FC<IPerkRowProps> = props => {
   const {
+    level,
     pacifistChestItems,
     rerollsToFavorite,
     favoritesInNextReroll,
@@ -230,6 +294,7 @@ const PerkRow: FC<IPerkRowProps> = props => {
     nextRerollPrices,
     shop,
     perks,
+    gamblePreviewPerks,
     showAllAlwaysCast,
     infoProvider,
     handleReroll,
@@ -246,7 +311,13 @@ const PerkRow: FC<IPerkRowProps> = props => {
   const type = shop.type;
   const rerollsForLevel = perkRerolls ? perkRerolls : 0;
   const perksToShow = (numberOfGambles > 0 ? perks?.slice(0, -2 * numberOfGambles) : perks) || [];
-  const gamblePerks = perks?.slice(-2 * numberOfGambles) || [];
+  const appendedGamblePreviewGroups = useMemo(
+    () =>
+      Array.from({ length: numberOfGambles }, (_, gambleIndex) =>
+        perks.slice(perksToShow.length + gambleIndex * 2, perksToShow.length + gambleIndex * 2 + 2),
+      ),
+    [numberOfGambles, perks, perksToShow.length],
+  );
   const spellIds: string[] =
     shop.type === IShopType.wand
       ? shop.items.flatMap(i => [i.cards.permanentCard, ...i.cards.cards].filter(Boolean) as string[])
@@ -268,50 +339,40 @@ const PerkRow: FC<IPerkRowProps> = props => {
           {perksToShow &&
             perksToShow.map((perk, i) => {
               const rerollable = isRerollable(i, perksToShow.length);
+              const gambleOrder = perksToShow.slice(0, i + 1).filter(p => p.id === "GAMBLE").length - 1;
+              const previewPerks =
+                perk.id === "GAMBLE"
+                  ? gamblePreviewPerks?.[i] || appendedGamblePreviewGroups[gambleOrder]
+                  : undefined;
+              const previewPerkEntries = previewPerks?.map((previewPerk, previewIndex) => ({
+                perk: previewPerk,
+                alwaysCast:
+                  previewPerk.id === "ALWAYS_CAST"
+                    ? infoProvider.providers.alwaysCast.provide(
+                        level,
+                        perksToShow.length + previewIndex,
+                        perksToShow.length + previewPerks.length,
+                        0,
+                      ) ?? undefined
+                    : undefined,
+              }));
               const alwaysCast =
                 perk.id === "ALWAYS_CAST" || (rowHasAlwaysCast && showAllAlwaysCast)
                   ? getAlwaysCast(i, perksToShow.length)
                   : undefined;
               const fav = isPerkFavorite(perk.id);
               return (
-                <Perk
-                  className={fav && "border border-info border-3"}
-                  highlight={fav}
-                  rerollable={rerollable}
-                  key={perk.ui_name + i}
-                  onClick={() => handleClickPerk(advanced ? i : perk.id)}
-                  clicked={!advanced ? pickedPerks?.includes(perk.id) : pickedPerks && !!pickedPerks[i]}
-                  perk={perk}
-                  alwaysCast={alwaysCast}
-                />
-              );
-            })}
-          {!!numberOfGambles &&
-            new Array(numberOfGambles).fill("").map((_, i) => {
-              return (
-                <div key={i} className="d-flex ms-4 position-relative" style={{ width: "2rem" }}>
-                  {/* Hard coded to make it more pretty */}
-                  <div
-                    className="position-absolute top-0 start-0 translate-middle"
-                    style={{
-                      marginRight: "-1rem",
-                      marginTop: "-0.25rem",
-                      zIndex: 1,
-                    }}
-                  >
-                    <Perk
-                      width={`calc(${perkWidth} + ${gamblePerkDiff})`}
-                      key={gamblePerks[i * 2].ui_name}
-                      perk={gamblePerks[i * 2]}
-                    />
-                  </div>
-                  <div className="position-absolute top-50 start-100 translate-middle" style={{ marginTop: "0.25rem" }}>
-                    <Perk
-                      width={`calc(${perkWidth} + ${gamblePerkDiff})`}
-                      key={gamblePerks[i * 2 + 1].ui_name}
-                      perk={gamblePerks[i * 2 + 1]}
-                    />
-                  </div>
+                <div key={perk.ui_name + i} className="position-relative">
+                  <Perk
+                    className={fav && "border border-info border-3"}
+                    highlight={fav}
+                    rerollable={rerollable}
+                    onClick={() => handleClickPerk(advanced ? i : perk.id)}
+                    clicked={!advanced ? pickedPerks?.includes(perk.id) : pickedPerks && !!pickedPerks[i]}
+                    perk={perk}
+                    alwaysCast={alwaysCast}
+                  />
+                  {perk.id === "GAMBLE" && <GamblePerkPreview perks={previewPerkEntries} />}
                 </div>
               );
             })}
@@ -528,6 +589,7 @@ interface IPerkData {
   perks: IPerk[][];
   pickedPerks: string[][];
   pickedState?: Map<number, string[][]>;
+  perkStack?: IPerkChangeAction[];
   perkRerolls: number[];
   nextRerollPrices: Map<number, number[]>;
   totalRerolls: number;
@@ -795,6 +857,7 @@ const HolyMountainContextProvider = (props: IHolyMountainContextProviderProps) =
     perks: advanced ? perks : simplePerksForCurrentOffset,
     pickedPerks: currentPickedPerks,
     pickedState,
+    perkStack,
     perkRerolls: advanced
       ? perkRerolls
       : infoProvider.config.perkRerolls.get(0) || [],
@@ -820,11 +883,12 @@ interface IHolyMountainProps {
   perkDeck: ReturnType<PerkInfoProvider["getPerkDeck"]>;
   infoProvider: GameInfoProvider;
   entrancePerks?: IPerk[];
+  entrancePerkPreview?: IEntrancePerkPreview[];
   entranceWands?: any[];
 }
 
 const HolyMountain = (props: IHolyMountainProps) => {
-  const { infoProvider, perkDeck, entrancePerks, entranceWands } = props;
+  const { infoProvider, perkDeck, entrancePerks, entrancePerkPreview, entranceWands } = props;
 
   const { advanced, setAdvanced, perkMethods, perkData } = useContext(HolyMountainContext);
   const {
@@ -848,6 +912,7 @@ const HolyMountain = (props: IHolyMountainProps) => {
     isFavorite,
     nextRerollPrices,
     pickedState,
+    perkStack,
   } = perkData;
   const [showInitialLottery] = useLocalStorage("show-initial-lottery", true);
   const [showAlwaysCastRow] = useLocalStorage("show-always-cast-row", false);
@@ -859,6 +924,43 @@ const HolyMountain = (props: IHolyMountainProps) => {
   const { isFavorite: isSpellFavorite } = useSpellFavorite();
 
   const [shopSelected, setShopSelected] = useState(-1);
+  const entranceDisplayPerks = useMemo(() => {
+    if (!entrancePerks?.length) {
+      return [];
+    }
+
+    return entrancePerks.map((perk, index) => {
+      const preview = entrancePerkPreview?.[index];
+      const alwaysCast =
+        index < NIGHTMARE_ENTRANCE_PERK_COUNT && perk.id === "ALWAYS_CAST"
+          ? infoProvider.providers.alwaysCast.providePos(
+              NIGHTMARE_ENTRANCE_PERK_SPAWN_X +
+                (index + 0.5) * (NIGHTMARE_ENTRANCE_PERK_WIDTH / NIGHTMARE_ENTRANCE_PERK_COUNT),
+              NIGHTMARE_ENTRANCE_PERK_SPAWN_Y,
+            ) ?? undefined
+          : undefined;
+      const gamblePerks = preview?.gamblePerkIds?.length
+        ? infoProvider.providers.perk.hydrate([preview.gamblePerkIds])[0].map((gamblePerk, gambleIndex) => ({
+            perk: gamblePerk,
+            alwaysCast:
+              gamblePerk.id === "ALWAYS_CAST"
+                ? infoProvider.providers.alwaysCast.providePos(
+                    NIGHTMARE_ENTRANCE_PERK_SPAWN_X +
+                      (NIGHTMARE_ENTRANCE_PERK_COUNT + gambleIndex + 0.5) *
+                        (NIGHTMARE_ENTRANCE_PERK_WIDTH / (NIGHTMARE_ENTRANCE_PERK_COUNT + 2)),
+                    NIGHTMARE_ENTRANCE_PERK_SPAWN_Y,
+                  ) ?? undefined
+                : undefined,
+          }))
+        : undefined;
+
+      return {
+        perk,
+        alwaysCast,
+        gamblePerks,
+      };
+    });
+  }, [entrancePerks, entrancePerkPreview, infoProvider.providers.alwaysCast, infoProvider.providers.perk]);
   const worldOffset = 0;
   const displayedPerks = advanced
     ? perks
@@ -876,6 +978,78 @@ const HolyMountain = (props: IHolyMountainProps) => {
     worldOffset,
   );
   const rowCount = Math.min(displayedPerks.length, displayedShop.length);
+  const gamblePreviewPerksByRow = useMemo(() => {
+    return Array.from({ length: rowCount }, (_, level) => {
+      const row = displayedPerks[level] || [];
+      const pickedGambleCount = pickedPerks[level]?.filter(p => p === "GAMBLE").length || 0;
+      const visibleRow = pickedGambleCount > 0 ? row.slice(0, -2 * pickedGambleCount) : row;
+
+      return visibleRow.map((perk, rowIndex) => {
+        if (perk.id !== "GAMBLE") {
+          return undefined;
+        }
+
+        if (advanced) {
+          const gamblePos = rowIndex;
+          if (gamblePos === -1 || !perkStack) {
+            return undefined;
+          }
+
+          try {
+            const previewState = [
+              ...perkStack,
+              {
+                type: IPerkChangeStateType.select,
+                data: { row: level, pos: gamblePos },
+              } as ISelectAction,
+            ];
+            const previewData = infoProvider.providers.perk.provideStateless(
+              previewState,
+              true,
+              nightmarePerks,
+              initialPerkIndex,
+            );
+            const previewRow = previewData.perks[level] || [];
+            return infoProvider.providers.perk.hydrate([previewRow.slice(-2)])[0];
+          } catch {
+            return undefined;
+          }
+        }
+
+        const previewPicks = cloneDeep(keepOnlyMainWorld(infoProvider.config.pickedPerks));
+        if (!previewPicks.has(worldOffset)) {
+          previewPicks.set(worldOffset, []);
+        }
+        const worldPicks = previewPicks.get(worldOffset)!;
+        worldPicks[level] = [...(worldPicks[level] || [])];
+        if (!worldPicks[level].includes("GAMBLE")) {
+          worldPicks[level].push("GAMBLE");
+        }
+
+        const previewRows = infoProvider.providers.perk.provide(
+          previewPicks,
+          undefined,
+          true,
+          worldOffset,
+          infoProvider.config.perkRerolls,
+          nightmarePerks,
+          initialPerkIndex,
+        );
+        const previewRow = previewRows[level] || [];
+        return previewRow.slice(-2);
+      });
+    });
+  }, [
+    advanced,
+    displayedPerks,
+    pickedPerks,
+    rowCount,
+    perkStack,
+    infoProvider,
+    worldOffset,
+    nightmarePerks,
+    initialPerkIndex,
+  ]);
 
   const handleOpenShopInfo = (level: number) => {
     setShopSelected(level);
@@ -905,16 +1079,25 @@ const HolyMountain = (props: IHolyMountainProps) => {
         isPerkFavorite={isFavorite}
         lotteries={lotteries}
       />
-      {entrancePerks && entrancePerks.length > 0 && (
+      {entranceDisplayPerks.length > 0 && (
         <div className="my-2 p-2 border rounded">
           <div className="fw-bold mb-1">入口天赋（噩梦模式）</div>
           <Stack direction="horizontal" className="justify-content-center" gap={3}>
-            {entrancePerks.map((perk, i) => (
-              <Perk key={perk.id + i} perk={perk} />
+            {entranceDisplayPerks.map(({ perk, alwaysCast, gamblePerks }, i) => (
+              <div key={perk.id + i} className="d-flex align-items-center gap-2">
+                <div className="position-relative">
+                <Perk perk={perk} alwaysCast={alwaysCast} />
+                  <GamblePerkPreview perks={gamblePerks} />
+                </div>
+              </div>
             ))}
           </Stack>
         </div>
       )}
+      <div className="my-2 px-2 text-muted small">
+        <code>GAMBLE</code> 说明：如果拾取该天赋，会额外消耗圣山后续 2 个天赋，因此后续天赋序列会整体前移。
+        这里会展示 <code>GAMBLE</code> 本身将给出的 2 个天赋，但不推算它对后续圣山天赋序列的整体前移。
+      </div>
       {entranceWands && entranceWands.length > 0 && (
         <div className="my-2 p-2 border rounded">
           <div className="fw-bold mb-1">入口法杖（噩梦模式）</div>
@@ -942,10 +1125,12 @@ const HolyMountain = (props: IHolyMountainProps) => {
               return (
                 <PerkRow
                   key={level}
+                  level={level}
                   advanced={advanced}
                   pickedPerks={pickedPerks[level]}
                   perkRerolls={perkRerolls[level]}
                   perks={row}
+                  gamblePreviewPerks={gamblePreviewPerksByRow[level]}
                   shop={displayedShop[level]}
                   rerollsToFavorite={rerollsToFavorite}
                   favoritesInNextReroll={favoritesInNextReroll}
