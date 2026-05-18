@@ -31,11 +31,11 @@ const Multithread = () => {
     <ConfigRow
       left={
         <>
-          <strong className="">多线程限制</strong>
+          <strong>多线程限制</strong>
           <p className="text-muted fw-light mb-0">
-            默认值改为可用核心数的一半，至少为 1，避免一开启多线程就直接占满 CPU。
+            默认值改为可用核心数的一半，不足 1 视为 1，避免一开启多线程就直接占满 CPU。
             <br />
-            搜索页也可以直接调核心数，这里保留全局上限设置。
+            搜索页也可以直接调核心数，这里保留全局上限设置。当前最大核心数：{maxConcurrency}。
           </p>
         </>
       }

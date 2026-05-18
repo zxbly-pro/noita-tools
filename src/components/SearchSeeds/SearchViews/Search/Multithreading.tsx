@@ -60,7 +60,7 @@ const Multithreading = () => {
             disabled={disabled}
             variant={normalizedUseCores > 1 ? "outline-success" : "outline-secondary"}
           >
-            多线程 {normalizedUseCores > 1 ? `开启 (x${normalizedUseCores})` : "关闭"}
+            {`多线程 ${normalizedUseCores > 1 ? `开启 (x${normalizedUseCores})` : "关闭"}`}
           </Button>
           <ButtonGroup size="sm">
             <Button
@@ -71,7 +71,7 @@ const Multithreading = () => {
               -
             </Button>
             <Button variant="outline-primary" disabled>
-              核心数 {normalizedConcurrency}
+              {`核心数 ${normalizedConcurrency}`}
             </Button>
             <Button
               variant="outline-secondary"
@@ -85,7 +85,7 @@ const Multithreading = () => {
       </Row>
       <Row className="mx-3 mb-3">
         <Form.Text className="text-muted">
-          默认使用可用核心数的一半；这里调整的是多线程开启时使用的核心数上限，设置页中的滑块仍然保留。
+          {`默认使用可用核心数的一半，不足 1 按 1 处理；这里调整的是多线程开启时使用的核心数上限，设置页中的滑块仍然保留。当前最大核心数：${maxHardwareConcurrency}。`}
         </Form.Text>
       </Row>
     </Col>

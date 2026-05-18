@@ -1,22 +1,22 @@
-import { RuleType } from "../../services/SeedInfo/infoHandler/IRule";
+import { FC } from "react";
 
+import { RuleType } from "../../services/SeedInfo/infoHandler/IRule";
+import { getHolyMountainRowCount } from "../../services/SeedInfo/infoHandler/InfoProviders/holyMountainLocations";
 import Alchemy from "./SearchViews/Alchemy";
 import Biomes from "./SearchViews/Biomes";
-import Shop from "./SearchViews/Shop";
-import StartingFlask from "./SearchViews/StartingFlask";
-import StartingSpell from "./SearchViews/StartingSpell";
-import StartingBombSpell from "./SearchViews/StartingBomb";
-import Weather from "./SearchViews/Weather";
-import Perks from "./SearchViews/Perks";
 import EntranceWand from "./SearchViews/EntranceWand";
 import FungalShifts from "./SearchViews/FungalShifts";
 import MapSearch from "./SearchViews/Map";
+import PacifistChest from "./SearchViews/PacifistChest";
+import Perks from "./SearchViews/Perks";
 import Search from "./SearchViews/Search";
-import { FC } from "react";
+import Shop from "./SearchViews/Shop";
+import StartingBombSpell from "./SearchViews/StartingBomb";
+import StartingFlask from "./SearchViews/StartingFlask";
+import StartingSpell from "./SearchViews/StartingSpell";
+import Weather from "./SearchViews/Weather";
 import { useSearchContext } from "./SearchContext";
 import { getTreeTools } from "./node";
-import PacifistChest from "./SearchViews/PacifistChest";
-import { getHolyMountainRowCount } from "../../services/SeedInfo/infoHandler/InfoProviders/holyMountainLocations";
 
 const treeTools = getTreeTools("id", "rules");
 const createHolyMountainRows = <T,>(count: number, factory: () => T) => Array.from({ length: count }, factory);
