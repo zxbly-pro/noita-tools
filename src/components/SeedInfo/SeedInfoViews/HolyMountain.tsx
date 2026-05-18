@@ -66,13 +66,12 @@ const keepOnlyMainWorld = <T,>(source?: Map<number, T>, clone?: (value: T) => T)
 };
 
 interface IGamblePerkPreviewProps {
-  perks?: { perk: IPerk; alwaysCast?: string }[];
+  perks?: { perk: IPerk }[];
 }
 const GamblePerkPreview: FC<IGamblePerkPreviewProps> = ({ perks }) => {
   if (!perks?.length) {
     return null;
   }
-  const alwaysCastSpells = perks.map(perk => perk.alwaysCast).filter(Boolean) as string[];
 
   return (
     <div
@@ -86,27 +85,6 @@ const GamblePerkPreview: FC<IGamblePerkPreviewProps> = ({ perks }) => {
         overflow: "visible",
       }}
     >
-      {!!alwaysCastSpells.length && (
-        <div
-          className="position-absolute top-50"
-          style={{
-            right: "100%",
-            transform: "translate(0.3rem, -30%)",
-          }}
-        >
-          <div className="d-flex flex-column align-items-center" style={{ gap: "0.12rem" }}>
-            {alwaysCastSpells.map((spellId, index) => (
-              <Entity
-                key={`${spellId}-${index}`}
-                id="Spell"
-                entityParams={{ extra: spellId }}
-                width="0.9rem"
-                height="0.9rem"
-              />
-            ))}
-          </div>
-        </div>
-      )}
       <div className="position-relative" style={{ width: "1.35rem", height: "2.2rem" }}>
         <div className="position-absolute top-0 start-0">
           <Perk width="1.35rem" perk={perks[0].perk} />
@@ -346,15 +324,6 @@ const PerkRow: FC<IPerkRowProps> = props => {
                   : undefined;
               const previewPerkEntries = previewPerks?.map((previewPerk, previewIndex) => ({
                 perk: previewPerk,
-                alwaysCast:
-                  previewPerk.id === "ALWAYS_CAST"
-                    ? infoProvider.providers.alwaysCast.provide(
-                        level,
-                        perksToShow.length + previewIndex,
-                        perksToShow.length + previewPerks.length,
-                        0,
-                      ) ?? undefined
-                    : undefined,
               }));
               const alwaysCast =
                 perk.id === "ALWAYS_CAST" || (rowHasAlwaysCast && showAllAlwaysCast)
@@ -889,6 +858,7 @@ interface IHolyMountainProps {
 
 const HolyMountain = (props: IHolyMountainProps) => {
   const { infoProvider, perkDeck, entrancePerks, entrancePerkPreview, entranceWands } = props;
+  const [tMaterials] = useTranslation("materials");
 
   const { advanced, setAdvanced, perkMethods, perkData } = useContext(HolyMountainContext);
   const {
@@ -940,17 +910,8 @@ const HolyMountain = (props: IHolyMountainProps) => {
             ) ?? undefined
           : undefined;
       const gamblePerks = preview?.gamblePerkIds?.length
-        ? infoProvider.providers.perk.hydrate([preview.gamblePerkIds])[0].map((gamblePerk, gambleIndex) => ({
+        ? infoProvider.providers.perk.hydrate([preview.gamblePerkIds])[0].map(gamblePerk => ({
             perk: gamblePerk,
-            alwaysCast:
-              gamblePerk.id === "ALWAYS_CAST"
-                ? infoProvider.providers.alwaysCast.providePos(
-                    NIGHTMARE_ENTRANCE_PERK_SPAWN_X +
-                      (NIGHTMARE_ENTRANCE_PERK_COUNT + gambleIndex + 0.5) *
-                        (NIGHTMARE_ENTRANCE_PERK_WIDTH / (NIGHTMARE_ENTRANCE_PERK_COUNT + 2)),
-                    NIGHTMARE_ENTRANCE_PERK_SPAWN_Y,
-                  ) ?? undefined
-                : undefined,
           }))
         : undefined;
 
@@ -1095,8 +1056,10 @@ const HolyMountain = (props: IHolyMountainProps) => {
         </div>
       )}
       <div className="my-2 px-2 text-muted small">
-        <code>GAMBLE</code> 说明：如果拾取该天赋，会额外消耗圣山后续 2 个天赋，因此后续天赋序列会整体前移。
-        这里会展示 <code>GAMBLE</code> 本身将给出的 2 个天赋，但不推算它对后续圣山天赋序列的整体前移。
+        <code>{tMaterials("$perk_gamble")}</code>
+        说明：如果拾取该天赋，会额外消耗圣山后续 2 个天赋，因此后续天赋序列会整体前移。
+        这里会展示 <code>{tMaterials("$perk_gamble")}</code> 本身将给出的 2 个天赋，但不推算它对后续圣山天赋序列的整体前移。
+        若这 2 个天赋里出现 <code>{tMaterials("$perk_always_cast")}</code>，其法术结果会受实际拾取位置影响，因此这里不显示该法术预览。
       </div>
       {entranceWands && entranceWands.length > 0 && (
         <div className="my-2 p-2 border rounded">
